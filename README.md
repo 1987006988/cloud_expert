@@ -33,6 +33,9 @@ sales claims.
 Remediation Stage 1 establishes the Git delivery baseline, rebuilds the default
 SQLite database to current Alembic head, restores the Week 6 evidence chain,
 and records validation reports under `reports/remediation/stage1/`.
+It is a partial-complete checkpoint; `WEEK7_GATE=NO-GO` until PostgreSQL live
+validation, coverage, and Stage 2 governance items are closed or explicitly
+waived.
 
 ## Local Setup
 

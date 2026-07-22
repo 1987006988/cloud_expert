@@ -2,10 +2,13 @@
 
 ## Current Phase
 
-Remediation Stage 1 is complete after the Week 1-6 independent audit. The
-project now has a Git delivery baseline, a rebuilt default SQLite database at
-current Alembic head, a restored Week 6 evidence chain, and Stage 1 validation
-reports. Week 6 remains the latest product-data feature scope.
+Remediation Stage 1 is partially complete after the Week 1-6 independent audit.
+The project now has a Git delivery baseline, a rebuilt default SQLite database
+at current Alembic head, a restored Week 6 evidence chain, and Stage 1
+validation reports. The stable Stage 1 checkpoint is commit `fa75ded`, but
+Week 7 remains gated.
+
+`WEEK7_GATE=NO-GO`
 
 Current data model version:
 
@@ -121,9 +124,11 @@ Latest Stage 1 checks executed on Python 3.12.13 from `.venv312`.
 - Comparability assessments are readiness records only and must not be used as
   sales claims, competitive conclusions, product mappings, or pricing guidance.
 
-## Next Week Recommendation
+## Next Step Recommendation
 
-Week 7 should either resolve human review queues and service-tier scope gaps, or
-design a reviewed product-mapping policy. Pricing/TCO, RAG, frontend, LLM calls,
-competitive scoring, and sales scripts should remain out of scope until
-explicitly approved.
+Do not start Week 7 product mapping yet. First close
+`R011_postgresql_migration_validation`, then run Remediation Stage 2 for
+Canonical schema/enums, qualifier and scope rules, ComparabilityAssessment,
+Field Matrix status columns, coverage uplift, and ReviewItem governance.
+Pricing/TCO, RAG, frontend, LLM calls, competitive scoring, and sales scripts
+remain out of scope until explicitly approved.

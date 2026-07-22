@@ -2,10 +2,13 @@
 
 ## Summary
 
-Completed Remediation Stage 1 after the Week 1-6 independent audit. The
-repository now has a Git delivery baseline, a rebuilt default SQLite database at
-Alembic head, restored Week 6 evidence provenance, Stage 1 validation scripts,
-reports, and updated governance documents.
+Remediation Stage 1 is partially complete after the Week 1-6 independent audit.
+The repository now has a Git delivery baseline, a rebuilt default SQLite
+database at Alembic head, restored Week 6 evidence provenance, Stage 1
+validation scripts, reports, and updated governance documents. The stable
+checkpoint is commit `fa75ded`.
+
+`WEEK7_GATE=NO-GO`
 
 No new cloud providers, pricing ingestion, TCO, RAG, embeddings, LLM logic,
 frontend, sales scripts, competitive scoring, customer data, console/session
@@ -104,6 +107,8 @@ Week 6 combined projection result:
 
 - PostgreSQL live migration validation remains open until Docker is available.
 - Coverage is 79%, below the 85% backlog target.
+- Stage 2 Canonical schema/enums, qualifier/scope, ComparabilityAssessment,
+  Field Matrix, and ReviewItem governance remain open.
 - Prior human review queues remain open.
 - Object storage service-tier scope needs a direct key in future schema or
   parser output before final service-tier comparison.
@@ -116,4 +121,4 @@ Start from `docs/CANONICAL_DATA_MODEL.md`,
 `reports/normalization/normalization_quality_report.json`, and
 `reports/remediation/stage1/00_summary.md`. Do not turn readiness
 assessments into customer-facing product comparisons until human review,
-scope policy, and mapping policy are approved.
+scope policy, PostgreSQL validation, coverage, and mapping policy are approved.

@@ -1,6 +1,16 @@
 {
   "stage": "remediation_stage1",
+  "status": "partial_complete",
   "date": "2026-07-22",
+  "stable_checkpoint_commit": "fa75ded",
+  "week7_gate": {
+    "status": "NO-GO",
+    "reasons": [
+      "R011_postgresql_migration_validation is still open",
+      "coverage is 79%, below the 85% gate",
+      "Stage 2 canonical, comparability, field matrix, and review governance items remain open"
+    ]
+  },
   "completed_items": [
     "R001_git_provenance_baseline",
     "R002_default_database_rebuild",
@@ -56,6 +66,15 @@
   "postgresql": {
     "docker_compose_config": "passed",
     "live_validation": "blocked",
-    "blocker": "Docker daemon is not running; //./pipe/docker_engine is missing"
+    "blocker": "Docker daemon is not running; //./pipe/docker_engine is missing",
+    "required_next_sequence": [
+      "start Docker Desktop",
+      "start PostgreSQL container",
+      "fresh migration",
+      "downgrade -1",
+      "upgrade head",
+      "PostgreSQL integration tests",
+      "check enum, numeric, foreign key, unique constraint, and timezone behavior"
+    ]
   }
 }

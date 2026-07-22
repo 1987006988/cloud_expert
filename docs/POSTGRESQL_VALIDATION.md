@@ -48,5 +48,17 @@ $env:DATABASE_URL = "postgresql+psycopg://cloud_expert:cloud_expert_password@loc
 .\.venv312\Scripts\python.exe -m alembic upgrade head
 ```
 
+Stage 1 closeout requires this sequence before Week 7 can be reconsidered:
+
+```text
+start Docker Desktop
+start PostgreSQL container
+fresh migration
+downgrade -1
+upgrade head
+PostgreSQL integration tests
+check enum, numeric, foreign key, unique constraint, and timezone behavior
+```
+
 Backlog item `R011_postgresql_migration_validation` remains open until those
 commands run successfully against a live PostgreSQL instance.

@@ -1,6 +1,10 @@
-# Completed Task: Remediation Stage 1
+# Completed Subtasks: Remediation Stage 1 Stable Checkpoint
 
 Date: 2026-07-22
+
+Stage verdict: **partial complete**.
+
+`WEEK7_GATE=NO-GO`
 
 Completed:
 
@@ -10,8 +14,8 @@ Completed:
   product shape, SLA, partition, region, and availability entities.
 - Normalized evidence chain validated through raw files and manifests.
 - Stage 1 reports written under `reports/remediation/stage1/`.
-- Quality gates passed except PostgreSQL live validation, which is environment
-  blocked.
+- Quality gates passed except PostgreSQL live validation and the 85% coverage
+  threshold.
 
 Remaining:
 
