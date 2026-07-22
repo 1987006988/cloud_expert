@@ -163,7 +163,10 @@ def normalize_specifications(
     mapping_by_field = legacy_mapping_by_source_field()
     statement = (
         select(ProductSpecification, SpecificationDefinition, Product, Provider)
-        .join(SpecificationDefinition, ProductSpecification.definition_id == SpecificationDefinition.id)
+        .join(
+            SpecificationDefinition,
+            ProductSpecification.definition_id == SpecificationDefinition.id,
+        )
         .join(Product, ProductSpecification.product_id == Product.id)
         .join(Provider, Product.provider_id == Provider.id)
         .order_by(ProductSpecification.id)
@@ -316,7 +319,9 @@ def _assess_product_pair(
         ).all()
     )
     for canonical_field in fields:
-        qualifiers = _observed_qualifiers(session, canonical_field.id, source_product.id, target_product.id)
+        qualifiers = _observed_qualifiers(
+            session, canonical_field.id, source_product.id, target_product.id
+        )
         if not qualifiers:
             qualifiers = {canonical_field.default_qualifier}
         for qualifier in sorted(qualifiers):
@@ -425,7 +430,9 @@ def _infer_scope(
 ) -> tuple[str, str]:
     if spec.sku_id is not None:
         sku = session.get(SKU, spec.sku_id)
-        return SpecificationScopeType.SKU.value, sku.provider_sku_code if sku is not None else str(spec.sku_id)
+        return SpecificationScopeType.SKU.value, sku.provider_sku_code if sku is not None else str(
+            spec.sku_id
+        )
     candidate = session.scalar(
         select(ParsedFieldCandidate)
         .where(

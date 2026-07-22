@@ -249,7 +249,11 @@ def _storage_class_fields(
         )
     for field_code, keyword, rule in (
         ("object_storage.durability_percentage", "持久性", "aliyun.oss.storage_class.durability"),
-        ("object_storage.availability_percentage", "可用性", "aliyun.oss.storage_class.availability"),
+        (
+            "object_storage.availability_percentage",
+            "可用性",
+            "aliyun.oss.storage_class.availability",
+        ),
     ):
         percent = _percentage_near(excerpt, keyword)
         if percent is None:
@@ -281,12 +285,37 @@ def _capability_records(
     rules = (
         ("lifecycle", "object_storage.lifecycle_management_supported", "生命周期", "Lifecycle"),
         ("versioning", "object_storage.versioning_supported", "版本控制", "Versioning"),
-        ("replication", "object_storage.cross_region_replication_supported", "跨区域复制", "Replication"),
-        ("encryption", "object_storage.server_side_encryption_supported", "服务端加密", "Encryption"),
+        (
+            "replication",
+            "object_storage.cross_region_replication_supported",
+            "跨区域复制",
+            "Replication",
+        ),
+        (
+            "encryption",
+            "object_storage.server_side_encryption_supported",
+            "服务端加密",
+            "Encryption",
+        ),
         ("worm", "object_storage.object_lock_supported", "保留策略", "WORM"),
-        ("static_website", "object_storage.static_website_hosting_supported", "静态网站", "Static website"),
-        ("access_network", "object_storage.transfer_acceleration_supported", "传输加速", "Transfer acceleration"),
-        ("access_network", "object_storage.dual_stack_endpoint_supported", "双栈", "Dual-stack endpoint"),
+        (
+            "static_website",
+            "object_storage.static_website_hosting_supported",
+            "静态网站",
+            "Static website",
+        ),
+        (
+            "access_network",
+            "object_storage.transfer_acceleration_supported",
+            "传输加速",
+            "Transfer acceleration",
+        ),
+        (
+            "access_network",
+            "object_storage.dual_stack_endpoint_supported",
+            "双栈",
+            "Dual-stack endpoint",
+        ),
     )
     fields: list[FieldCandidate] = []
     for source_token, field_code, keyword, title in rules:
@@ -365,7 +394,9 @@ def _region_records(
             name = _cell(row, header_map.get("region_name")) or region_code
             excerpt = " | ".join(row)
             locator = f"{table.locator}:row[{row_index}]"
-            records.append(_region_record(source_id, snapshot_id, region_code, name, locator, excerpt))
+            records.append(
+                _region_record(source_id, snapshot_id, region_code, name, locator, excerpt)
+            )
     if records:
         return records
     return _region_records_from_text(document, source_id, snapshot_id)
@@ -387,7 +418,9 @@ def _region_records_from_text(
         excerpt = text[max(match.start() - 120, 0) : match.start() + 500]
         region_name = _region_name_from_excerpt(excerpt, region_code) or region_code
         locator = f"html:text:oss_region[{len(seen)}]"
-        records.append(_region_record(source_id, snapshot_id, region_code, region_name, locator, excerpt))
+        records.append(
+            _region_record(source_id, snapshot_id, region_code, region_name, locator, excerpt)
+        )
     return records
 
 
@@ -531,7 +564,9 @@ def _minimum_days(text: str) -> tuple[str, int] | None:
 
 
 def _retrieval_text(text: str) -> str | None:
-    match = re.search(r"(实时访问|解冻[^。；;]{0,80}|归档直读[^。；;]{0,80}|12/48\s*小时|1\s*~\s*12\s*小时)", text)
+    match = re.search(
+        r"(实时访问|解冻[^。；;]{0,80}|归档直读[^。；;]{0,80}|12/48\s*小时|1\s*~\s*12\s*小时)", text
+    )
     return match.group(0) if match else None
 
 

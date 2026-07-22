@@ -1,0 +1,5918 @@
+{
+  "database_url": "sqlite:///D:/cloud_expert/cloud_expert_dev.sqlite",
+  "alembic_versions": [
+    "0006_week06_canonical_normalization"
+  ],
+  "tables": {
+    "alembic_version": {
+      "columns": [
+        {
+          "name": "version_num",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "version_num"
+        ],
+        "name": "alembic_version_pkc"
+      },
+      "foreign_keys": [],
+      "unique_constraints": [],
+      "indexes": []
+    },
+    "availability": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "region_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "availability_status",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "public_preview",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "generally_available",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "available_since",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "unavailable_since",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "last_verified_at",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "cloud_partition_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "target_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": "'product'",
+          "primary_key": false
+        },
+        {
+          "name": "target_code",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": "'product'",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_availability"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_availability_product_id_product",
+          "constrained_columns": [
+            "product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_availability_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_availability_region_id_region",
+          "constrained_columns": [
+            "region_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "region",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_availability_cloud_partition_id_cloud_partition",
+          "constrained_columns": [
+            "cloud_partition_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "cloud_partition",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_availability_product_region_target",
+          "column_names": [
+            "product_id",
+            "region_id",
+            "target_type",
+            "target_code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_availability_cloud_partition_id",
+          "column_names": [
+            "cloud_partition_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_availability_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_availability_product_id",
+          "column_names": [
+            "product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_availability_region_id",
+          "column_names": [
+            "region_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "availability_zone": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "provider_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "region_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "cloud_partition_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "zone_code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "zone_name",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "market_mode",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_availability_zone"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_availability_zone_cloud_partition_id_cloud_partition",
+          "constrained_columns": [
+            "cloud_partition_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "cloud_partition",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_availability_zone_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_availability_zone_provider_id_provider",
+          "constrained_columns": [
+            "provider_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "provider",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_availability_zone_region_id_region",
+          "constrained_columns": [
+            "region_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "region",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_zone_provider_code",
+          "column_names": [
+            "provider_id",
+            "zone_code"
+          ]
+        },
+        {
+          "name": "uq_zone_region_code",
+          "column_names": [
+            "region_id",
+            "zone_code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_availability_zone_cloud_partition_id",
+          "column_names": [
+            "cloud_partition_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_availability_zone_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_availability_zone_provider_id",
+          "column_names": [
+            "provider_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_availability_zone_region_id",
+          "column_names": [
+            "region_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "canonical_field_definition": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(160)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "domain",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "category_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "data_type",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "canonical_unit",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "unit_dimension",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "default_qualifier",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "default_scope_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "is_comparable",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "metadata_json",
+          "type": "JSON",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_canonical_field_definition"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_canonical_field_definition_category_id_product_category",
+          "constrained_columns": [
+            "category_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product_category",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_canonical_field_definition_code",
+          "column_names": [
+            "code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_canonical_field_definition_category_id",
+          "column_names": [
+            "category_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_canonical_field_definition_code",
+          "column_names": [
+            "code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_canonical_field_definition_domain",
+          "column_names": [
+            "domain"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "cloud_partition": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "provider_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "partition_code",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "partition_name",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "market_mode",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "geography_scope",
+          "type": "VARCHAR(256)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_cloud_partition"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_cloud_partition_provider_id_provider",
+          "constrained_columns": [
+            "provider_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "provider",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_cloud_partition_provider_code",
+          "column_names": [
+            "provider_id",
+            "partition_code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_cloud_partition_partition_code",
+          "column_names": [
+            "partition_code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_cloud_partition_provider_id",
+          "column_names": [
+            "provider_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "comparability_assessment": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "canonical_field_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "source_product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "target_product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "normalization_run_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "scope_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "value_qualifier",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "reason_code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "explanation",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "market_scope",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_coverage_score",
+          "type": "NUMERIC(5, 4)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "unit_compatibility_score",
+          "type": "NUMERIC(5, 4)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "qualifier_compatibility_score",
+          "type": "NUMERIC(5, 4)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "scope_compatibility_score",
+          "type": "NUMERIC(5, 4)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "overall_score",
+          "type": "NUMERIC(5, 4)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "review_status",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_comparability_assessment"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_comparability_assessment_canonical_field_id_canonical_field_definition",
+          "constrained_columns": [
+            "canonical_field_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "canonical_field_definition",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_comparability_assessment_normalization_run_id_normalization_run",
+          "constrained_columns": [
+            "normalization_run_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "normalization_run",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_comparability_assessment_source_product_id_product",
+          "constrained_columns": [
+            "source_product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_comparability_assessment_target_product_id_product",
+          "constrained_columns": [
+            "target_product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_comparability_assessment_identity",
+          "column_names": [
+            "canonical_field_id",
+            "source_product_id",
+            "target_product_id",
+            "scope_type",
+            "value_qualifier"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_comparability_assessment_canonical_field_id",
+          "column_names": [
+            "canonical_field_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_comparability_assessment_normalization_run_id",
+          "column_names": [
+            "normalization_run_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_comparability_assessment_source_product_id",
+          "column_names": [
+            "source_product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_comparability_assessment_target_product_id",
+          "column_names": [
+            "target_product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "competitive_claim": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "market_mode",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "source_product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "target_product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "scenario_code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "claim_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "claim_text",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "customer_value",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "applicable_conditions",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "limitations",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "confidence",
+          "type": "FLOAT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "review_status",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "valid_from",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "valid_to",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_competitive_claim"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_competitive_claim_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_competitive_claim_source_product_id_product",
+          "constrained_columns": [
+            "source_product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_competitive_claim_target_product_id_product",
+          "constrained_columns": [
+            "target_product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [],
+      "indexes": [
+        {
+          "name": "ix_competitive_claim_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_competitive_claim_source_product_id",
+          "column_names": [
+            "source_product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_competitive_claim_target_product_id",
+          "column_names": [
+            "target_product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "data_quality_issue": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "provider_code",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "product_code",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "issue_type",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "severity",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "message",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "field_code",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "parsing_run_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_data_quality_issue"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_data_quality_issue_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_data_quality_issue_parsing_run_id_parsing_run",
+          "constrained_columns": [
+            "parsing_run_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "parsing_run",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        }
+      ],
+      "unique_constraints": [],
+      "indexes": [
+        {
+          "name": "ix_data_quality_issue_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_data_quality_issue_parsing_run_id",
+          "column_names": [
+            "parsing_run_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_data_quality_issue_product_code",
+          "column_names": [
+            "product_code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_data_quality_issue_provider_code",
+          "column_names": [
+            "provider_code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "evaluation_case": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "case_code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "case_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "input_payload",
+          "type": "JSON",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "expected_behavior",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "expected_sources",
+          "type": "JSON",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "risk_level",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_evaluation_case"
+      },
+      "foreign_keys": [],
+      "unique_constraints": [
+        {
+          "name": "uq_evaluation_case_code",
+          "column_names": [
+            "case_code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_evaluation_case_case_code",
+          "column_names": [
+            "case_code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "evidence": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "source_document_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "section_title",
+          "type": "VARCHAR(256)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "locator",
+          "type": "VARCHAR(512)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "excerpt",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "confidence",
+          "type": "FLOAT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "review_status",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "reviewed_by",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "reviewed_at",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "page_title",
+          "type": "VARCHAR(256)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "snapshot_record_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "content_hash",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "parser_rule",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_evidence"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_evidence_source_document_id_source_document",
+          "constrained_columns": [
+            "source_document_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "source_document",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_evidence_snapshot_record_id_snapshot_record",
+          "constrained_columns": [
+            "snapshot_record_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "snapshot_record",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        }
+      ],
+      "unique_constraints": [],
+      "indexes": [
+        {
+          "name": "ix_evidence_snapshot_record_id",
+          "column_names": [
+            "snapshot_record_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_evidence_source_document_id",
+          "column_names": [
+            "source_document_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "ingestion_run": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "source_id",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "run_type",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "started_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "completed_at",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "requested_url",
+          "type": "VARCHAR(2048)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "final_url",
+          "type": "VARCHAR(2048)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "http_status",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "content_type",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "bytes_downloaded",
+          "type": "BIGINT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "retry_count",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "duration_ms",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "snapshot_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "error_code",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "error_message",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_ingestion_run"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_ingestion_run_snapshot_id_snapshot_record",
+          "constrained_columns": [
+            "snapshot_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "snapshot_record",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        }
+      ],
+      "unique_constraints": [],
+      "indexes": [
+        {
+          "name": "ix_ingestion_run_error_code",
+          "column_names": [
+            "error_code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_ingestion_run_snapshot_id",
+          "column_names": [
+            "snapshot_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_ingestion_run_source_id",
+          "column_names": [
+            "source_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_ingestion_run_status",
+          "column_names": [
+            "status"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "normalization_rule": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(160)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "version",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "rule_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "source_field_code",
+          "type": "VARCHAR(160)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "canonical_field_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "source_unit",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "canonical_unit",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "value_qualifier",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "scope_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "metadata_json",
+          "type": "JSON",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_normalization_rule"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_normalization_rule_canonical_field_id_canonical_field_definition",
+          "constrained_columns": [
+            "canonical_field_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "canonical_field_definition",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_normalization_rule_code_version",
+          "column_names": [
+            "code",
+            "version"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_normalization_rule_canonical_field_id",
+          "column_names": [
+            "canonical_field_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_normalization_rule_code",
+          "column_names": [
+            "code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_normalization_rule_source_field_code",
+          "column_names": [
+            "source_field_code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "normalization_run": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "run_key",
+          "type": "VARCHAR(160)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "source_database_label",
+          "type": "VARCHAR(256)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "product_filter",
+          "type": "VARCHAR(256)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "started_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "completed_at",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "records_examined",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "records_created",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "records_updated",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "records_skipped",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "review_items_created",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "error_message",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_normalization_run"
+      },
+      "foreign_keys": [],
+      "unique_constraints": [
+        {
+          "name": "uq_normalization_run_key",
+          "column_names": [
+            "run_key"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_normalization_run_run_key",
+          "column_names": [
+            "run_key"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "normalized_specification": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "product_specification_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "sku_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "canonical_field_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "normalization_rule_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "normalization_run_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "scope_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "scope_identity",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "value_qualifier",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "numeric_value",
+          "type": "NUMERIC(24, 8)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "text_value",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "boolean_value",
+          "type": "BOOLEAN",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "raw_value",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "raw_unit",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "canonical_value",
+          "type": "VARCHAR(256)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "canonical_unit",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "conversion_notes",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "quality_score",
+          "type": "NUMERIC(5, 4)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "review_status",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "source_value_hash",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_normalized_specification"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_normalized_specification_canonical_field_id_canonical_field_definition",
+          "constrained_columns": [
+            "canonical_field_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "canonical_field_definition",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_normalized_specification_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_normalized_specification_normalization_rule_id_normalization_rule",
+          "constrained_columns": [
+            "normalization_rule_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "normalization_rule",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_normalized_specification_normalization_run_id_normalization_run",
+          "constrained_columns": [
+            "normalization_run_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "normalization_run",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_normalized_specification_product_id_product",
+          "constrained_columns": [
+            "product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_normalized_specification_product_specification_id_product_specification",
+          "constrained_columns": [
+            "product_specification_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product_specification",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_normalized_specification_sku_id_sku",
+          "constrained_columns": [
+            "sku_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "sku",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_normalized_specification_identity",
+          "column_names": [
+            "product_specification_id",
+            "canonical_field_id",
+            "scope_type",
+            "scope_identity",
+            "value_qualifier"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_normalized_specification_canonical_field_id",
+          "column_names": [
+            "canonical_field_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_normalized_specification_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_normalized_specification_normalization_rule_id",
+          "column_names": [
+            "normalization_rule_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_normalized_specification_normalization_run_id",
+          "column_names": [
+            "normalization_run_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_normalized_specification_product_id",
+          "column_names": [
+            "product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_normalized_specification_product_specification_id",
+          "column_names": [
+            "product_specification_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_normalized_specification_sku_id",
+          "column_names": [
+            "sku_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_normalized_specification_source_value_hash",
+          "column_names": [
+            "source_value_hash"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "parsed_field_candidate": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "parsing_run_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "source_document_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "snapshot_record_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "target_table",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "target_identity",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "field_code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "raw_value",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "raw_unit",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "normalized_value",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "canonical_unit",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "locator",
+          "type": "VARCHAR(512)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "excerpt",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "confidence",
+          "type": "FLOAT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "review_status",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "parser_rule",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "value_hash",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_parsed_field_candidate"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_parsed_field_candidate_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_parsed_field_candidate_parsing_run_id_parsing_run",
+          "constrained_columns": [
+            "parsing_run_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "parsing_run",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_parsed_field_candidate_snapshot_record_id_snapshot_record",
+          "constrained_columns": [
+            "snapshot_record_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "snapshot_record",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_parsed_field_candidate_source_document_id_source_document",
+          "constrained_columns": [
+            "source_document_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "source_document",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_parsed_field_candidate_identity",
+          "column_names": [
+            "parsing_run_id",
+            "field_code",
+            "target_table",
+            "target_identity",
+            "value_hash"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_parsed_field_candidate_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_parsed_field_candidate_parsing_run_id",
+          "column_names": [
+            "parsing_run_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_parsed_field_candidate_snapshot_record_id",
+          "column_names": [
+            "snapshot_record_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_parsed_field_candidate_source_document_id",
+          "column_names": [
+            "source_document_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "parsing_run": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "source_id",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "snapshot_record_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "source_document_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "parser_name",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "parser_version",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "started_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "completed_at",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "records_found",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "fields_found",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_created",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "review_items_created",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "error_message",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_parsing_run"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_parsing_run_snapshot_record_id_snapshot_record",
+          "constrained_columns": [
+            "snapshot_record_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "snapshot_record",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_parsing_run_source_document_id_source_document",
+          "constrained_columns": [
+            "source_document_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "source_document",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        }
+      ],
+      "unique_constraints": [],
+      "indexes": [
+        {
+          "name": "ix_parsing_run_snapshot_record_id",
+          "column_names": [
+            "snapshot_record_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_parsing_run_source_document_id",
+          "column_names": [
+            "source_document_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_parsing_run_source_id",
+          "column_names": [
+            "source_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "price_sku": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "provider_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "sku_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "region_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "provider_price_code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "charge_category",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "billing_mode",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "billing_unit",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "currency",
+          "type": "VARCHAR(3)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "tax_included",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_price_sku"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_price_sku_product_id_product",
+          "constrained_columns": [
+            "product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_price_sku_provider_id_provider",
+          "constrained_columns": [
+            "provider_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "provider",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_price_sku_region_id_region",
+          "constrained_columns": [
+            "region_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "region",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_price_sku_sku_id_sku",
+          "constrained_columns": [
+            "sku_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "sku",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_price_sku_provider_code",
+          "column_names": [
+            "provider_id",
+            "provider_price_code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_price_sku_product_id",
+          "column_names": [
+            "product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_price_sku_provider_id",
+          "column_names": [
+            "provider_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_price_sku_region_id",
+          "column_names": [
+            "region_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_price_sku_sku_id",
+          "column_names": [
+            "sku_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "price_snapshot": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "price_sku_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "unit_price",
+          "type": "NUMERIC(24, 8)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "minimum_quantity",
+          "type": "NUMERIC(24, 8)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "maximum_quantity",
+          "type": "NUMERIC(24, 8)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "billing_period",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "discount_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "captured_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "effective_from",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "effective_to",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "source_payload_path",
+          "type": "VARCHAR(1024)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_price_snapshot"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_price_snapshot_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_price_snapshot_price_sku_id_price_sku",
+          "constrained_columns": [
+            "price_sku_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "price_sku",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [],
+      "indexes": [
+        {
+          "name": "ix_price_snapshot_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_price_snapshot_price_sku_id",
+          "column_names": [
+            "price_sku_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "product": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "provider_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "category_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "market_mode",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "official_name",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "display_name",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "product_status",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "official_url",
+          "type": "VARCHAR(512)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "documentation_url",
+          "type": "VARCHAR(512)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "first_seen_at",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "last_verified_at",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "metadata_json",
+          "type": "JSON",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_product"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_product_category_id_product_category",
+          "constrained_columns": [
+            "category_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product_category",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_product_provider_id_provider",
+          "constrained_columns": [
+            "provider_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "provider",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_product_provider_code",
+          "column_names": [
+            "provider_id",
+            "code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_product_category_id",
+          "column_names": [
+            "category_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_product_provider_id",
+          "column_names": [
+            "provider_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "product_alias": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "alias",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "alias_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "language",
+          "type": "VARCHAR(16)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "is_official",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_product_alias"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_product_alias_product_id_product",
+          "constrained_columns": [
+            "product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_product_alias_identity",
+          "column_names": [
+            "product_id",
+            "alias",
+            "alias_type",
+            "language"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_product_alias_product_id",
+          "column_names": [
+            "product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "product_category": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "parent_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_product_category"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_product_category_parent_id_product_category",
+          "constrained_columns": [
+            "parent_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product_category",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_product_category_code",
+          "column_names": [
+            "code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_product_category_code",
+          "column_names": [
+            "code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "product_family": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "family_code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "family_name",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "family_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "workload_type",
+          "type": "VARCHAR(256)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "architecture",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "processor_vendor",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "processor_model_raw",
+          "type": "VARCHAR(256)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "generation",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "review_status",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "metadata_json",
+          "type": "JSON",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_product_family"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_product_family_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_product_family_product_id_product",
+          "constrained_columns": [
+            "product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_product_family_code",
+          "column_names": [
+            "product_id",
+            "family_code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_product_family_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_product_family_product_id",
+          "column_names": [
+            "product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "product_mapping": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "source_product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "target_product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "source_sku_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "target_sku_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "mapping_level",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "mapping_status",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "scenario_code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "rationale",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "review_status",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "reviewed_at",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_product_mapping"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_product_mapping_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_product_mapping_source_product_id_product",
+          "constrained_columns": [
+            "source_product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_product_mapping_source_sku_id_sku",
+          "constrained_columns": [
+            "source_sku_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "sku",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_product_mapping_target_product_id_product",
+          "constrained_columns": [
+            "target_product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_product_mapping_target_sku_id_sku",
+          "constrained_columns": [
+            "target_sku_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "sku",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [],
+      "indexes": [
+        {
+          "name": "ix_product_mapping_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_product_mapping_source_product_id",
+          "column_names": [
+            "source_product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_product_mapping_source_sku_id",
+          "column_names": [
+            "source_sku_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_product_mapping_target_product_id",
+          "column_names": [
+            "target_product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_product_mapping_target_sku_id",
+          "column_names": [
+            "target_sku_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "product_sla": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "record_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "metric_name",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "scope",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "raw_value",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "normalized_percentage",
+          "type": "NUMERIC(18, 12)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "effective_notes",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "review_status",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "valid_from",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "valid_to",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_product_sla"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_product_sla_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_product_sla_product_id_product",
+          "constrained_columns": [
+            "product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_product_sla_evidence_value",
+          "column_names": [
+            "product_id",
+            "record_type",
+            "scope",
+            "raw_value",
+            "evidence_id"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_product_sla_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_product_sla_product_id",
+          "column_names": [
+            "product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "product_specification": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "sku_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "definition_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "numeric_value",
+          "type": "NUMERIC(24, 8)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "text_value",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "boolean_value",
+          "type": "BOOLEAN",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "raw_value",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "raw_unit",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "canonical_value",
+          "type": "VARCHAR(256)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "canonical_unit",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "valid_from",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "valid_to",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "last_verified_at",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_product_specification"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_product_specification_definition_id_specification_definition",
+          "constrained_columns": [
+            "definition_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "specification_definition",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_product_specification_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_product_specification_product_id_product",
+          "constrained_columns": [
+            "product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_product_specification_sku_id_sku",
+          "constrained_columns": [
+            "sku_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "sku",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [],
+      "indexes": [
+        {
+          "name": "ix_product_specification_definition_id",
+          "column_names": [
+            "definition_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_product_specification_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_product_specification_product_id",
+          "column_names": [
+            "product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_product_specification_sku_id",
+          "column_names": [
+            "sku_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "provider": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "display_name",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "provider_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "official_website",
+          "type": "VARCHAR(512)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_provider"
+      },
+      "foreign_keys": [],
+      "unique_constraints": [
+        {
+          "name": "uq_provider_code",
+          "column_names": [
+            "code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_provider_code",
+          "column_names": [
+            "code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "region": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "provider_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "country_code",
+          "type": "VARCHAR(2)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "geography",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "market_mode",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "cloud_partition_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_region"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_region_provider_id_provider",
+          "constrained_columns": [
+            "provider_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "provider",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_region_cloud_partition_id_cloud_partition",
+          "constrained_columns": [
+            "cloud_partition_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "cloud_partition",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_region_provider_code",
+          "column_names": [
+            "provider_id",
+            "code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_region_cloud_partition_id",
+          "column_names": [
+            "cloud_partition_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_region_provider_id",
+          "column_names": [
+            "provider_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "review_item": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "item_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "severity",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "provider_code",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "product_code",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "field_code",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "reason",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "raw_value",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "suggested_action",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "parsing_run_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "parsed_field_candidate_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "resolved_at",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "resolved_by",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_review_item"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_review_item_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_review_item_parsed_field_candidate_id_parsed_field_candidate",
+          "constrained_columns": [
+            "parsed_field_candidate_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "parsed_field_candidate",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_review_item_parsing_run_id_parsing_run",
+          "constrained_columns": [
+            "parsing_run_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "parsing_run",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        }
+      ],
+      "unique_constraints": [],
+      "indexes": [
+        {
+          "name": "ix_review_item_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_review_item_field_code",
+          "column_names": [
+            "field_code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_review_item_parsed_field_candidate_id",
+          "column_names": [
+            "parsed_field_candidate_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_review_item_parsing_run_id",
+          "column_names": [
+            "parsing_run_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_review_item_product_code",
+          "column_names": [
+            "product_code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_review_item_provider_code",
+          "column_names": [
+            "provider_code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "sales_scenario": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "market_mode",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "industry",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "country_code",
+          "type": "VARCHAR(2)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "default_weights_json",
+          "type": "JSON",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_sales_scenario"
+      },
+      "foreign_keys": [],
+      "unique_constraints": [
+        {
+          "name": "uq_sales_scenario_code",
+          "column_names": [
+            "code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_sales_scenario_code",
+          "column_names": [
+            "code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "service_tier": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "tier_code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "official_name",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "access_pattern",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "minimum_storage_duration_days",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "retrieval_characteristics",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "availability_design",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "durability_design",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "supported_region",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "review_status",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "metadata_json",
+          "type": "JSON",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_service_tier"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_service_tier_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_service_tier_product_id_product",
+          "constrained_columns": [
+            "product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_service_tier_product_code",
+          "column_names": [
+            "product_id",
+            "tier_code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_service_tier_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_service_tier_product_id",
+          "column_names": [
+            "product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "sku": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "provider_sku_code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "sku_family",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "architecture",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "operating_system",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_sku"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_sku_product_id_product",
+          "constrained_columns": [
+            "product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_sku_product_provider_code",
+          "column_names": [
+            "product_id",
+            "provider_sku_code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_sku_product_id",
+          "column_names": [
+            "product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "snapshot_record": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "source_document_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "source_id",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "content_hash",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "normalized_hash",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "normalization_version",
+          "type": "VARCHAR(32)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "storage_path",
+          "type": "VARCHAR(1024)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "manifest_path",
+          "type": "VARCHAR(1024)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "content_type",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "content_length_bytes",
+          "type": "BIGINT",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "captured_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "previous_snapshot_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "change_status",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "is_current",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_snapshot_record"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_snapshot_record_previous_snapshot_id_snapshot_record",
+          "constrained_columns": [
+            "previous_snapshot_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "snapshot_record",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_snapshot_record_source_document_id_source_document",
+          "constrained_columns": [
+            "source_document_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "source_document",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_snapshot_record_source_hash",
+          "column_names": [
+            "source_id",
+            "content_hash"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_snapshot_record_content_hash",
+          "column_names": [
+            "content_hash"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_snapshot_record_previous_snapshot_id",
+          "column_names": [
+            "previous_snapshot_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_snapshot_record_source_document_id",
+          "column_names": [
+            "source_document_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_snapshot_record_source_id",
+          "column_names": [
+            "source_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "source_document": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "provider_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "source_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "title",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "url",
+          "type": "VARCHAR(1024)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "language",
+          "type": "VARCHAR(16)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "authority_level",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "published_at",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "captured_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "content_hash",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "storage_path",
+          "type": "VARCHAR(1024)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "mime_type",
+          "type": "VARCHAR(128)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "http_status",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "is_current",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "cloud_partition",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_source_document"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_source_document_provider_id_provider",
+          "constrained_columns": [
+            "provider_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "provider",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_source_document_url_hash",
+          "column_names": [
+            "url",
+            "content_hash"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_source_document_provider_id",
+          "column_names": [
+            "provider_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "specification_definition": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "category_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "data_type",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "canonical_unit",
+          "type": "VARCHAR(64)",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "is_required",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_specification_definition"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_specification_definition_category_id_product_category",
+          "constrained_columns": [
+            "category_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product_category",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_specification_definition_code",
+          "column_names": [
+            "code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_specification_definition_category_id",
+          "column_names": [
+            "category_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_specification_definition_code",
+          "column_names": [
+            "code"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    },
+    "zone_availability": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": true
+        },
+        {
+          "name": "product_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "region_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "availability_zone_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "cloud_partition_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "target_type",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "target_code",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "availability_status",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "public_preview",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "generally_available",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "available_since",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "unavailable_since",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "last_verified_at",
+          "type": "DATETIME",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "evidence_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP",
+          "primary_key": false
+        }
+      ],
+      "primary_key": {
+        "constrained_columns": [
+          "id"
+        ],
+        "name": "pk_zone_availability"
+      },
+      "foreign_keys": [
+        {
+          "name": "fk_zone_availability_availability_zone_id_availability_zone",
+          "constrained_columns": [
+            "availability_zone_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "availability_zone",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_zone_availability_cloud_partition_id_cloud_partition",
+          "constrained_columns": [
+            "cloud_partition_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "cloud_partition",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_zone_availability_evidence_id_evidence",
+          "constrained_columns": [
+            "evidence_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "evidence",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "name": "fk_zone_availability_product_id_product",
+          "constrained_columns": [
+            "product_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "product",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        },
+        {
+          "name": "fk_zone_availability_region_id_region",
+          "constrained_columns": [
+            "region_id"
+          ],
+          "referred_schema": null,
+          "referred_table": "region",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "RESTRICT"
+          }
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_zone_availability_product_zone_target",
+          "column_names": [
+            "product_id",
+            "availability_zone_id",
+            "target_type",
+            "target_code"
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_zone_availability_availability_zone_id",
+          "column_names": [
+            "availability_zone_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_zone_availability_cloud_partition_id",
+          "column_names": [
+            "cloud_partition_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_zone_availability_evidence_id",
+          "column_names": [
+            "evidence_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_zone_availability_product_id",
+          "column_names": [
+            "product_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        },
+        {
+          "name": "ix_zone_availability_region_id",
+          "column_names": [
+            "region_id"
+          ],
+          "unique": 0,
+          "dialect_options": {}
+        }
+      ]
+    }
+  }
+}

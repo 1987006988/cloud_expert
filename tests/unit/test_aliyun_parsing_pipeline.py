@@ -245,16 +245,22 @@ def test_aliyun_pipeline_persists_domestic_ecs_oss_and_zone_data(session: Sessio
     assert session.query(ZoneAvailability).count() == 3
     assert session.query(ProductSLA).count() == 3
     assert count_missing_evidence_links(session) == 0
-    assert count_partition_region_violations(
-        session,
-        provider_code="aliyun",
-        partition_code="aliyun_public_cn",
-    ) == 0
-    assert count_partition_zone_violations(
-        session,
-        provider_code="aliyun",
-        partition_code="aliyun_public_cn",
-    ) == 0
+    assert (
+        count_partition_region_violations(
+            session,
+            provider_code="aliyun",
+            partition_code="aliyun_public_cn",
+        )
+        == 0
+    )
+    assert (
+        count_partition_zone_violations(
+            session,
+            provider_code="aliyun",
+            partition_code="aliyun_public_cn",
+        )
+        == 0
+    )
     assert ecs_report["zone_records"] == 3
     assert ecs_report["zone_availability_records"] == 3
     assert oss_report["service_tier_records"] == 5

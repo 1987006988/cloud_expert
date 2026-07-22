@@ -17,9 +17,7 @@ branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
 
-CANONICAL_DOMAINS = (
-    "'compute', 'object_storage', 'region', 'sla', 'product_metadata'"
-)
+CANONICAL_DOMAINS = "'compute', 'object_storage', 'region', 'sla', 'product_metadata'"
 DATA_TYPES = "'numeric', 'text', 'boolean', 'enum'"
 VALUE_QUALIFIERS = (
     "'exact', 'baseline', 'maximum', 'minimum', 'designed', 'supported', "
@@ -33,9 +31,7 @@ RULE_TYPES = (
     "'scope_inference', 'quality_scoring'"
 )
 RUN_STATUSES = "'succeeded', 'partial', 'failed'"
-REVIEW_STATUSES = (
-    "'machine_extracted', 'pending_review', 'human_reviewed', 'rejected', 'unknown'"
-)
+REVIEW_STATUSES = "'machine_extracted', 'pending_review', 'human_reviewed', 'rejected', 'unknown'"
 COMPARABILITY_STATUSES = "'comparable', 'partial', 'not_comparable', 'needs_review'"
 
 
@@ -62,8 +58,12 @@ def upgrade() -> None:
         sa.Column(
             "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
         ),
-        sa.CheckConstraint(f"domain IN ({CANONICAL_DOMAINS})", name="canonical_field_definition_domain"),
-        sa.CheckConstraint(f"data_type IN ({DATA_TYPES})", name="canonical_field_definition_data_type"),
+        sa.CheckConstraint(
+            f"domain IN ({CANONICAL_DOMAINS})", name="canonical_field_definition_domain"
+        ),
+        sa.CheckConstraint(
+            f"data_type IN ({DATA_TYPES})", name="canonical_field_definition_data_type"
+        ),
         sa.CheckConstraint(
             f"default_qualifier IN ({VALUE_QUALIFIERS})",
             name="canonical_field_definition_default_qualifier",
@@ -199,7 +199,9 @@ def upgrade() -> None:
             "CASE WHEN boolean_value IS NOT NULL THEN 1 ELSE 0 END) = 1",
             name="normalized_specification_exactly_one_value",
         ),
-        sa.CheckConstraint(f"scope_type IN ({SCOPE_TYPES})", name="normalized_specification_scope_type"),
+        sa.CheckConstraint(
+            f"scope_type IN ({SCOPE_TYPES})", name="normalized_specification_scope_type"
+        ),
         sa.CheckConstraint(
             f"value_qualifier IN ({VALUE_QUALIFIERS})",
             name="normalized_specification_value_qualifier",
@@ -212,12 +214,20 @@ def upgrade() -> None:
             "quality_score IS NULL OR (quality_score >= 0 AND quality_score <= 1)",
             name="normalized_specification_quality_score",
         ),
-        sa.ForeignKeyConstraint(["canonical_field_id"], ["canonical_field_definition.id"], ondelete="RESTRICT"),
+        sa.ForeignKeyConstraint(
+            ["canonical_field_id"], ["canonical_field_definition.id"], ondelete="RESTRICT"
+        ),
         sa.ForeignKeyConstraint(["evidence_id"], ["evidence.id"], ondelete="RESTRICT"),
-        sa.ForeignKeyConstraint(["normalization_rule_id"], ["normalization_rule.id"], ondelete="RESTRICT"),
-        sa.ForeignKeyConstraint(["normalization_run_id"], ["normalization_run.id"], ondelete="SET NULL"),
+        sa.ForeignKeyConstraint(
+            ["normalization_rule_id"], ["normalization_rule.id"], ondelete="RESTRICT"
+        ),
+        sa.ForeignKeyConstraint(
+            ["normalization_run_id"], ["normalization_run.id"], ondelete="SET NULL"
+        ),
         sa.ForeignKeyConstraint(["product_id"], ["product.id"], ondelete="RESTRICT"),
-        sa.ForeignKeyConstraint(["product_specification_id"], ["product_specification.id"], ondelete="RESTRICT"),
+        sa.ForeignKeyConstraint(
+            ["product_specification_id"], ["product_specification.id"], ondelete="RESTRICT"
+        ),
         sa.ForeignKeyConstraint(["sku_id"], ["sku.id"], ondelete="RESTRICT"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
@@ -234,7 +244,9 @@ def upgrade() -> None:
         "normalized_specification",
         ["canonical_field_id"],
     )
-    op.create_index("ix_normalized_specification_evidence_id", "normalized_specification", ["evidence_id"])
+    op.create_index(
+        "ix_normalized_specification_evidence_id", "normalized_specification", ["evidence_id"]
+    )
     op.create_index(
         "ix_normalized_specification_normalization_rule_id",
         "normalized_specification",
@@ -245,7 +257,9 @@ def upgrade() -> None:
         "normalized_specification",
         ["normalization_run_id"],
     )
-    op.create_index("ix_normalized_specification_product_id", "normalized_specification", ["product_id"])
+    op.create_index(
+        "ix_normalized_specification_product_id", "normalized_specification", ["product_id"]
+    )
     op.create_index(
         "ix_normalized_specification_product_specification_id",
         "normalized_specification",
@@ -303,8 +317,12 @@ def upgrade() -> None:
             "overall_score IS NULL OR (overall_score >= 0 AND overall_score <= 1)",
             name="comparability_assessment_overall_score",
         ),
-        sa.ForeignKeyConstraint(["canonical_field_id"], ["canonical_field_definition.id"], ondelete="RESTRICT"),
-        sa.ForeignKeyConstraint(["normalization_run_id"], ["normalization_run.id"], ondelete="SET NULL"),
+        sa.ForeignKeyConstraint(
+            ["canonical_field_id"], ["canonical_field_definition.id"], ondelete="RESTRICT"
+        ),
+        sa.ForeignKeyConstraint(
+            ["normalization_run_id"], ["normalization_run.id"], ondelete="SET NULL"
+        ),
         sa.ForeignKeyConstraint(["source_product_id"], ["product.id"], ondelete="RESTRICT"),
         sa.ForeignKeyConstraint(["target_product_id"], ["product.id"], ondelete="RESTRICT"),
         sa.PrimaryKeyConstraint("id"),
@@ -340,20 +358,39 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index("ix_comparability_assessment_target_product_id", table_name="comparability_assessment")
-    op.drop_index("ix_comparability_assessment_source_product_id", table_name="comparability_assessment")
-    op.drop_index("ix_comparability_assessment_normalization_run_id", table_name="comparability_assessment")
-    op.drop_index("ix_comparability_assessment_canonical_field_id", table_name="comparability_assessment")
+    op.drop_index(
+        "ix_comparability_assessment_target_product_id", table_name="comparability_assessment"
+    )
+    op.drop_index(
+        "ix_comparability_assessment_source_product_id", table_name="comparability_assessment"
+    )
+    op.drop_index(
+        "ix_comparability_assessment_normalization_run_id", table_name="comparability_assessment"
+    )
+    op.drop_index(
+        "ix_comparability_assessment_canonical_field_id", table_name="comparability_assessment"
+    )
     op.drop_table("comparability_assessment")
 
-    op.drop_index("ix_normalized_specification_source_value_hash", table_name="normalized_specification")
+    op.drop_index(
+        "ix_normalized_specification_source_value_hash", table_name="normalized_specification"
+    )
     op.drop_index("ix_normalized_specification_sku_id", table_name="normalized_specification")
-    op.drop_index("ix_normalized_specification_product_specification_id", table_name="normalized_specification")
+    op.drop_index(
+        "ix_normalized_specification_product_specification_id",
+        table_name="normalized_specification",
+    )
     op.drop_index("ix_normalized_specification_product_id", table_name="normalized_specification")
-    op.drop_index("ix_normalized_specification_normalization_run_id", table_name="normalized_specification")
-    op.drop_index("ix_normalized_specification_normalization_rule_id", table_name="normalized_specification")
+    op.drop_index(
+        "ix_normalized_specification_normalization_run_id", table_name="normalized_specification"
+    )
+    op.drop_index(
+        "ix_normalized_specification_normalization_rule_id", table_name="normalized_specification"
+    )
     op.drop_index("ix_normalized_specification_evidence_id", table_name="normalized_specification")
-    op.drop_index("ix_normalized_specification_canonical_field_id", table_name="normalized_specification")
+    op.drop_index(
+        "ix_normalized_specification_canonical_field_id", table_name="normalized_specification"
+    )
     op.drop_table("normalized_specification")
 
     op.drop_index("ix_normalization_run_run_key", table_name="normalization_run")
@@ -366,5 +403,7 @@ def downgrade() -> None:
 
     op.drop_index("ix_canonical_field_definition_domain", table_name="canonical_field_definition")
     op.drop_index("ix_canonical_field_definition_code", table_name="canonical_field_definition")
-    op.drop_index("ix_canonical_field_definition_category_id", table_name="canonical_field_definition")
+    op.drop_index(
+        "ix_canonical_field_definition_category_id", table_name="canonical_field_definition"
+    )
     op.drop_table("canonical_field_definition")

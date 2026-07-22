@@ -131,7 +131,11 @@ def _to_gib(value: Decimal, source_unit: str | None) -> tuple[Decimal, str | Non
     if source_unit in {"kib", "kb"}:
         return value / Decimal("1048576"), "Converted KB/KiB-like source unit to GiB.", False
     if source_unit == "gb":
-        return value, "Legacy GB value retained as GiB-compatible; review decimal/binary ambiguity.", True
+        return (
+            value,
+            "Legacy GB value retained as GiB-compatible; review decimal/binary ambiguity.",
+            True,
+        )
     return value, f"Unknown source storage unit {source_unit}; retained numeric value.", True
 
 
@@ -153,7 +157,11 @@ def _to_gbps(value: Decimal, source_unit: str | None) -> tuple[Decimal, str | No
     if source_unit in {"kbps", "kbit/s", "kbitps"}:
         return value / Decimal("1000000"), "Converted Kbps-like source unit to Gbps.", False
     if source_unit in {"mb/s", "mib/s"}:
-        return value * Decimal("8") / Decimal("1000"), "Converted MB/s-like source unit to Gbps.", True
+        return (
+            value * Decimal("8") / Decimal("1000"),
+            "Converted MB/s-like source unit to Gbps.",
+            True,
+        )
     return value, f"Unknown source bandwidth unit {source_unit}; retained numeric value.", True
 
 

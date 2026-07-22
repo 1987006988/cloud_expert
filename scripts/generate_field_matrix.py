@@ -23,7 +23,11 @@ def main() -> int:
         csv_path = args.output_dir / f"{stem}.csv"
         md_path = args.output_dir / f"{stem}.md"
         _write_csv(rows, csv_path)
-        title = "Compute Canonical Field Matrix" if domain == "compute" else "Object Storage Canonical Field Matrix"
+        title = (
+            "Compute Canonical Field Matrix"
+            if domain == "compute"
+            else "Object Storage Canonical Field Matrix"
+        )
         write_markdown_table(rows, md_path, title=title)
         outputs.extend([str(csv_path), str(md_path)])
     print(json.dumps({"outputs": outputs}, ensure_ascii=False, indent=2))

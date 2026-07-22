@@ -31,7 +31,9 @@ def main() -> int:
         )
         comparability_summary = None
         if not args.skip_comparability:
-            comparability_summary = assess_comparability(session, run_key=normalization_summary.run_key)
+            comparability_summary = assess_comparability(
+                session, run_key=normalization_summary.run_key
+            )
         session.commit()
     result = {
         "seed": seed_summary.__dict__,

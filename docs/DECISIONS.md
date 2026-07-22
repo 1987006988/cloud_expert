@@ -210,3 +210,25 @@ Object storage canonical fields default to `service_tier` scope, but current
 `ProductSpecification` rows do not persist a direct service-tier foreign key.
 Week 6 keeps those normalized facts with product scope and flags the mismatch
 instead of inventing service-tier identity.
+
+## 33. Audit Baseline Is Forward-Only Provenance
+
+Stage 1 records the post-audit repository state as the first durable Git
+baseline. The project does not reconstruct synthetic Week 1-6 commit history
+after the fact. Future remediation and feature work must be committed forward
+from the baseline.
+
+## 34. Default SQLite Must Be Rebuildable
+
+The default `cloud_expert_dev.sqlite` is a local development database, not a
+source of truth. Relative SQLite URLs resolve to the project root so Alembic
+commands are reproducible from different working directories. A stale default
+database should be backed up, inspected, and rebuilt through Alembic rather than
+patched by editing `alembic_version`.
+
+## 35. Week 6 Projection Must Preserve Raw Provenance
+
+The combined Week 6 projection is acceptable only when normalized rows can be
+traced through product specification, evidence, source document, snapshot
+record, raw bytes, and manifest hash. A projection that carries normalized rows
+without snapshot-backed evidence is incomplete even if row counts look correct.

@@ -27,7 +27,9 @@ def main() -> int:
     args = parser.parse_args()
 
     entries = load_registry_entries()
-    provider_codes = [args.provider] if args.provider else sorted({entry.provider_code for entry in entries})
+    provider_codes = (
+        [args.provider] if args.provider else sorted({entry.provider_code for entry in entries})
+    )
     errors: list[str] = []
     checked_registry = 0
     checked_documents = 0

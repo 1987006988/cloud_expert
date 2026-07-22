@@ -268,11 +268,31 @@ def _capability_records(
         ("multipart", "object_storage.multipart_upload_supported", "multipart", "Multipart upload"),
         ("versioning", "object_storage.versioning_supported", "versioning", "Versioning"),
         ("lifecycle", "object_storage.lifecycle_management_supported", "lifecycle", "Lifecycle"),
-        ("replication", "object_storage.cross_region_replication_supported", "replication", "Replication"),
+        (
+            "replication",
+            "object_storage.cross_region_replication_supported",
+            "replication",
+            "Replication",
+        ),
         ("object_lock", "object_storage.object_lock_supported", "object lock", "Object Lock"),
-        ("encryption", "object_storage.server_side_encryption_supported", "encryption", "Encryption"),
-        ("event_notifications", "object_storage.event_notification_supported", "event", "Event notifications"),
-        ("static_website", "object_storage.static_website_hosting_supported", "website", "Static website hosting"),
+        (
+            "encryption",
+            "object_storage.server_side_encryption_supported",
+            "encryption",
+            "Encryption",
+        ),
+        (
+            "event_notifications",
+            "object_storage.event_notification_supported",
+            "event",
+            "Event notifications",
+        ),
+        (
+            "static_website",
+            "object_storage.static_website_hosting_supported",
+            "website",
+            "Static website hosting",
+        ),
     )
     for source_token, field_code, keyword, section_title in source_rules:
         if source_token not in source_id:
@@ -334,7 +354,9 @@ def _object_size_fields(document: HtmlDocument, source_id: str) -> list[FieldCan
         return []
     fields: list[FieldCandidate] = []
     text = document.text
-    max_object_match = re.search(r"(?:maximum|largest)[^.]{0,120}?(5\s*(?:TiB|TB))", text, re.IGNORECASE)
+    max_object_match = re.search(
+        r"(?:maximum|largest)[^.]{0,120}?(5\s*(?:TiB|TB))", text, re.IGNORECASE
+    )
     if max_object_match:
         raw_value = max_object_match.group(1)
         value, unit = normalize_memory_to_gib(raw_value)
@@ -354,7 +376,9 @@ def _object_size_fields(document: HtmlDocument, source_id: str) -> list[FieldCan
                 section_title="S3 multipart upload",
             )
         )
-    single_upload_match = re.search(r"(?:single|PUT)[^.]{0,120}?(5\s*(?:GiB|GB))", text, re.IGNORECASE)
+    single_upload_match = re.search(
+        r"(?:single|PUT)[^.]{0,120}?(5\s*(?:GiB|GB))", text, re.IGNORECASE
+    )
     if single_upload_match:
         raw_value = single_upload_match.group(1)
         value, unit = normalize_memory_to_gib(raw_value)
@@ -487,7 +511,9 @@ def _sla_records(
     if not candidates:
         percent = _percentage_from_text(document.text)
         if percent:
-            candidates.append(("html:text:s3:sla", _excerpt_around(document.text, percent), percent))
+            candidates.append(
+                ("html:text:s3:sla", _excerpt_around(document.text, percent), percent)
+            )
     if not candidates:
         return []
     locator, excerpt, percent = candidates[0]

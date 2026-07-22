@@ -130,7 +130,9 @@ def write_markdown_table(rows: list[dict[str, str]], output_path: Path, *, title
     lines = [f"# {title}", "", "| " + " | ".join(headers) + " |"]
     lines.append("| " + " | ".join("---" for _ in headers) + " |")
     for row in rows:
-        lines.append("| " + " | ".join(_markdown_cell(row.get(header, "")) for header in headers) + " |")
+        lines.append(
+            "| " + " | ".join(_markdown_cell(row.get(header, "")) for header in headers) + " |"
+        )
     atomic_write_text(output_path, "\n".join(lines) + "\n")
 
 

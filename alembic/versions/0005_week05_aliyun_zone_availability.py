@@ -46,7 +46,9 @@ def upgrade() -> None:
             "market_mode IN ('domestic', 'international')",
             name="availability_zone_market_mode",
         ),
-        sa.ForeignKeyConstraint(["cloud_partition_id"], ["cloud_partition.id"], ondelete="SET NULL"),
+        sa.ForeignKeyConstraint(
+            ["cloud_partition_id"], ["cloud_partition.id"], ondelete="SET NULL"
+        ),
         sa.ForeignKeyConstraint(["evidence_id"], ["evidence.id"], ondelete="SET NULL"),
         sa.ForeignKeyConstraint(["provider_id"], ["provider.id"], ondelete="RESTRICT"),
         sa.ForeignKeyConstraint(["region_id"], ["region.id"], ondelete="RESTRICT"),
@@ -105,7 +107,9 @@ def upgrade() -> None:
             ["availability_zone.id"],
             ondelete="RESTRICT",
         ),
-        sa.ForeignKeyConstraint(["cloud_partition_id"], ["cloud_partition.id"], ondelete="SET NULL"),
+        sa.ForeignKeyConstraint(
+            ["cloud_partition_id"], ["cloud_partition.id"], ondelete="SET NULL"
+        ),
         sa.ForeignKeyConstraint(["evidence_id"], ["evidence.id"], ondelete="SET NULL"),
         sa.ForeignKeyConstraint(["product_id"], ["product.id"], ondelete="RESTRICT"),
         sa.ForeignKeyConstraint(["region_id"], ["region.id"], ondelete="RESTRICT"),

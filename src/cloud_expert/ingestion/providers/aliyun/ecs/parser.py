@@ -309,17 +309,61 @@ def _sku_fields(
         fields.extend(_network_fields(network, locator, excerpt, instance_type))
     pps = _cell(row, header_map.get("pps"))
     if pps:
-        fields.append(_numeric_text_field("network.max_pps", pps, _parse_pps(pps), "PPS", locator, excerpt, instance_type, "aliyun.ecs.sku.pps"))
+        fields.append(
+            _numeric_text_field(
+                "network.max_pps",
+                pps,
+                _parse_pps(pps),
+                "PPS",
+                locator,
+                excerpt,
+                instance_type,
+                "aliyun.ecs.sku.pps",
+            )
+        )
     connections = _cell(row, header_map.get("connections"))
     if connections:
-        fields.append(_numeric_text_field("network.max_connections", connections, parse_decimal(connections.replace(",", "")), "count", locator, excerpt, instance_type, "aliyun.ecs.sku.connections"))
+        fields.append(
+            _numeric_text_field(
+                "network.max_connections",
+                connections,
+                parse_decimal(connections.replace(",", "")),
+                "count",
+                locator,
+                excerpt,
+                instance_type,
+                "aliyun.ecs.sku.connections",
+            )
+        )
     disk_bandwidth = _cell(row, header_map.get("cloud_disk_bandwidth"))
     if disk_bandwidth:
         value, unit = normalize_bandwidth_to_gbps(disk_bandwidth)
-        fields.append(_numeric_text_field("network.cloud_disk_bandwidth_gbps", disk_bandwidth, value, unit or "Gbps", locator, excerpt, instance_type, "aliyun.ecs.sku.cloud_disk_bandwidth"))
+        fields.append(
+            _numeric_text_field(
+                "network.cloud_disk_bandwidth_gbps",
+                disk_bandwidth,
+                value,
+                unit or "Gbps",
+                locator,
+                excerpt,
+                instance_type,
+                "aliyun.ecs.sku.cloud_disk_bandwidth",
+            )
+        )
     disk_iops = _cell(row, header_map.get("cloud_disk_iops"))
     if disk_iops:
-        fields.append(_numeric_text_field("storage.cloud_disk_iops", disk_iops, parse_decimal(disk_iops.replace(",", "")), "IOPS", locator, excerpt, instance_type, "aliyun.ecs.sku.cloud_disk_iops"))
+        fields.append(
+            _numeric_text_field(
+                "storage.cloud_disk_iops",
+                disk_iops,
+                parse_decimal(disk_iops.replace(",", "")),
+                "IOPS",
+                locator,
+                excerpt,
+                instance_type,
+                "aliyun.ecs.sku.cloud_disk_iops",
+            )
+        )
     local_storage = _cell(row, header_map.get("local_storage"))
     if local_storage:
         fields.extend(_local_storage_fields(local_storage, locator, excerpt, instance_type))
@@ -399,7 +443,11 @@ def _network_fields(
     value, unit = normalize_bandwidth_to_gbps(raw_value)
     if value is None:
         return []
-    field_code = "network.max_bandwidth_gbps" if "最高" in raw_value or "max" in raw_value.lower() else "network.baseline_bandwidth_gbps"
+    field_code = (
+        "network.max_bandwidth_gbps"
+        if "最高" in raw_value or "max" in raw_value.lower()
+        else "network.baseline_bandwidth_gbps"
+    )
     return [
         _numeric_text_field(
             field_code,
@@ -421,11 +469,35 @@ def _local_storage_fields(
     target_identity: str,
 ) -> list[FieldCandidate]:
     fields: list[FieldCandidate] = []
-    match = re.search(r"(\d+)\s*[x×]\s*(\d+(?:\.\d+)?)\s*([TGMK]i?B|TB|GB)", raw_value, re.IGNORECASE)
+    match = re.search(
+        r"(\d+)\s*[x×]\s*(\d+(?:\.\d+)?)\s*([TGMK]i?B|TB|GB)", raw_value, re.IGNORECASE
+    )
     if match:
-        fields.append(_numeric_text_field("storage.local_disk_count", raw_value, Decimal(match.group(1)), "count", locator, excerpt, target_identity, "aliyun.ecs.sku.local_disk_count"))
+        fields.append(
+            _numeric_text_field(
+                "storage.local_disk_count",
+                raw_value,
+                Decimal(match.group(1)),
+                "count",
+                locator,
+                excerpt,
+                target_identity,
+                "aliyun.ecs.sku.local_disk_count",
+            )
+        )
         capacity, unit = normalize_memory_to_gib(f"{match.group(2)} {match.group(3)}")
-        fields.append(_numeric_text_field("storage.local_disk_capacity_gib", raw_value, capacity, unit, locator, excerpt, target_identity, "aliyun.ecs.sku.local_disk_capacity"))
+        fields.append(
+            _numeric_text_field(
+                "storage.local_disk_capacity_gib",
+                raw_value,
+                capacity,
+                unit,
+                locator,
+                excerpt,
+                target_identity,
+                "aliyun.ecs.sku.local_disk_capacity",
+            )
+        )
     storage_type = re.search(r"(NVMe\s*SSD|SSD|HDD|本地SSD)", raw_value, re.IGNORECASE)
     if storage_type:
         fields.append(
@@ -456,8 +528,21 @@ def _gpu_fields(
     fields: list[FieldCandidate] = []
     count = parse_decimal(raw_value)
     if count is not None:
-        fields.append(_numeric_text_field("gpu.count", raw_value, count, "count", locator, excerpt, target_identity, "aliyun.ecs.sku.gpu_count"))
-    model = re.search(r"(NVIDIA|A10|A100|T4|V100|L20|H20|Intel GPU)[^,，；;|]*", raw_value, re.IGNORECASE)
+        fields.append(
+            _numeric_text_field(
+                "gpu.count",
+                raw_value,
+                count,
+                "count",
+                locator,
+                excerpt,
+                target_identity,
+                "aliyun.ecs.sku.gpu_count",
+            )
+        )
+    model = re.search(
+        r"(NVIDIA|A10|A100|T4|V100|L20|H20|Intel GPU)[^,，；;|]*", raw_value, re.IGNORECASE
+    )
     if model:
         fields.append(
             _candidate(
@@ -524,9 +609,29 @@ def _zone_records_from_tables(
             locator = f"{table.locator}:row[{row_index}]"
             if current_region_code not in seen_regions:
                 seen_regions.add(current_region_code)
-                records.append(_region_record(source_id, snapshot_id, current_region_code, current_region_name or current_region_code, locator, excerpt))
+                records.append(
+                    _region_record(
+                        source_id,
+                        snapshot_id,
+                        current_region_code,
+                        current_region_name or current_region_code,
+                        locator,
+                        excerpt,
+                    )
+                )
             seen_zones.add(zone_code)
-            records.append(_zone_record(source_id, snapshot_id, current_region_code, current_region_name or current_region_code, zone_code, zone_name, locator, excerpt))
+            records.append(
+                _zone_record(
+                    source_id,
+                    snapshot_id,
+                    current_region_code,
+                    current_region_name or current_region_code,
+                    zone_code,
+                    zone_name,
+                    locator,
+                    excerpt,
+                )
+            )
     return records
 
 
@@ -550,9 +655,29 @@ def _zone_records_from_text(
         locator = f"html:text:zone[{len(seen_zones)}]"
         if region_code not in seen_regions:
             seen_regions.add(region_code)
-            records.append(_region_record(source_id, snapshot_id, region_code, region_name or region_code, locator, excerpt))
+            records.append(
+                _region_record(
+                    source_id,
+                    snapshot_id,
+                    region_code,
+                    region_name or region_code,
+                    locator,
+                    excerpt,
+                )
+            )
         seen_zones.add(zone_code)
-        records.append(_zone_record(source_id, snapshot_id, region_code, region_name or region_code, zone_code, zone_name or zone_code, locator, excerpt))
+        records.append(
+            _zone_record(
+                source_id,
+                snapshot_id,
+                region_code,
+                region_name or region_code,
+                zone_code,
+                zone_name or zone_code,
+                locator,
+                excerpt,
+            )
+        )
     return records
 
 
@@ -732,7 +857,11 @@ def _sla_records(
         return []
     patterns = (
         ("ecs_single_instance", "单实例", r"单实例[^。；;]{0,80}?不低于\s*(\d+(?:\.\d+)?%)"),
-        ("ecs_multi_zone", "单地域多可用区", r"单地域多可用区[^。；;]{0,80}?不低于\s*(\d+(?:\.\d+)?%)"),
+        (
+            "ecs_multi_zone",
+            "单地域多可用区",
+            r"单地域多可用区[^。；;]{0,80}?不低于\s*(\d+(?:\.\d+)?%)",
+        ),
     )
     records: list[ParsedRecord] = []
     for scope, label, pattern in patterns:
@@ -831,7 +960,18 @@ def _add_decimal_field(
     if not raw_value:
         return
     value = parse_decimal(raw_value)
-    fields.append(_numeric_text_field(field_code, raw_value, value, canonical_unit or unit, locator, excerpt, target_identity, parser_rule))
+    fields.append(
+        _numeric_text_field(
+            field_code,
+            raw_value,
+            value,
+            canonical_unit or unit,
+            locator,
+            excerpt,
+            target_identity,
+            parser_rule,
+        )
+    )
 
 
 def _numeric_text_field(

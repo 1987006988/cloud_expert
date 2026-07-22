@@ -1,0 +1,61 @@
+{
+  "stage": "remediation_stage1",
+  "date": "2026-07-22",
+  "completed_items": [
+    "R001_git_provenance_baseline",
+    "R002_default_database_rebuild",
+    "R003_week6_projection_full_provenance",
+    "R004_week6_projection_complete_dataset",
+    "R010_ruff_format_gate",
+    "R012_restore_tasks_completed"
+  ],
+  "open_items": [
+    "R005_expand_canonical_schema_to_prompt",
+    "R006_field_matrix_required_columns",
+    "R007_strengthen_comparability_assessment",
+    "R008_review_queue_policy",
+    "R009_raise_test_coverage",
+    "R011_postgresql_migration_validation"
+  ],
+  "git": {
+    "branch": "main",
+    "remote": "git@github.com:1987006988/cloud_expert.git",
+    "baseline_commit": "65ab21a",
+    "tags": [
+      "audit-week01-06-baseline",
+      "audit-week06-baseline"
+    ]
+  },
+  "database": {
+    "default_sqlite_valid": true,
+    "alembic_head": "0006_week06_canonical_normalization",
+    "backup_manifest": "backups/remediation_stage1/cloud_expert_dev_backup_manifest.json",
+    "schema_report": "reports/remediation/stage1/default_schema.json"
+  },
+  "week06_projection": {
+    "valid": true,
+    "provider": 3,
+    "product": 6,
+    "source_document": 67,
+    "snapshot_record": 67,
+    "evidence": 14113,
+    "product_specification": 10412,
+    "normalized_specification": 10172,
+    "missing_snapshot_record": 0,
+    "missing_manifest": 0,
+    "missing_raw_file": 0,
+    "hash_mismatch": 0
+  },
+  "quality": {
+    "ruff_format": "passed",
+    "ruff_check": "passed",
+    "mypy_src_scripts": "passed",
+    "pytest": "65 passed",
+    "coverage_percent": 79
+  },
+  "postgresql": {
+    "docker_compose_config": "passed",
+    "live_validation": "blocked",
+    "blocker": "Docker daemon is not running; //./pipe/docker_engine is missing"
+  }
+}

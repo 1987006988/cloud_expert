@@ -2,11 +2,10 @@
 
 ## Current Phase
 
-Week 6 is complete for the scoped engineering slice: cross-provider canonical
-field definitions, legacy field mapping rules, unit normalization, qualifier and
-scope preparation, combined acceptance projection, normalized specification
-rows, field-level comparability-readiness assessments, validation scripts,
-reports, tests, and documentation.
+Remediation Stage 1 is complete after the Week 1-6 independent audit. The
+project now has a Git delivery baseline, a rebuilt default SQLite database at
+current Alembic head, a restored Week 6 evidence chain, and Stage 1 validation
+reports. Week 6 remains the latest product-data feature scope.
 
 Current data model version:
 
@@ -38,6 +37,15 @@ Current data model version:
 - Generated normalization reports under `reports/normalization/`.
 - Built `test_outputs/week6_combined_projection.sqlite` from upgraded copies of
   Week 3, Week 4, and Week 5 acceptance databases.
+- Stage 1 established Git baseline commit `65ab21a` on `main`, remote
+  `git@github.com:1987006988/cloud_expert.git`, and baseline tags
+  `audit-week01-06-baseline` and `audit-week06-baseline`.
+- Stage 1 rebuilt default `cloud_expert_dev.sqlite` to Alembic head
+  `0006_week06_canonical_normalization`.
+- Stage 1 rebuilt the Week 6 projection with `SnapshotRecord`, `IngestionRun`,
+  `ParsingRun`, `ParsedFieldCandidate`, product shape, SLA, partition, region,
+  availability, and review rows preserved.
+- Stage 1 reports are stored under `reports/remediation/stage1/`.
 
 ## Week 6 Acceptance Metrics
 
@@ -71,20 +79,25 @@ Product normalized specification counts:
 
 ## Test Status
 
-Executed on Python 3.12.13 from `.venv312`.
+Latest Stage 1 checks executed on Python 3.12.13 from `.venv312`.
 
 | Command | Result |
 | --- | --- |
+| `ruff format .` | passed |
 | `ruff check .` | passed |
-| `mypy src` | passed, 138 source files |
-| `pytest -m "not network"` | passed, 62 passed / 0 failed |
+| `mypy src scripts` | passed, 171 source files |
+| `pytest --cov=cloud_expert --cov-report=term-missing --cov-report=json:reports/remediation/stage1/coverage.json` | passed, 65 passed / 0 failed, 79% coverage |
 | `scripts/validate_source_registry.py` | passed, 74 valid sources / 4 disabled / 0 errors |
 | `scripts/validate_raw_snapshots.py` | passed, 90 snapshots checked / 0 errors |
 | `scripts/validate_canonical_definitions.py` | passed, 38 canonical fields / 40 mappings / 0 errors |
 | `scripts/validate_canonical_units.py` | passed, 10172 checked / 0 errors |
 | `scripts/validate_value_qualifiers.py` | passed, no unknown qualifiers |
-| `scripts/validate_normalized_evidence.py` | passed, 0 missing normalized evidence links |
-| `alembic upgrade head` on fresh SQLite | passed, upgraded to `0006_week06_canonical_normalization` |
+| `scripts/validate_normalized_evidence.py` | passed, 10172 normalized rows / 0 missing links / 0 hash mismatches |
+| `scripts/validate_week06_projection.py` | passed, all required entities present and product samples valid |
+| `scripts/validate_default_database.py` | passed, default SQLite at `0006_week06_canonical_normalization` |
+| `alembic current` with default settings | passed, `0006_week06_canonical_normalization (head)` |
+| `docker compose config` | passed |
+| PostgreSQL live migration validation | blocked, Docker daemon unavailable |
 
 ## Acceptance Databases
 
@@ -96,10 +109,9 @@ Executed on Python 3.12.13 from `.venv312`.
 
 ## Known Issues
 
-- The repository still has no Git commits, so `git log` reports that the
-  current branch has no commits.
-- The default local `cloud_expert_dev.sqlite` is older than current migrations;
-  fresh databases upgrade cleanly.
+- PostgreSQL live migration validation is still open because the local Docker
+  daemon was unavailable on 2026-07-22.
+- Overall test coverage is 79%, below the 85% remediation backlog target.
 - Human review is not complete. Prior low-confidence queues remain open.
 - 240 input specifications could not be normalized into exactly one canonical
   value.

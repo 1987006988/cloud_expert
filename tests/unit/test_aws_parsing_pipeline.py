@@ -175,8 +175,11 @@ def test_aws_parse_pipeline_persists_partitioned_ec2_and_s3_data(session: Sessio
     assert session.query(ProductSpecification).count() > 0
     assert session.query(Region).filter_by(code="us-east-1").count() == 1
     assert session.query(Availability).count() == 2
-    assert count_partition_region_violations(
-        session,
-        provider_code="aws",
-        partition_code="aws",
-    ) == 0
+    assert (
+        count_partition_region_violations(
+            session,
+            provider_code="aws",
+            partition_code="aws",
+        )
+        == 0
+    )

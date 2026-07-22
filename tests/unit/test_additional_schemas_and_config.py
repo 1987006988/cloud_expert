@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 from sqlalchemy import text
 
-from cloud_expert.config.settings import get_settings
+from cloud_expert.config.settings import PROJECT_ROOT, get_settings
 from cloud_expert.database.enums import (
     AvailabilityStatus,
     ClaimType,
@@ -24,7 +24,8 @@ from cloud_expert.schemas.region import AvailabilityCreate, RegionCreate, Region
 def test_settings_read_database_url_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     get_settings.cache_clear()
     monkeypatch.setenv("DATABASE_URL", "sqlite:///./synthetic_settings.sqlite")
-    assert get_settings().database_url == "sqlite:///./synthetic_settings.sqlite"
+    expected = f"sqlite:///{(PROJECT_ROOT / 'synthetic_settings.sqlite').as_posix()}"
+    assert get_settings().database_url == expected
     get_settings.cache_clear()
 
 

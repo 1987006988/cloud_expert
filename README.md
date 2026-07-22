@@ -30,6 +30,10 @@ field-level comparability-readiness assessments, and normalization reports.
 It does not create product mappings, pricing/TCO, competitive scoring, or
 sales claims.
 
+Remediation Stage 1 establishes the Git delivery baseline, rebuilds the default
+SQLite database to current Alembic head, restores the Week 6 evidence chain,
+and records validation reports under `reports/remediation/stage1/`.
+
 ## Local Setup
 
 ```bash
@@ -55,6 +59,17 @@ ruff check .
 mypy src
 pytest
 pytest --cov=src/cloud_expert --cov-report=term-missing
+```
+
+Stage 1 uses:
+
+```bash
+ruff format .
+ruff check .
+mypy src scripts
+pytest --cov=cloud_expert --cov-report=term-missing --cov-report=json:reports/remediation/stage1/coverage.json
+.\.venv312\Scripts\python scripts\validate_default_database.py
+.\.venv312\Scripts\python scripts\validate_week06_projection.py
 ```
 
 ## Week 2 Source Commands

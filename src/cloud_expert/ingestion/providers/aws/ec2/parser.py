@@ -300,9 +300,29 @@ def _sku_fields(
     if network:
         baseline, maximum = _parse_network_bandwidth(network)
         if baseline is not None:
-            fields.append(_bandwidth_candidate("network.baseline_bandwidth_gbps", network, baseline, locator, excerpt, instance_type, "aws.ec2.sku.network_baseline"))
+            fields.append(
+                _bandwidth_candidate(
+                    "network.baseline_bandwidth_gbps",
+                    network,
+                    baseline,
+                    locator,
+                    excerpt,
+                    instance_type,
+                    "aws.ec2.sku.network_baseline",
+                )
+            )
         if maximum is not None:
-            fields.append(_bandwidth_candidate("network.max_bandwidth_gbps", network, maximum, locator, excerpt, instance_type, "aws.ec2.sku.network_max"))
+            fields.append(
+                _bandwidth_candidate(
+                    "network.max_bandwidth_gbps",
+                    network,
+                    maximum,
+                    locator,
+                    excerpt,
+                    instance_type,
+                    "aws.ec2.sku.network_max",
+                )
+            )
     ebs = _cell(row, header_map.get("ebs"))
     if ebs:
         value, unit = _parse_best_effort_bandwidth(ebs)
@@ -675,8 +695,12 @@ def _header_map(table: HtmlTable) -> dict[str, int]:
             mapping["memory"] = index
         elif "processor" in normalized:
             mapping["processor"] = index
-        elif "baseline" in normalized and "burst" in normalized and "bandwidth" in normalized or "networkperformance" in normalized or (
-            "bandwidth" in normalized and "ebs" not in normalized
+        elif (
+            "baseline" in normalized
+            and "burst" in normalized
+            and "bandwidth" in normalized
+            or "networkperformance" in normalized
+            or ("bandwidth" in normalized and "ebs" not in normalized)
         ):
             mapping["network"] = index
         elif "ebs" in normalized and "bandwidth" in normalized:

@@ -1,35 +1,39 @@
 items:
   - id: R001_git_provenance_baseline
     severity: BLOCKER
-    status: open
+    status: complete
     title: Establish version-control provenance for Week1-6 baseline
-    rationale: No commits, tags, tracked files, or remote exist; weekly history is not reproducible.
+    rationale: No commits, tags, tracked files, or remote existed at audit time; weekly history was not reproducible.
+    stage1_result: Baseline commit 65ab21a, main branch, origin remote, and audit baseline tags are present. Historical weekly commits were not reconstructed.
     acceptance_criteria:
       - All intended project files are tracked.
       - Generated/ignored artifacts remain ignored.
       - A baseline commit and audit tag exist.
   - id: R002_default_database_rebuild
     severity: CRITICAL
-    status: open
+    status: complete
     title: Rebuild or retire stale cloud_expert_dev.sqlite
     rationale: Default DB references non-existent Alembic revision 0002_ingestion_runs_and_snapshots.
+    stage1_result: Stale default SQLite was backed up and rebuilt to 0006_week06_canonical_normalization; validate_default_database.py passes.
     acceptance_criteria:
-      - `alembic current` succeeds with default settings or docs require explicit DATABASE_URL.
-      - `validate_evidence_links.py` no longer fails on an unintended stale default DB.
+      - "`alembic current` succeeds with default settings or docs require explicit DATABASE_URL."
+      - "`validate_evidence_links.py` no longer fails on an unintended stale default DB."
   - id: R003_week6_projection_full_provenance
     severity: CRITICAL
-    status: open
+    status: complete
     title: Preserve SnapshotRecord provenance in Week6 combined projection
     rationale: Current projection sets Evidence.snapshot_record_id to null and has zero snapshot records.
+    stage1_result: Rebuilt Week6 projection has 67 SnapshotRecord rows; normalized evidence chain validates with zero missing snapshots, manifests, raw files, or hash mismatches.
     acceptance_criteria:
       - SnapshotRecord rows are copied or remapped.
       - Evidence rows retain snapshot_record_id and content_hash.
       - NormalizedSpecification samples pass ProductSpecification -> Evidence -> SourceDocument -> SnapshotRecord -> raw manifest.
   - id: R004_week6_projection_complete_dataset
     severity: HIGH
-    status: open
+    status: complete
     title: Include product shape, SLA, partition, availability, and review tables in combined dataset
     rationale: Current projection omits ProductFamily, ServiceTier, ProductSLA, Region, Availability, ZoneAvailability, ReviewItem, and related rows.
+    stage1_result: Rebuilt projection includes product_family=299, service_tier=17, product_sla=13, region=53, availability=102, availability_zone=62, zone_availability=62, review_item=1441.
   - id: R005_expand_canonical_schema_to_prompt
     severity: HIGH
     status: open
@@ -55,18 +59,22 @@ items:
     status: open
     title: Raise coverage and negative test depth for normalization/comparability
     rationale: Overall coverage is below the 85% gate.
+    stage1_result: Stage1 pytest coverage is 79%, so this remains open.
   - id: R010_ruff_format_gate
     severity: MEDIUM
-    status: open
+    status: complete
     title: Run and commit ruff formatting
-    rationale: `ruff format --check .` reports 18 files would be reformatted.
+    rationale: "`ruff format --check .` reports 18 files would be reformatted."
+    stage1_result: ruff format . and ruff check . pass.
   - id: R011_postgresql_migration_validation
     severity: HIGH
     status: open
     title: Run PostgreSQL migration upgrade/downgrade/re-upgrade
     rationale: PostgreSQL is the target DB but Docker daemon was unavailable during audit.
+    stage1_result: docker compose config passes, but live validation remains blocked because Docker daemon is not running.
   - id: R012_restore_tasks_completed
     severity: MEDIUM
-    status: open
+    status: complete
     title: Restore or create task completion ledger according to project governance
-    rationale: `tasks/completed/` is required by the audit prompt but missing.
+    rationale: "`tasks/completed/` is required by the audit prompt but missing."
+    stage1_result: tasks/completed/README.md and tasks/completed/remediation_stage1_2026-07-22.md created.

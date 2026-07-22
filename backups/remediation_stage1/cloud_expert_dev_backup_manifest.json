@@ -1,0 +1,12 @@
+{
+  "created_at_utc": "2026-07-22T14:03:02.4584622Z",
+  "original_path": "D:\\cloud_expert\\cloud_expert_dev.sqlite",
+  "backup_path": "D:\\cloud_expert\\backups\\remediation_stage1\\cloud_expert_dev_20260722_220302.sqlite",
+  "backup_size_bytes": 352256,
+  "sha256": "3802a179db684d1c58e21c37f9ac3e107af649c3c8761c08e21fece99c080a61",
+  "alembic_version": "0002_ingestion_runs_and_snapshots",
+  "contains_real_product_data": false,
+  "contains_sensitive_data": false,
+  "data_value": "stale development database with one synthetic/source-registry-style source document, one snapshot record, two ingestion runs, and no product specifications or evidence rows",
+  "committed_to_git": false
+}

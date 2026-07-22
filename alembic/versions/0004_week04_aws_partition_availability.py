@@ -18,8 +18,7 @@ depends_on: str | Sequence[str] | None = None
 
 
 PRODUCT_FAMILY_VALUES = (
-    "'ecs_instance_family', 'obs_storage_class', "
-    "'aws_ec2_instance_family', 'aws_s3_storage_class'"
+    "'ecs_instance_family', 'obs_storage_class', 'aws_ec2_instance_family', 'aws_s3_storage_class'"
 )
 
 
@@ -52,9 +51,7 @@ def upgrade() -> None:
         ),
     )
     op.create_index("ix_cloud_partition_provider_id", "cloud_partition", ["provider_id"])
-    op.create_index(
-        "ix_cloud_partition_partition_code", "cloud_partition", ["partition_code"]
-    )
+    op.create_index("ix_cloud_partition_partition_code", "cloud_partition", ["partition_code"])
 
     with op.batch_alter_table("source_document") as batch_op:
         batch_op.add_column(sa.Column("cloud_partition", sa.String(length=64), nullable=True))

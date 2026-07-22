@@ -2,11 +2,10 @@
 
 ## Summary
 
-Implemented Week 6 for the Huawei Cloud competitive sales expert project:
-cross-provider canonical field registry, unit normalization, value qualifier and
-scope preparation, combined acceptance projection, normalized specifications,
-field-level comparability-readiness assessments, validation scripts, reports,
-tests, and documentation.
+Completed Remediation Stage 1 after the Week 1-6 independent audit. The
+repository now has a Git delivery baseline, a rebuilt default SQLite database at
+Alembic head, restored Week 6 evidence provenance, Stage 1 validation scripts,
+reports, and updated governance documents.
 
 No new cloud providers, pricing ingestion, TCO, RAG, embeddings, LLM logic,
 frontend, sales scripts, competitive scoring, customer data, console/session
@@ -23,6 +22,10 @@ data, credentials, or final product mapping were added.
 - `scripts/validate_canonical_definitions.py`
 - `scripts/normalize_provider_data.py`
 - `scripts/build_week6_combined_acceptance.py`
+- `scripts/inspect_database_schema.py`
+- `scripts/validate_default_database.py`
+- `scripts/relink_normalized_evidence.py`
+- `scripts/validate_week06_projection.py`
 - `scripts/generate_field_matrix.py`
 - `scripts/generate_cross_provider_coverage.py`
 - `scripts/generate_normalization_quality_report.py`
@@ -34,6 +37,12 @@ data, credentials, or final product mapping were added.
 - `docs/COMPUTE_CANONICAL_MODEL.md`
 - `docs/OBJECT_STORAGE_CANONICAL_MODEL.md`
 - `docs/REGION_NORMALIZATION.md`
+- `docs/GIT_BASELINE_POLICY.md`
+- `docs/DATABASE_RECOVERY.md`
+- `docs/POSTGRESQL_VALIDATION.md`
+- `docs/WEEK06_EVIDENCE_RELINK.md`
+- `docs/WEEK06_PROJECTION_CONTRACT.md`
+- `reports/remediation/stage1/`
 
 ## Migration Version
 
@@ -47,17 +56,23 @@ data, credentials, or final product mapping were added.
 Final local commands passed:
 
 ```text
+ruff format .
 ruff check .
-mypy src
-pytest -m "not network"
+mypy src scripts
+pytest --cov=cloud_expert --cov-report=term-missing --cov-report=json:reports/remediation/stage1/coverage.json
 scripts/validate_source_registry.py
 scripts/validate_raw_snapshots.py
 scripts/validate_canonical_definitions.py
 scripts/validate_canonical_units.py
 scripts/validate_value_qualifiers.py
 scripts/validate_normalized_evidence.py
+scripts/validate_week06_projection.py
+scripts/validate_default_database.py
 alembic upgrade head
 ```
+
+PostgreSQL live validation is not complete. `docker compose config` passed, but
+Docker daemon connection failed at `//./pipe/docker_engine`.
 
 Week 6 combined projection result:
 
@@ -70,6 +85,7 @@ Week 6 combined projection result:
 - Comparability assessments: 116.
 - Comparability status counts: 13 comparable, 66 partial, 37 not comparable.
 - Missing normalized evidence links: 0.
+- Missing snapshot records/manifests/raw files/hash mismatches: 0.
 - Average normalization quality score: 0.9781.
 
 ## Environment Notes
@@ -86,8 +102,8 @@ Week 6 combined projection result:
 
 ## Unresolved Issues
 
-- The repository has no commits yet.
-- The default local `cloud_expert_dev.sqlite` is older than current migrations.
+- PostgreSQL live migration validation remains open until Docker is available.
+- Coverage is 79%, below the 85% backlog target.
 - Prior human review queues remain open.
 - Object storage service-tier scope needs a direct key in future schema or
   parser output before final service-tier comparison.
@@ -98,6 +114,6 @@ Week 6 combined projection result:
 
 Start from `docs/CANONICAL_DATA_MODEL.md`,
 `reports/normalization/normalization_quality_report.json`, and
-`reports/normalization/cross_provider_coverage.md`. Do not turn readiness
+`reports/remediation/stage1/00_summary.md`. Do not turn readiness
 assessments into customer-facing product comparisons until human review,
 scope policy, and mapping policy are approved.

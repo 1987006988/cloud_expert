@@ -1,9 +1,8 @@
 import csv
 import hashlib
 import json
-from datetime import timezone, datetime
+from datetime import UTC, datetime
 from pathlib import Path
-
 
 ROOT = Path(__file__).resolve().parents[3]
 AUDIT = ROOT / "reports" / "audit" / "week01_06_audit"
@@ -31,7 +30,9 @@ def table(rows, headers):
         "| " + " | ".join("---" for _ in headers) + " |",
     ]
     for row in rows:
-        lines.append("| " + " | ".join(str(row.get(h, "")).replace("\n", " ") for h in headers) + " |")
+        lines.append(
+            "| " + " | ".join(str(row.get(h, "")).replace("\n", " ") for h in headers) + " |"
+        )
     return "\n".join(lines)
 
 
@@ -199,17 +200,72 @@ def main() -> None:
     ]
 
     command_rows = [
-        {"command": "pytest --collect-only -q", "result": "PASS", "summary": "62 tests collected", "artifact": "cmd_pytest_collect_only.txt"},
-        {"command": "ruff format --check .", "result": "FAIL", "summary": "18 files would be reformatted", "artifact": "cmd_ruff_format_check.txt"},
-        {"command": "ruff check .", "result": "PASS", "summary": "All checks passed", "artifact": "cmd_ruff_check.txt"},
-        {"command": "mypy src", "result": "PASS", "summary": "138 source files, no issues", "artifact": "cmd_mypy_src.txt"},
-        {"command": 'pytest -m "not network" -ra', "result": "PASS", "summary": "62 passed", "artifact": "cmd_pytest_not_network_ra.txt"},
-        {"command": "pytest coverage", "result": "PASS_WITH_RISK", "summary": f"62 passed; coverage {coverage_pct}%", "artifact": "cmd_pytest_not_network_coverage.txt"},
-        {"command": "validate_source_registry.py", "result": "PASS", "summary": "74 valid, 4 disabled, 0 errors", "artifact": "cmd_validate_source_registry.txt"},
-        {"command": "validate_raw_snapshots.py", "result": "PASS", "summary": "90 snapshots checked, 0 errors", "artifact": "cmd_validate_raw_snapshots.txt"},
-        {"command": "validate_evidence_links.py default DB", "result": "FAIL", "summary": "default DB lacks current tables", "artifact": "cmd_validate_evidence_links_default_db.txt"},
-        {"command": "alembic current default DB", "result": "FAIL", "summary": "missing revision 0002_ingestion_runs_and_snapshots", "artifact": "cmd_alembic_current_default_db.txt"},
-        {"command": "alembic audit SQLite upgrade/downgrade/reupgrade", "result": "PASS", "summary": "fresh DB and prior-week copies upgrade to 0006", "artifact": "cmd_alembic_audit_empty_upgrade_head.txt"},
+        {
+            "command": "pytest --collect-only -q",
+            "result": "PASS",
+            "summary": "62 tests collected",
+            "artifact": "cmd_pytest_collect_only.txt",
+        },
+        {
+            "command": "ruff format --check .",
+            "result": "FAIL",
+            "summary": "18 files would be reformatted",
+            "artifact": "cmd_ruff_format_check.txt",
+        },
+        {
+            "command": "ruff check .",
+            "result": "PASS",
+            "summary": "All checks passed",
+            "artifact": "cmd_ruff_check.txt",
+        },
+        {
+            "command": "mypy src",
+            "result": "PASS",
+            "summary": "138 source files, no issues",
+            "artifact": "cmd_mypy_src.txt",
+        },
+        {
+            "command": 'pytest -m "not network" -ra',
+            "result": "PASS",
+            "summary": "62 passed",
+            "artifact": "cmd_pytest_not_network_ra.txt",
+        },
+        {
+            "command": "pytest coverage",
+            "result": "PASS_WITH_RISK",
+            "summary": f"62 passed; coverage {coverage_pct}%",
+            "artifact": "cmd_pytest_not_network_coverage.txt",
+        },
+        {
+            "command": "validate_source_registry.py",
+            "result": "PASS",
+            "summary": "74 valid, 4 disabled, 0 errors",
+            "artifact": "cmd_validate_source_registry.txt",
+        },
+        {
+            "command": "validate_raw_snapshots.py",
+            "result": "PASS",
+            "summary": "90 snapshots checked, 0 errors",
+            "artifact": "cmd_validate_raw_snapshots.txt",
+        },
+        {
+            "command": "validate_evidence_links.py default DB",
+            "result": "FAIL",
+            "summary": "default DB lacks current tables",
+            "artifact": "cmd_validate_evidence_links_default_db.txt",
+        },
+        {
+            "command": "alembic current default DB",
+            "result": "FAIL",
+            "summary": "missing revision 0002_ingestion_runs_and_snapshots",
+            "artifact": "cmd_alembic_current_default_db.txt",
+        },
+        {
+            "command": "alembic audit SQLite upgrade/downgrade/reupgrade",
+            "result": "PASS",
+            "summary": "fresh DB and prior-week copies upgrade to 0006",
+            "artifact": "cmd_alembic_audit_empty_upgrade_head.txt",
+        },
     ]
 
     week_table = table(week_verdicts, ["week", "scope", "verdict", "reason"])
@@ -219,20 +275,34 @@ def main() -> None:
     week6_rows = []
     for row in origin_rows:
         if row.get("database_label") == "week6_combined_projection":
-            week6_rows.append({
-                "provider/product": f"{row['provider']}/{row['product']}",
-                "specs": row["product_specification_count"],
-                "normalized": row["normalized_specification_count"],
-                "evidence": row["evidence_count"],
-                "snapshots": row["snapshot_count"],
-                "evidence_without_snapshot": row["evidence_without_snapshot_count"],
-            })
-    week6_table = table(week6_rows, ["provider/product", "specs", "normalized", "evidence", "snapshots", "evidence_without_snapshot"])
+            week6_rows.append(
+                {
+                    "provider/product": f"{row['provider']}/{row['product']}",
+                    "specs": row["product_specification_count"],
+                    "normalized": row["normalized_specification_count"],
+                    "evidence": row["evidence_count"],
+                    "snapshots": row["snapshot_count"],
+                    "evidence_without_snapshot": row["evidence_without_snapshot_count"],
+                }
+            )
+    week6_table = table(
+        week6_rows,
+        [
+            "provider/product",
+            "specs",
+            "normalized",
+            "evidence",
+            "snapshots",
+            "evidence_without_snapshot",
+        ],
+    )
 
-    write_report("00_executive_summary.md", f"""
+    write_report(
+        "00_executive_summary.md",
+        f"""
 # Week01-06 Independent Audit Executive Summary
 
-Audit date: {datetime.now(timezone.utc).date().isoformat()} UTC. Scope: Week 1 through Week 6 of `cloud-competitive-expert`.
+Audit date: {datetime.now(UTC).date().isoformat()} UTC. Scope: Week 1 through Week 6 of `cloud-competitive-expert`.
 
 ## Overall Verdict
 
@@ -253,9 +323,12 @@ Allowed next work should be remediation only: restore version-control provenance
 ## Top Findings
 
 {finding_table}
-""")
+""",
+    )
 
-    write_report("01_repository_and_git_audit.md", """
+    write_report(
+        "01_repository_and_git_audit.md",
+        """
 # Repository And Git Audit
 
 ## Verdict
@@ -276,9 +349,12 @@ Allowed next work should be remediation only: restore version-control provenance
 ## Impact
 
 The working tree may contain real implementation work, but there is no immutable repository provenance. Week-by-week completion claims are therefore not independently reproducible from version control.
-""")
+""",
+    )
 
-    write_report("02_week01_audit.md", """
+    write_report(
+        "02_week01_audit.md",
+        """
 # Week01 Audit
 
 ## Verdict
@@ -298,9 +374,12 @@ The working tree may contain real implementation work, but there is no immutable
 - PostgreSQL was not verified in this audit because Docker daemon was not running.
 - No git commit/tag can prove the Week1 baseline.
 - The default local DB is no longer aligned with current migrations.
-""")
+""",
+    )
 
-    write_report("03_week02_audit.md", """
+    write_report(
+        "03_week02_audit.md",
+        """
 # Week02 Audit
 
 ## Verdict
@@ -318,9 +397,12 @@ The working tree may contain real implementation work, but there is no immutable
 
 - `cloud_expert_dev.sqlite` and `week2_e2e_20260721_01.sqlite` record `0002_ingestion_runs_and_snapshots`, but the current migration is named `0002_ingestion_snapshots`.
 - Current validators are not backward-compatible with pre-Week5 schemas unless the DB is upgraded first.
-""")
+""",
+    )
 
-    write_report("04_week03_audit.md", """
+    write_report(
+        "04_week03_audit.md",
+        """
 # Week03 Audit
 
 ## Verdict
@@ -350,9 +432,12 @@ Sampled 10 product specifications across ECS/OBS. All sampled rows linked Produc
 - 9 open low-confidence review items.
 - 0 normalized Region rows and 0 Availability rows in Week3 acceptance DB; region material is product-level evidence only.
 - Current `validate_evidence_links.py` fails on the unupgraded Week3 DB because it assumes Week5 tables; the upgraded audit copy validates.
-""")
+""",
+    )
 
-    write_report("05_week04_audit.md", """
+    write_report(
+        "05_week04_audit.md",
+        """
 # Week04 Audit
 
 ## Verdict
@@ -385,9 +470,12 @@ Sampled 10 product specifications across ECS/OBS. All sampled rows linked Produc
 - 1350 open review items block customer-facing use.
 - Availability rows are product-level only and cannot prove SKU/family/storage-class availability.
 - Current `validate_evidence_links.py` fails on the unupgraded Week4 DB because it assumes Week5 zone tables; the upgraded audit copy validates.
-""")
+""",
+    )
 
-    write_report("06_week05_audit.md", """
+    write_report(
+        "06_week05_audit.md",
+        """
 # Week05 Audit
 
 ## Verdict
@@ -422,9 +510,12 @@ Sampled 10 product specifications across ECS/OBS. All sampled rows linked Produc
 
 - 82 open review items.
 - Zone/Region availability is product-level only and cannot prove SKU-level or storage-class-level availability.
-""")
+""",
+    )
 
-    write_report("07_week06_audit.md", f"""
+    write_report(
+        "07_week06_audit.md",
+        f"""
 # Week06 Audit
 
 ## Verdict
@@ -454,9 +545,12 @@ Sampled 10 product specifications across ECS/OBS. All sampled rows linked Produc
 - Field matrices lack required status columns for semantic match, unit match, scope match, qualifier match, evidence status, and comparability status.
 - Enums and schema fields are narrower than the Prompt requirement.
 - Comparability logic is coverage-based readiness, not a robust comparison blocker system.
-""")
+""",
+    )
 
-    write_report("08_database_audit.md", """
+    write_report(
+        "08_database_audit.md",
+        """
 # Database Audit
 
 ## Verdict
@@ -478,9 +572,12 @@ Sampled 10 product specifications across ECS/OBS. All sampled rows linked Produc
 ## Not Verifiable
 
 - PostgreSQL migration behavior. Docker CLI exists, but Docker daemon was not running during audit.
-""")
+""",
+    )
 
-    write_report("09_test_and_coverage_audit.md", f"""
+    write_report(
+        "09_test_and_coverage_audit.md",
+        f"""
 # Test And Coverage Audit
 
 ## Verdict
@@ -503,9 +600,12 @@ Sampled 10 product specifications across ECS/OBS. All sampled rows linked Produc
 ## Coverage Risk
 
 Overall coverage is **{coverage_pct}%**. Week6-critical files are weaker: `canonical_service.py` 63%, `unit_standardization.py` 40%, and `schemas/canonical.py` 0%.
-""")
+""",
+    )
 
-    write_report("10_data_and_evidence_audit.md", """
+    write_report(
+        "10_data_and_evidence_audit.md",
+        """
 # Data And Evidence Audit
 
 ## Verdict
@@ -532,9 +632,12 @@ Overall coverage is **{coverage_pct}%**. Week6-critical files are weaker: `canon
 - Week5 and Week6 current-schema validators pass with 0 missing evidence links.
 - Upgraded Week3/4/5 audit copies pass with 0 missing evidence links.
 - Default DB fails due stale schema.
-""")
+""",
+    )
 
-    write_report("11_security_and_compliance_audit.md", """
+    write_report(
+        "11_security_and_compliance_audit.md",
+        """
 # Security And Compliance Audit
 
 ## Verdict
@@ -553,9 +656,12 @@ Overall coverage is **{coverage_pct}%**. Week6-critical files are weaker: `canon
 - `docker-compose.yml` contains a local PostgreSQL test password. This is acceptable as sample local config if documented, but should not be reused outside local dev.
 - Test files intentionally use fake `secret` values to assert redaction.
 - No evidence of real AccessKey, API token, customer data, private quote, or account-specific source ingestion was found.
-""")
+""",
+    )
 
-    write_report("12_cross_week_integration_audit.md", """
+    write_report(
+        "12_cross_week_integration_audit.md",
+        """
 # Cross-Week Integration Audit
 
 ## Verdict
@@ -578,9 +684,12 @@ Overall coverage is **{coverage_pct}%**. Week6-critical files are weaker: `canon
 ## Consequence
 
 The Week6 projection is useful as a narrow normalization acceptance artifact, but it is not the claimed full cross-provider competitive product data foundation.
-""")
+""",
+    )
 
-    write_report("13_blockers_and_risks.md", f"""
+    write_report(
+        "13_blockers_and_risks.md",
+        f"""
 # Blockers And Risks
 
 {finding_table}
@@ -596,9 +705,12 @@ The Week6 projection is useful as a narrow normalization acceptance artifact, bu
 ## Week7 Risk
 
 Starting Week7 product mapping or sales reasoning now would convert readiness artifacts into unsupported competitive claims. That would violate the evidence-first project policy.
-""")
+""",
+    )
 
-    write_report("14_remediation_plan.md", """
+    write_report(
+        "14_remediation_plan.md",
+        """
 # Remediation Plan
 
 ## Gate
@@ -615,11 +727,12 @@ Do not start Week7 feature work until R001-R008 in `tasks/remediation_backlog.ya
 6. Strengthen ComparabilityAssessment logic so it records explicit blockers for scope, qualifier, unit, evidence, review status, and market mismatch.
 7. Raise coverage above the required threshold and add negative tests around ambiguous units, qualitative network values, service-tier scope, stale evidence, and idempotent new rule versions.
 8. Run PostgreSQL migration validation once Docker daemon or another PostgreSQL service is available.
-""")
+""",
+    )
 
     results = {
         "audit_scope": "week01_06",
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": datetime.now(UTC).isoformat(),
         "overall_verdict": {
             "truthfulness": "PARTIAL",
             "completeness": "PARTIAL",
@@ -634,23 +747,29 @@ Do not start Week7 feature work until R001-R008 in `tasks/remediation_backlog.ya
         "evidence_chain_summary": chain_summary,
         "prompt_attachment_hashes": prompt_hashes,
     }
-    (AUDIT / "audit_results.json").write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
+    (AUDIT / "audit_results.json").write_text(
+        json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
     artifacts = []
     for path in sorted(AUDIT.iterdir()):
         if path.is_file() and path.name != "audit_evidence_manifest.json":
-            artifacts.append({
-                "path": str(path.relative_to(ROOT)),
-                "bytes": path.stat().st_size,
-                "sha256": sha256(path),
-            })
+            artifacts.append(
+                {
+                    "path": str(path.relative_to(ROOT)),
+                    "bytes": path.stat().st_size,
+                    "sha256": sha256(path),
+                }
+            )
     manifest = {
         "audit_scope": "week01_06",
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": datetime.now(UTC).isoformat(),
         "source_prompt_attachments": prompt_hashes,
         "artifacts": artifacts,
     }
-    (AUDIT / "audit_evidence_manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    (AUDIT / "audit_evidence_manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
     backlog = """
 items:

@@ -768,8 +768,12 @@ def validate_canonical_registry() -> list[str]:
                 f"{mapping.canonical_field_code}"
             )
         if mapping.source_field_code not in known_legacy_fields:
-            errors.append(f"Mapping source is not registered by current parsers: {mapping.source_field_code}")
+            errors.append(
+                f"Mapping source is not registered by current parsers: {mapping.source_field_code}"
+            )
 
     unmapped = sorted(known_legacy_fields - set(mapping_sources))
-    errors.extend(f"Legacy specification field has no canonical mapping: {code}" for code in unmapped)
+    errors.extend(
+        f"Legacy specification field has no canonical mapping: {code}" for code in unmapped
+    )
     return errors
