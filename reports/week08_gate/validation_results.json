@@ -1,0 +1,140 @@
+{
+  "generated_at": "2026-07-22T23:46:13+08:00",
+  "gate": "WEEK8_GATE",
+  "verdict": "NO-GO",
+  "work_started": false,
+  "evidence_package_business_code_modified": false,
+  "evidence_packages_created": false,
+  "customer_comparison_outputs_created": false,
+  "baseline": {
+    "branch": "main",
+    "head_commit": "d44ac83",
+    "origin_status": "ahead 1",
+    "worktree_clean_before_reports": true
+  },
+  "preconditions": {
+    "r005_complete": true,
+    "r006_complete": true,
+    "r007_complete": true,
+    "r008_review_queue_policy": "pending_human_review",
+    "r009_complete": true,
+    "r011_complete": true,
+    "week7_gate": "NO-GO",
+    "week7_gate_report": "reports/week07_gate/validation_results.json"
+  },
+  "week7_required_artifacts": {
+    "mapping_rule_set_table": false,
+    "mapping_candidate_table": false,
+    "mapping_field_comparison_table": false,
+    "product_mapping_rows": 0,
+    "mapping_candidate_count": null,
+    "approved_mapping_count": 0,
+    "mapping_rule_versions_available": false,
+    "mapping_evidence_validation_available": false,
+    "mapping_idempotency_validation_available": false
+  },
+  "review_package": {
+    "path": "D:\\审核文件",
+    "review_items_open_or_in_review": 1441,
+    "normalized_pending_review": 678,
+    "scope_mismatch_review": 0,
+    "comparability_blockers": 103,
+    "data_quality_issues_open_or_in_review": 0
+  },
+  "checks": {
+    "git_status": {
+      "command": "git status --short --branch",
+      "exit_code": 0,
+      "result": "main ahead 1 before new reports"
+    },
+    "git_branch": {
+      "command": "git branch --show-current",
+      "exit_code": 0,
+      "result": "main"
+    },
+    "git_tags": {
+      "command": "git tag --list",
+      "exit_code": 0,
+      "result": [
+        "audit-week01-06-baseline",
+        "audit-week06-baseline"
+      ]
+    },
+    "ruff_format_check": {
+      "command": ".venv312\\Scripts\\python.exe -m ruff format --check .",
+      "exit_code": 0,
+      "result": "203 files already formatted"
+    },
+    "ruff_check": {
+      "command": ".venv312\\Scripts\\python.exe -m ruff check .",
+      "exit_code": 0,
+      "result": "All checks passed"
+    },
+    "mypy_src_scripts": {
+      "command": ".venv312\\Scripts\\python.exe -m mypy src scripts",
+      "exit_code": 0,
+      "result": "Success: no issues found in 173 source files"
+    },
+    "pytest_not_network": {
+      "command": ".venv312\\Scripts\\python.exe -m pytest -m \"not network\" -ra",
+      "exit_code": 0,
+      "result": "83 passed, 6 skipped"
+    },
+    "pytest_postgres": {
+      "command": "POSTGRES_TEST_DATABASE_URL=postgresql+psycopg://... pytest -m postgres -ra",
+      "exit_code": 0,
+      "result": "6 passed, 83 deselected"
+    },
+    "docker_postgres": {
+      "command": "docker compose ps; docker compose exec -T postgres pg_isready -U cloud_expert",
+      "exit_code": 0,
+      "result": "PostgreSQL container healthy and accepting connections"
+    },
+    "validate_default_database": {
+      "command": ".venv312\\Scripts\\python.exe scripts\\validate_default_database.py",
+      "exit_code": 0,
+      "valid": true,
+      "head": "0006_week06_canonical_normalization"
+    },
+    "validate_evidence_links": {
+      "command": ".venv312\\Scripts\\python.exe scripts\\validate_evidence_links.py",
+      "exit_code": 0,
+      "missing_evidence_links": 0,
+      "errors": 0
+    },
+    "validate_normalized_evidence": {
+      "database_url": "sqlite:///D:/cloud_expert/test_outputs/week6_combined_projection.sqlite",
+      "exit_code": 0,
+      "normalized_specifications": 10172,
+      "missing_evidence_links": 0,
+      "hash_mismatch": 0
+    },
+    "validate_week06_projection": {
+      "database_url": "sqlite:///D:/cloud_expert/test_outputs/week6_combined_projection.sqlite",
+      "exit_code": 0,
+      "valid": true,
+      "normalized_specifications": 10172,
+      "evidence": 14113,
+      "snapshot_record": 67
+    }
+  },
+  "missing_scripts": [
+    "scripts/check_week07_gate.py",
+    "scripts/validate_mapping_rules.py",
+    "scripts/validate_mapping_evidence.py",
+    "scripts/validate_mapping_idempotency.py",
+    "scripts/check_week08_gate.py",
+    "scripts/validate_evidence_references.py",
+    "scripts/check_source_freshness.py",
+    "scripts/validate_evidence_package_idempotency.py"
+  ],
+  "blocking_items": [
+    "W8-B001-week7-gate",
+    "W8-B002-r008-human-review",
+    "W8-B003-mapping-rules",
+    "W8-B004-mapping-candidates",
+    "W8-B005-field-comparisons",
+    "W8-B006-mapping-evidence",
+    "W8-B007-idempotency"
+  ]
+}
