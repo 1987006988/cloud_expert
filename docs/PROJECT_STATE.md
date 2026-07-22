@@ -2,15 +2,19 @@
 
 ## Current Phase
 
-Remediation Stage 1 core recovery is complete after the Week 1-6 independent
-audit and R011 follow-up. The project now has a Git delivery baseline, a
-rebuilt default SQLite database at current Alembic head, a restored Week 6
-evidence chain, Stage 1 validation reports, and live PostgreSQL migration and
-integration validation. The stable Stage 1 recovery checkpoint is commit
-`fa75ded`; R011 live validation is recorded under
-`reports/remediation/r011/runs/run_02/`.
+Remediation Stage 1 core recovery, R011 live PostgreSQL validation, and Stage 2
+engineering remediation for R005, R006, R007, and R009 are complete. The project
+now has a Git delivery baseline, a rebuilt default SQLite database at current
+Alembic head, a restored Week 6 evidence chain, live PostgreSQL migration and
+integration validation, expanded canonical governance metadata, blocker-aware
+comparability assessment, regenerated field matrices, and 85% test coverage.
+The stable Stage 1 recovery checkpoint is commit `fa75ded`; R011 live validation
+is recorded under `reports/remediation/r011/runs/run_02/`.
 
 `WEEK7_GATE=NO-GO`
+
+Week 7 remains gated only because R008 is awaiting human review. Review files
+were exported to `D:\审核文件`.
 
 Current data model version:
 
@@ -54,6 +58,16 @@ Current data model version:
 - R011 live PostgreSQL validation completed with Docker Desktop PostgreSQL
   16.14, fresh upgrade, downgrade `-1`, re-upgrade, downgrade base, re-upgrade
   from base, matching schema fingerprints, and 6 PostgreSQL integration tests.
+- Stage 2 expanded canonical field metadata in `metadata_json` with semantic
+  group, evidence requirement, review policy, lifecycle/deprecation fields, and
+  comparability tier/status.
+- Stage 2 regenerated field matrices with semantic, unit, qualifier, scope,
+  evidence, comparability, lifecycle, and review-policy status columns.
+- Stage 2 strengthened comparability assessment to block on pending-review
+  normalized values, unit set mismatch, qualifier mismatch, scope mismatch, and
+  market-scope differences.
+- Stage 2 exported all human-review material to `D:\审核文件`.
+- Stage 2 raised total coverage to 85%.
 
 ## Week 6 Acceptance Metrics
 
@@ -66,12 +80,13 @@ Current data model version:
 | Normalization rules | 40 |
 | Normalized specifications | 10172 |
 | Skipped specifications | 240 |
-| Pending-review normalized rows | 768 |
-| Scope mismatch warnings | 90 |
+| Pending-review normalized rows | 678 |
+| Scope mismatch warnings | 0 |
 | Comparability assessments | 116 |
 | Comparable assessments | 13 |
-| Partial assessments | 66 |
+| Partial assessments | 64 |
 | Not-comparable assessments | 37 |
+| Needs-review assessments | 2 |
 | Missing normalized evidence links | 0 |
 
 Product normalized specification counts:
@@ -87,14 +102,14 @@ Product normalized specification counts:
 
 ## Test Status
 
-Latest Stage 1 checks executed on Python 3.12.13 from `.venv312`.
+Latest Stage 2 checks executed on Python 3.12.13 from `.venv312`.
 
 | Command | Result |
 | --- | --- |
 | `ruff format .` | passed |
 | `ruff check .` | passed |
-| `mypy src scripts` | passed, 172 source files |
-| `pytest --cov=cloud_expert --cov-report=term-missing --cov-report=json:reports/remediation/r011/runs/run_02/coverage.json` | passed, 71 passed / 0 failed, 79% coverage |
+| `mypy src scripts` | passed, 173 source files |
+| `pytest -m "not network" --cov=cloud_expert --cov-report=term-missing --cov-report=json:reports/remediation/stage2/coverage.json` | passed, 83 passed / 6 skipped, 85% coverage |
 | `scripts/validate_source_registry.py` | passed, 74 valid sources / 4 disabled / 0 errors |
 | `scripts/validate_raw_snapshots.py` | passed, 90 snapshots checked / 0 errors |
 | `scripts/validate_canonical_definitions.py` | passed, 38 canonical fields / 40 mappings / 0 errors |
@@ -118,21 +133,18 @@ Latest Stage 1 checks executed on Python 3.12.13 from `.venv312`.
 
 ## Known Issues
 
-- Overall test coverage is 79%, below the 85% remediation backlog target.
-- Human review is not complete. Prior low-confidence queues remain open.
+- Human review is not complete. R008 is routed to `D:\审核文件` and remains
+  `pending_human_review` until reviewer decisions are applied to the database.
 - 240 input specifications could not be normalized into exactly one canonical
   value.
-- 90 object-storage rows are evidence-backed but product-scoped because prior
-  normalized specifications do not store a service-tier key.
 - Huawei Cloud Week 3 acceptance still has no normalized Region rows.
 - Comparability assessments are readiness records only and must not be used as
   sales claims, competitive conclusions, product mappings, or pricing guidance.
 
 ## Next Step Recommendation
 
-Do not start Week 7 product mapping yet. R011 is closed, but Remediation Stage
-2 is still required for Canonical schema/enums, qualifier and scope rules,
-ComparabilityAssessment, Field Matrix status columns, coverage uplift, and
-ReviewItem governance.
+Do not start Week 7 product mapping yet. Engineering remediation for R005-R007
+and R009 is complete, but R008 requires human review and database follow-up
+after decisions are made.
 Pricing/TCO, RAG, frontend, LLM calls, competitive scoring, and sales scripts
 remain out of scope until explicitly approved.

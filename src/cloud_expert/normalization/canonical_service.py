@@ -78,6 +78,28 @@ class ComparabilitySummary:
         self.status_counts[status] = self.status_counts.get(status, 0) + 1
 
 
+@dataclass(frozen=True)
+class FieldReadiness:
+    count: int
+    scope_types: frozenset[str]
+    canonical_units: frozenset[str]
+    value_qualifiers: frozenset[str]
+    pending_review_count: int
+
+
+@dataclass(frozen=True)
+class ComparabilityDecision:
+    status: str
+    reason_code: str
+    explanation: str
+    evidence_coverage_score: Decimal
+    unit_compatibility_score: Decimal
+    qualifier_compatibility_score: Decimal
+    scope_compatibility_score: Decimal
+    overall_score: Decimal
+    review_status: str
+
+
 def seed_canonical_registry(session: Session) -> CanonicalSeedSummary:
     summary = CanonicalSeedSummary()
     field_ids: dict[str, int] = {}
@@ -96,7 +118,10 @@ def seed_canonical_registry(session: Session) -> CanonicalSeedSummary:
             "description": seed.description,
             "is_comparable": seed.is_comparable,
             "is_active": True,
-            "metadata_json": {"seeded_by": "week06_canonical_registry"},
+            "metadata_json": {
+                "seeded_by": "week06_canonical_registry",
+                **seed.prompt_metadata(),
+            },
         }
         if existing is None:
             existing = CanonicalFieldDefinition(code=seed.code, **values)
@@ -326,25 +351,26 @@ def _assess_product_pair(
             qualifiers = {canonical_field.default_qualifier}
         for qualifier in sorted(qualifiers):
             scope_type = canonical_field.default_scope_type
-            source_count = _count_normalized(
+            source_readiness = _normalized_readiness(
                 session,
                 product_id=source_product.id,
                 canonical_field_id=canonical_field.id,
                 qualifier=qualifier,
             )
-            target_count = _count_normalized(
+            target_readiness = _normalized_readiness(
                 session,
                 product_id=target_product.id,
                 canonical_field_id=canonical_field.id,
                 qualifier=qualifier,
             )
-            status, reason, explanation, score = _comparability_status(
-                source_count,
-                target_count,
-                source_product.market_mode,
-                target_product.market_mode,
+            decision = _comparability_decision(
+                source_readiness,
+                target_readiness,
+                expected_scope_type=scope_type,
+                source_market_mode=source_product.market_mode,
+                target_market_mode=target_product.market_mode,
             )
-            summary.count_status(status)
+            summary.count_status(decision.status)
             existing = session.scalar(
                 select(ComparabilityAssessment).where(
                     ComparabilityAssessment.canonical_field_id == canonical_field.id,
@@ -356,20 +382,16 @@ def _assess_product_pair(
             )
             values = {
                 "normalization_run_id": None if run is None else run.id,
-                "status": status,
-                "reason_code": reason,
-                "explanation": explanation,
+                "status": decision.status,
+                "reason_code": decision.reason_code,
+                "explanation": decision.explanation,
                 "market_scope": f"{source_product.market_mode}_vs_{target_product.market_mode}",
-                "evidence_coverage_score": score,
-                "unit_compatibility_score": Decimal("1.0000")
-                if source_count and target_count
-                else Decimal("0.5000"),
-                "qualifier_compatibility_score": Decimal("1.0000"),
-                "scope_compatibility_score": Decimal("1.0000"),
-                "overall_score": score,
-                "review_status": ReviewStatus.PENDING_REVIEW.value
-                if status != ComparabilityStatus.COMPARABLE.value
-                else ReviewStatus.MACHINE_EXTRACTED.value,
+                "evidence_coverage_score": decision.evidence_coverage_score,
+                "unit_compatibility_score": decision.unit_compatibility_score,
+                "qualifier_compatibility_score": decision.qualifier_compatibility_score,
+                "scope_compatibility_score": decision.scope_compatibility_score,
+                "overall_score": decision.overall_score,
+                "review_status": decision.review_status,
             }
             if existing is None:
                 assessment = ComparabilityAssessment(
@@ -528,36 +550,138 @@ def _count_normalized(
     )
 
 
-def _comparability_status(
-    source_count: int,
-    target_count: int,
+def _normalized_readiness(
+    session: Session,
+    *,
+    product_id: int,
+    canonical_field_id: int,
+    qualifier: str,
+) -> FieldReadiness:
+    rows = list(
+        session.scalars(
+            select(NormalizedSpecification).where(
+                NormalizedSpecification.product_id == product_id,
+                NormalizedSpecification.canonical_field_id == canonical_field_id,
+                NormalizedSpecification.value_qualifier == qualifier,
+            )
+        ).all()
+    )
+    return FieldReadiness(
+        count=len(rows),
+        scope_types=frozenset(row.scope_type for row in rows),
+        canonical_units=frozenset(row.canonical_unit for row in rows if row.canonical_unit),
+        value_qualifiers=frozenset(row.value_qualifier for row in rows),
+        pending_review_count=sum(
+            row.review_status == ReviewStatus.PENDING_REVIEW.value for row in rows
+        ),
+    )
+
+
+def _comparability_decision(
+    source: FieldReadiness,
+    target: FieldReadiness,
+    *,
+    expected_scope_type: str,
     source_market_mode: str,
     target_market_mode: str,
-) -> tuple[str, str, str, Decimal]:
-    if source_count == 0 and target_count == 0:
-        return (
+) -> ComparabilityDecision:
+    if source.count == 0 and target.count == 0:
+        return ComparabilityDecision(
             ComparabilityStatus.NOT_COMPARABLE.value,
             "missing_both_sides",
             "Neither product has evidence-backed normalized values for this canonical field.",
             Decimal("0.0000"),
+            Decimal("0.5000"),
+            Decimal("0.5000"),
+            Decimal("0.5000"),
+            Decimal("0.0000"),
+            ReviewStatus.PENDING_REVIEW.value,
         )
-    if source_count == 0 or target_count == 0:
-        return (
+    if source.count == 0 or target.count == 0:
+        return ComparabilityDecision(
             ComparabilityStatus.PARTIAL.value,
             "missing_one_side",
             "Only one side has evidence-backed normalized values for this canonical field.",
             Decimal("0.5000"),
+            Decimal("0.5000"),
+            Decimal("0.5000"),
+            Decimal("0.5000"),
+            Decimal("0.5000"),
+            ReviewStatus.PENDING_REVIEW.value,
+        )
+    if source.pending_review_count or target.pending_review_count:
+        return ComparabilityDecision(
+            ComparabilityStatus.NEEDS_REVIEW.value,
+            "pending_review_values",
+            "Both sides have normalized values, but at least one value is still pending human review.",
+            Decimal("0.7500"),
+            Decimal("1.0000"),
+            Decimal("1.0000"),
+            Decimal("1.0000"),
+            Decimal("0.7500"),
+            ReviewStatus.PENDING_REVIEW.value,
+        )
+    scope_mismatch = (
+        source.scope_types != target.scope_types
+        or bool(source.scope_types - {expected_scope_type})
+        or bool(target.scope_types - {expected_scope_type})
+    )
+    if scope_mismatch:
+        return ComparabilityDecision(
+            ComparabilityStatus.NEEDS_REVIEW.value,
+            "scope_mismatch",
+            "Both sides have values, but normalized scopes do not align with each other or the canonical default scope.",
+            Decimal("1.0000"),
+            Decimal("1.0000"),
+            Decimal("1.0000"),
+            Decimal("0.2500"),
+            Decimal("0.2500"),
+            ReviewStatus.PENDING_REVIEW.value,
+        )
+    if source.canonical_units != target.canonical_units:
+        return ComparabilityDecision(
+            ComparabilityStatus.NEEDS_REVIEW.value,
+            "unit_mismatch",
+            "Both sides have values, but canonical unit sets do not align.",
+            Decimal("1.0000"),
+            Decimal("0.2500"),
+            Decimal("1.0000"),
+            Decimal("1.0000"),
+            Decimal("0.2500"),
+            ReviewStatus.PENDING_REVIEW.value,
+        )
+    if source.value_qualifiers != target.value_qualifiers:
+        return ComparabilityDecision(
+            ComparabilityStatus.NEEDS_REVIEW.value,
+            "qualifier_mismatch",
+            "Both sides have values, but value qualifier sets do not align.",
+            Decimal("1.0000"),
+            Decimal("1.0000"),
+            Decimal("0.2500"),
+            Decimal("1.0000"),
+            Decimal("0.2500"),
+            ReviewStatus.PENDING_REVIEW.value,
         )
     if source_market_mode != target_market_mode:
-        return (
+        return ComparabilityDecision(
             ComparabilityStatus.PARTIAL.value,
             "market_scope_differs",
             "Both sides have normalized values, but their domestic/international market scopes differ.",
             Decimal("0.7500"),
+            Decimal("1.0000"),
+            Decimal("1.0000"),
+            Decimal("1.0000"),
+            Decimal("0.7500"),
+            ReviewStatus.PENDING_REVIEW.value,
         )
-    return (
+    return ComparabilityDecision(
         ComparabilityStatus.COMPARABLE.value,
         "field_unit_scope_aligned",
         "Both sides have evidence-backed normalized values with aligned field, unit, qualifier, and scope.",
         Decimal("1.0000"),
+        Decimal("1.0000"),
+        Decimal("1.0000"),
+        Decimal("1.0000"),
+        Decimal("1.0000"),
+        ReviewStatus.MACHINE_EXTRACTED.value,
     )

@@ -1,0 +1,49 @@
+{
+  "generated_at": "2026-07-22T23:28:26+08:00",
+  "verdict": "ENGINEERING_COMPLETE_HUMAN_REVIEW_PENDING",
+  "week7_gate": "NO-GO",
+  "closed_items": [
+    "R005_expand_canonical_schema_to_prompt",
+    "R006_field_matrix_required_columns",
+    "R007_strengthen_comparability_assessment",
+    "R009_raise_test_coverage"
+  ],
+  "pending_items": [
+    "R008_review_queue_policy"
+  ],
+  "review_package": {
+    "output_dir": "D:\\审核文件",
+    "review_items_open_or_in_review": 1441,
+    "normalized_pending_review": 678,
+    "scope_mismatch_review": 0,
+    "comparability_blockers": 103,
+    "data_quality_issues_open_or_in_review": 0
+  },
+  "week6_metrics": {
+    "canonical_field_definitions": 38,
+    "normalization_rules": 40,
+    "normalized_specifications": 10172,
+    "comparability_assessments": 116,
+    "machine_extracted_normalized_rows": 9494,
+    "pending_review_normalized_rows": 678,
+    "scope_mismatch_warnings": 0,
+    "comparable_assessments": 13,
+    "partial_assessments": 64,
+    "not_comparable_assessments": 37,
+    "needs_review_assessments": 2,
+    "missing_normalized_evidence_links": 0,
+    "average_normalization_quality_score": "0.9798"
+  },
+  "validation": {
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "mypy_src_scripts": "passed, 173 source files",
+    "pytest_not_network_coverage": "passed, 83 passed / 6 skipped, 85% coverage",
+    "validate_canonical_definitions": "passed, 38 fields / 40 mappings / 0 errors",
+    "validate_canonical_units": "passed, 10172 checked / 0 errors",
+    "validate_value_qualifiers": "passed, no unknown qualifiers",
+    "validate_specification_scopes": "passed, no unknown scopes / 0 mismatch warnings",
+    "validate_normalized_evidence": "passed, 10172 rows / 0 missing links / 0 hash mismatches",
+    "validate_week06_projection": "passed, valid=true"
+  }
+}

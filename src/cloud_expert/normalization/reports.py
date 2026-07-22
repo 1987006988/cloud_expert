@@ -36,6 +36,35 @@ PROVIDER_FIELD_SETS: dict[str, dict[str, tuple[str, str, str | None]]] = {
     "aliyun/oss": ALIYUN_OSS_SPEC_DEFINITIONS,
 }
 
+FIELD_MATRIX_HEADERS = [
+    "canonical_field_code",
+    "canonical_name",
+    "domain",
+    "semantic_group",
+    "data_type",
+    "canonical_unit",
+    "unit_dimension",
+    "unit_status",
+    "legacy_field_code",
+    "value_qualifier",
+    "default_qualifier",
+    "qualifier_status",
+    "scope_type",
+    "default_scope_type",
+    "scope_status",
+    "provider_products",
+    "provider_coverage_count",
+    "evidence_requirement",
+    "evidence_status",
+    "comparability_tier",
+    "comparability_status",
+    "lifecycle_status",
+    "deprecated",
+    "replacement_field_code",
+    "review_policy",
+    "notes",
+]
+
 
 def build_field_matrix_rows(domain: str | None = None) -> list[dict[str, str]]:
     seeds = canonical_seed_by_code()
@@ -44,17 +73,41 @@ def build_field_matrix_rows(domain: str | None = None) -> list[dict[str, str]]:
         seed = seeds[mapping.canonical_field_code]
         if domain is not None and seed.domain != domain:
             continue
+        metadata = seed.prompt_metadata()
+        provider_products = _providers_for_legacy(mapping.source_field_code)
         rows.append(
             {
                 "canonical_field_code": seed.code,
                 "canonical_name": seed.name,
                 "domain": seed.domain,
+                "semantic_group": str(metadata["semantic_group"]),
                 "data_type": seed.data_type,
                 "canonical_unit": seed.canonical_unit or "",
+                "unit_dimension": seed.unit_dimension or "",
+                "unit_status": _unit_status(
+                    seed.data_type, seed.canonical_unit, seed.unit_dimension
+                ),
                 "legacy_field_code": mapping.source_field_code,
                 "value_qualifier": mapping.value_qualifier,
+                "default_qualifier": seed.default_qualifier,
+                "qualifier_status": _qualifier_status(
+                    mapping.value_qualifier, seed.default_qualifier
+                ),
                 "scope_type": mapping.scope_type,
-                "provider_products": ", ".join(_providers_for_legacy(mapping.source_field_code)),
+                "default_scope_type": seed.default_scope_type,
+                "scope_status": _scope_status(mapping.scope_type, seed.default_scope_type),
+                "provider_products": ", ".join(provider_products),
+                "provider_coverage_count": str(len(provider_products)),
+                "evidence_requirement": str(metadata["evidence_requirement"]),
+                "evidence_status": _evidence_status(provider_products),
+                "comparability_tier": str(metadata["comparability_tier"]),
+                "comparability_status": _field_comparability_status(
+                    seed.is_comparable, provider_products
+                ),
+                "lifecycle_status": str(metadata["lifecycle_status"]),
+                "deprecated": str(metadata["deprecated"]).lower(),
+                "replacement_field_code": str(metadata["replacement_field_code"] or ""),
+                "review_policy": str(metadata["review_policy"]),
                 "notes": mapping.conversion_note or "",
             }
         )
@@ -118,15 +171,7 @@ def build_normalization_quality_report(session: Session) -> dict[str, Any]:
 
 
 def write_markdown_table(rows: list[dict[str, str]], output_path: Path, *, title: str) -> None:
-    headers = [
-        "canonical_field_code",
-        "legacy_field_code",
-        "canonical_unit",
-        "value_qualifier",
-        "scope_type",
-        "provider_products",
-        "notes",
-    ]
+    headers = FIELD_MATRIX_HEADERS
     lines = [f"# {title}", "", "| " + " | ".join(headers) + " |"]
     lines.append("| " + " | ".join("---" for _ in headers) + " |")
     for row in rows:
@@ -158,6 +203,40 @@ def _providers_for_legacy(source_field_code: str) -> list[str]:
         if source_field_code in fields:
             providers.append(provider_product)
     return providers
+
+
+def _unit_status(data_type: str, canonical_unit: str | None, unit_dimension: str | None) -> str:
+    if data_type in {"text", "enum", "boolean"} and canonical_unit is None:
+        return "unit_not_applicable"
+    if canonical_unit and unit_dimension:
+        return "canonical_unit_defined"
+    return "unit_review_required"
+
+
+def _qualifier_status(value_qualifier: str, default_qualifier: str) -> str:
+    if value_qualifier == default_qualifier:
+        return "default_qualifier"
+    return "explicit_mapping_qualifier"
+
+
+def _scope_status(scope_type: str, default_scope_type: str) -> str:
+    if scope_type == default_scope_type:
+        return "default_scope"
+    return "explicit_mapping_scope"
+
+
+def _evidence_status(provider_products: list[str]) -> str:
+    if provider_products:
+        return "parser_field_registered"
+    return "missing_parser_field"
+
+
+def _field_comparability_status(is_comparable: bool, provider_products: list[str]) -> str:
+    if not is_comparable:
+        return "reference_only"
+    if len(provider_products) >= 2:
+        return "ready_for_blocker_assessment"
+    return "limited_provider_coverage"
 
 
 def _count_normalized(session: Session, product_id: int, canonical_field_id: int) -> int:

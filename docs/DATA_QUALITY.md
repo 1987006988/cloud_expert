@@ -136,19 +136,20 @@ persisted product specification rows.
 | Normalization rules | 40 |
 | Normalized specifications | 10172 |
 | Comparability assessments | 116 |
-| Machine-extracted normalized rows | 9404 |
-| Pending-review normalized rows | 768 |
-| Scope mismatch warnings | 90 |
+| Machine-extracted normalized rows | 9494 |
+| Pending-review normalized rows | 678 |
+| Scope mismatch warnings | 0 |
 | Missing normalized evidence links | 0 |
-| Average normalization quality score | 0.9781 |
+| Average normalization quality score | 0.9798 |
 
 Comparability readiness:
 
 | Status | Count |
 | --- | ---: |
 | comparable | 13 |
-| partial | 66 |
+| partial | 64 |
 | not_comparable | 37 |
+| needs_review | 2 |
 
 Generated reports are under `reports/normalization/`.
 
@@ -156,7 +157,6 @@ Known Week 6 quality limits:
 
 - 240 input `ProductSpecification` rows were skipped because the standardized
   value could not produce exactly one canonical value.
-- 90 object-storage rows fell back from ideal `service_tier` scope to `product`
-  scope because the prior product specification table does not persist a direct
-  service-tier key.
+- Human-review material was exported to `D:\审核文件`, including ReviewItem
+  rows, pending normalized values, and comparability blockers.
 - Comparability assessments are field-level readiness records only.

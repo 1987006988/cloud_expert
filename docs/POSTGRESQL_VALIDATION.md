@@ -14,7 +14,8 @@ R011 live validation was completed in a second, separate run:
 
 `WEEK7_GATE=NO-GO`
 
-Week 7 remains gated because R005-R009 are still open.
+Week 7 remains gated because R008 is pending human review. R005, R006, R007,
+and R009 have since been remediated in Stage 2.
 
 ## Environment
 
@@ -73,8 +74,8 @@ long revision ID is written.
 | --- | --- |
 | `pytest -m postgres -ra` | 6 passed |
 | `pytest tests\integration -m "not network" -ra` | 6 passed |
-| `pytest -m "not network" -ra` | 71 passed |
-| coverage run | 71 passed, 79% total coverage |
+| `pytest -m "not network" -ra` | 83 passed / 6 skipped |
+| coverage run | 83 passed / 6 skipped, 85% total coverage |
 | `ruff format .` | passed |
 | `ruff format --check .` | passed |
 | `ruff check .` | passed |
@@ -86,11 +87,12 @@ transaction rollback, and concurrent unique-conflict behavior.
 
 ## Remaining Non-R011 Risks
 
-- R005 Canonical schema expansion remains open.
-- R006 Field Matrix required columns remain open.
-- R007 ComparabilityAssessment strengthening remains open.
-- R008 ReviewItem governance remains open.
-- R009 coverage uplift remains open because total coverage is still 79%.
+- R005 Canonical schema expansion is complete.
+- R006 Field Matrix required columns are complete.
+- R007 ComparabilityAssessment strengthening is complete.
+- R009 coverage uplift is complete at 85%.
+- R008 ReviewItem governance is routed to `D:\审核文件` and remains pending
+  human review.
 
-R011 is closed, but Week 7 product mapping must not start until Stage 2 is
-closed or explicitly waived.
+R011 is closed, but Week 7 product mapping must not start until R008 human
+review decisions are applied or explicitly waived.

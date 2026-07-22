@@ -11,6 +11,9 @@ Generated field matrices:
 - `reports/normalization/object_storage_field_matrix.md`
 - `reports/normalization/object_storage_field_matrix.csv`
 
+Stage 2 field matrices include semantic, unit, qualifier, scope, evidence,
+comparability, lifecycle, replacement, and review-policy status columns.
+
 ## Naming Rules
 
 - Use domain prefixes: `compute.*` and `object_storage.*`.
@@ -29,9 +32,27 @@ Generated field matrices:
 | Object storage | 19 | 19 |
 | Total | 38 | 40 |
 
+## Governance Metadata
+
+Canonical field seeds publish the following metadata into
+`canonical_field_definition.metadata_json`:
+
+- `semantic_group`
+- `semantic_status`
+- `unit_status`
+- `scope_status`
+- `qualifier_status`
+- `evidence_requirement`
+- `evidence_status`
+- `comparability_tier`
+- `comparability_status`
+- `review_policy`
+- `lifecycle_status`
+- `deprecated`
+- `replacement_field_code`
+
 ## Non-Goals
 
 Canonical fields do not assert that two providers have equivalent products.
 They only define a field vocabulary and normalization target for future
 evidence-backed analysis.
-

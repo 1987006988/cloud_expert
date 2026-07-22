@@ -7,7 +7,11 @@ import _bootstrap  # noqa: F401
 
 from cloud_expert.database.enums import CanonicalDomain
 from cloud_expert.ingestion.storage.atomic_write import atomic_write_text
-from cloud_expert.normalization.reports import build_field_matrix_rows, write_markdown_table
+from cloud_expert.normalization.reports import (
+    FIELD_MATRIX_HEADERS,
+    build_field_matrix_rows,
+    write_markdown_table,
+)
 
 
 def main() -> int:
@@ -38,9 +42,8 @@ def _write_csv(rows: list[dict[str, str]], output_path: Path) -> None:
     if not rows:
         atomic_write_text(output_path, "")
         return
-    headers = list(rows[0])
     with output_path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=headers)
+        writer = csv.DictWriter(handle, fieldnames=FIELD_MATRIX_HEADERS)
         writer.writeheader()
         writer.writerows(rows)
 

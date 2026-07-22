@@ -5,15 +5,16 @@
   "normalized_specifications": 10172,
   "comparability_assessments": 116,
   "normalized_review_status_counts": {
-    "machine_extracted": 9404,
-    "pending_review": 768
+    "machine_extracted": 9494,
+    "pending_review": 678
   },
   "comparability_status_counts": {
     "comparable": 13,
+    "needs_review": 2,
     "not_comparable": 37,
-    "partial": 66
+    "partial": 64
   },
-  "average_quality_score": "0.9781",
+  "average_quality_score": "0.9798",
   "product_normalized_specification_counts": {
     "aliyun/ecs": 6281,
     "aliyun/oss": 30,

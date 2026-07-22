@@ -13,6 +13,14 @@ from cloud_expert.ingestion.providers.aws.s3.mappings import S3_SPEC_DEFINITIONS
 from cloud_expert.ingestion.providers.huawei_cloud.ecs.mappings import ECS_SPEC_DEFINITIONS
 from cloud_expert.ingestion.providers.huawei_cloud.obs.mappings import OBS_SPEC_DEFINITIONS
 
+LIFECYCLE_ACTIVE = "active"
+REVIEW_POLICY_HUMAN_ON_AMBIGUITY = "human_review_on_ambiguity"
+EVIDENCE_REQUIRED = "official_source_evidence_required"
+COMPARABILITY_DIRECT = "direct"
+COMPARABILITY_CONDITIONAL = "conditional"
+
+PROMPT_METADATA_VERSION = "week06_remediation_stage2_v1"
+
 
 @dataclass(frozen=True)
 class CanonicalFieldSeed:
@@ -26,6 +34,46 @@ class CanonicalFieldSeed:
     default_scope_type: str
     description: str
     is_comparable: bool = True
+    lifecycle_status: str = LIFECYCLE_ACTIVE
+    replacement_field_code: str | None = None
+    review_policy: str = REVIEW_POLICY_HUMAN_ON_AMBIGUITY
+    evidence_requirement: str = EVIDENCE_REQUIRED
+    comparability_tier: str = COMPARABILITY_DIRECT
+
+    @property
+    def semantic_group(self) -> str:
+        parts = self.code.split(".")
+        return ".".join(parts[:2]) if len(parts) >= 2 else self.code
+
+    def prompt_metadata(self) -> dict[str, object]:
+        unit_status = (
+            "unit_not_applicable"
+            if self.data_type in {DataType.TEXT.value, DataType.ENUM.value, DataType.BOOLEAN.value}
+            and self.canonical_unit is None
+            else "canonical_unit_defined"
+            if self.canonical_unit is not None and self.unit_dimension is not None
+            else "unit_review_required"
+        )
+        return {
+            "metadata_version": PROMPT_METADATA_VERSION,
+            "semantic_group": self.semantic_group,
+            "semantic_status": "defined",
+            "unit_status": unit_status,
+            "scope_status": "default_scope_defined",
+            "qualifier_status": "default_qualifier_defined",
+            "evidence_requirement": self.evidence_requirement,
+            "evidence_status": "official_evidence_required",
+            "comparability_tier": self.comparability_tier
+            if self.is_comparable
+            else COMPARABILITY_CONDITIONAL,
+            "comparability_status": "ready_for_blocker_assessment"
+            if self.is_comparable
+            else "reference_only",
+            "review_policy": self.review_policy,
+            "lifecycle_status": self.lifecycle_status,
+            "deprecated": self.lifecycle_status != LIFECYCLE_ACTIVE,
+            "replacement_field_code": self.replacement_field_code,
+        }
 
 
 @dataclass(frozen=True)
@@ -749,11 +797,52 @@ def legacy_mapping_by_source_field() -> dict[str, LegacyFieldMapping]:
 
 def validate_canonical_registry() -> list[str]:
     errors: list[str] = []
+    allowed_domains = set(CanonicalDomain.values())
+    allowed_data_types = set(DataType.values())
+    allowed_qualifiers = set(ValueQualifier.values())
+    allowed_scopes = set(SpecificationScopeType.values())
+    required_metadata_keys = {
+        "metadata_version",
+        "semantic_group",
+        "semantic_status",
+        "unit_status",
+        "scope_status",
+        "qualifier_status",
+        "evidence_requirement",
+        "evidence_status",
+        "comparability_tier",
+        "comparability_status",
+        "review_policy",
+        "lifecycle_status",
+        "deprecated",
+        "replacement_field_code",
+    }
     seed_codes = [seed.code for seed in CANONICAL_FIELD_SEEDS]
     duplicate_seed_codes = sorted({code for code in seed_codes if seed_codes.count(code) > 1})
     errors.extend(f"Duplicate canonical field definition: {code}" for code in duplicate_seed_codes)
 
     canonical_codes = set(seed_codes)
+    for seed in CANONICAL_FIELD_SEEDS:
+        if seed.domain not in allowed_domains:
+            errors.append(f"Unknown canonical domain for {seed.code}: {seed.domain}")
+        if seed.data_type not in allowed_data_types:
+            errors.append(f"Unknown data type for {seed.code}: {seed.data_type}")
+        if seed.default_qualifier not in allowed_qualifiers:
+            errors.append(f"Unknown default qualifier for {seed.code}: {seed.default_qualifier}")
+        if seed.default_scope_type not in allowed_scopes:
+            errors.append(f"Unknown default scope for {seed.code}: {seed.default_scope_type}")
+        if seed.lifecycle_status != LIFECYCLE_ACTIVE and not seed.replacement_field_code:
+            errors.append(f"Deprecated canonical field lacks replacement: {seed.code}")
+        if seed.replacement_field_code and seed.replacement_field_code not in canonical_codes:
+            errors.append(
+                f"Replacement canonical field does not exist for {seed.code}: "
+                f"{seed.replacement_field_code}"
+            )
+        missing_metadata = required_metadata_keys - set(seed.prompt_metadata())
+        if missing_metadata:
+            missing = ", ".join(sorted(missing_metadata))
+            errors.append(f"Canonical field metadata incomplete for {seed.code}: {missing}")
+
     mapping_sources = [mapping.source_field_code for mapping in LEGACY_FIELD_MAPPINGS]
     duplicate_sources = sorted(
         {source for source in mapping_sources if mapping_sources.count(source) > 1}
@@ -770,6 +859,15 @@ def validate_canonical_registry() -> list[str]:
         if mapping.source_field_code not in known_legacy_fields:
             errors.append(
                 f"Mapping source is not registered by current parsers: {mapping.source_field_code}"
+            )
+        if mapping.value_qualifier not in allowed_qualifiers:
+            errors.append(
+                f"Unknown mapping qualifier for {mapping.source_field_code}: "
+                f"{mapping.value_qualifier}"
+            )
+        if mapping.scope_type not in allowed_scopes:
+            errors.append(
+                f"Unknown mapping scope for {mapping.source_field_code}: {mapping.scope_type}"
             )
 
     unmapped = sorted(known_legacy_fields - set(mapping_sources))

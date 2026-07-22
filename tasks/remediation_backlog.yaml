@@ -36,30 +36,35 @@ items:
     stage1_result: Rebuilt projection includes product_family=299, service_tier=17, product_sla=13, region=53, availability=102, availability_zone=62, zone_availability=62, review_item=1441.
   - id: R005_expand_canonical_schema_to_prompt
     severity: HIGH
-    status: open
+    status: complete
     title: Expand canonical fields, qualifiers, scopes, data types, and deprecation metadata
     rationale: Week6 schema does not cover all Prompt-required qualifiers/scopes/metadata.
+    stage2_result: Canonical seed metadata now records semantic group, lifecycle/deprecation fields, evidence requirement, review policy, and comparability tier/status in metadata_json; validate_canonical_definitions.py passes.
   - id: R006_field_matrix_required_columns
     severity: HIGH
-    status: open
+    status: complete
     title: Add semantic/unit/scope/qualifier/evidence/comparability status columns to field matrices
     rationale: Current matrices only list mapping rows and provider products.
+    stage2_result: Field matrices now include semantic, unit, qualifier, scope, evidence, comparability, lifecycle, replacement, and review-policy status columns; reports regenerated under reports/normalization/.
   - id: R007_strengthen_comparability_assessment
     severity: HIGH
-    status: open
+    status: complete
     title: Make comparability assessment blocker-aware
     rationale: Current logic mostly counts rows and market-mode mismatch.
+    stage2_result: Comparability assessment now evaluates pending review values, unit sets, qualifier sets, scope alignment, evidence coverage, and market scope before marking rows comparable.
   - id: R008_review_queue_policy
     severity: HIGH
-    status: open
+    status: pending_human_review
     title: Route or close open human review queues before customer-facing use
     rationale: At least 1441 open review items remain across Huawei, AWS, and Aliyun data.
+    stage2_result: Open review queues and comparability blockers were exported to D:\审核文件 for human review. Database rows remain unclosed until reviewer decisions are applied.
   - id: R009_raise_test_coverage
     severity: HIGH
-    status: open
+    status: complete
     title: Raise coverage and negative test depth for normalization/comparability
     rationale: Overall coverage is below the 85% gate.
-    stage1_result: Stage1 pytest coverage is 79%, so this remains open.
+    stage1_result: Stage1 pytest coverage was 79%, so R009 remained open after Stage 1.
+    stage2_result: pytest -m "not network" with coverage passes at 85%; report stored at reports/remediation/stage2/coverage.json.
   - id: R010_ruff_format_gate
     severity: MEDIUM
     status: complete
