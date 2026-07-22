@@ -54,6 +54,7 @@ pythonpath = ["src"]
 addopts = "-ra -p no:cacheprovider"
 markers = [
     "network: tests that access explicitly approved public network resources",
+    "postgres: tests that require a live PostgreSQL database",
 ]
 
 [tool.coverage.run]

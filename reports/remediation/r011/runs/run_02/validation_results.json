@@ -1,0 +1,98 @@
+{
+  "generated_at": "2026-07-22T23:02:12+08:00",
+  "r011_status": "COMPLETED",
+  "week7_gate": "NO-GO",
+  "docker": {
+    "daemon_running": true,
+    "client_version": "25.0.3",
+    "server_version": "25.0.3",
+    "compose_version": "v2.24.6-desktop.1",
+    "container_name": "cloud_expert-postgres-1",
+    "container_id": "e6dcd73052da",
+    "image": "postgres:16",
+    "state": "running",
+    "health": "healthy",
+    "ports": "0.0.0.0:54329->5432/tcp",
+    "pg_isready": true
+  },
+  "postgres": {
+    "server_version": "PostgreSQL 16.14 (Debian 16.14-1.pgdg13+1)",
+    "fresh_database": "cloud_expert_r011_fresh",
+    "full_database": "cloud_expert_r011_full",
+    "test_database": "cloud_expert_r011_tests",
+    "user": "cloud_expert",
+    "schema": "public",
+    "timezone": "Etc/UTC",
+    "password_recorded": false
+  },
+  "connection": {
+    "sqlalchemy": true,
+    "select_1": true,
+    "pool_initialized": true,
+    "transaction_commit": true,
+    "transaction_rollback": true
+  },
+  "alembic": {
+    "head_count": 1,
+    "head_revision": "0006_week06_canonical_normalization",
+    "fresh_upgrade_head": true,
+    "downgrade_minus_one": true,
+    "current_after_downgrade_minus_one": "0005_week05_aliyun_zone_availability",
+    "reupgrade_head": true,
+    "downgrade_base": true,
+    "tables_after_downgrade_base": [
+      "alembic_version"
+    ],
+    "reupgrade_from_base": true,
+    "version_num_type": "VARCHAR(128)"
+  },
+  "schema_fingerprint": {
+    "first_upgrade_path": "reports/remediation/r011/runs/run_02/schema_after_first_upgrade.json",
+    "reupgrade_path": "reports/remediation/r011/runs/run_02/schema_after_reupgrade.json",
+    "schema_equal_ignoring_database_url": true,
+    "table_count_including_alembic": 35,
+    "postgres_native_enum_count": 0
+  },
+  "postgres_specific_behavior": {
+    "enum_like_check_constraints": true,
+    "native_postgres_enums_used": false,
+    "numeric_decimal_precision": true,
+    "json": true,
+    "jsonb": false,
+    "foreign_keys": true,
+    "unique_constraints": true,
+    "timezone": true,
+    "transaction_rollback": true,
+    "concurrency_unique_boundary": true
+  },
+  "tests": {
+    "pytest_postgres_selected": 6,
+    "pytest_postgres_passed": 6,
+    "pytest_integration_selected": 6,
+    "pytest_integration_passed": 6,
+    "pytest_not_network_collected": 71,
+    "pytest_not_network_passed": 71,
+    "failures": 0,
+    "skipped": 0,
+    "coverage_percent_display": "79",
+    "coverage_json": "reports/remediation/r011/runs/run_02/coverage.json"
+  },
+  "quality": {
+    "ruff_format": true,
+    "ruff_format_check": true,
+    "ruff_check": true,
+    "mypy_src_scripts": true,
+    "mypy_source_file_count": 172
+  },
+  "scope_guard": {
+    "r005_status": "open",
+    "r006_status": "open",
+    "r007_status": "open",
+    "r008_status": "open",
+    "r009_status": "open",
+    "r011_status_updated": "completed",
+    "week7_gate_changed_to_go": false,
+    "default_sqlite_polluted": false,
+    "database_password_leaked": false
+  }
+}

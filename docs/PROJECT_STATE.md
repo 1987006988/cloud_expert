@@ -2,11 +2,13 @@
 
 ## Current Phase
 
-Remediation Stage 1 is partially complete after the Week 1-6 independent audit.
-The project now has a Git delivery baseline, a rebuilt default SQLite database
-at current Alembic head, a restored Week 6 evidence chain, and Stage 1
-validation reports. The stable Stage 1 checkpoint is commit `fa75ded`, but
-Week 7 remains gated.
+Remediation Stage 1 core recovery is complete after the Week 1-6 independent
+audit and R011 follow-up. The project now has a Git delivery baseline, a
+rebuilt default SQLite database at current Alembic head, a restored Week 6
+evidence chain, Stage 1 validation reports, and live PostgreSQL migration and
+integration validation. The stable Stage 1 recovery checkpoint is commit
+`fa75ded`; R011 live validation is recorded under
+`reports/remediation/r011/runs/run_02/`.
 
 `WEEK7_GATE=NO-GO`
 
@@ -49,6 +51,9 @@ Current data model version:
   `ParsingRun`, `ParsedFieldCandidate`, product shape, SLA, partition, region,
   availability, and review rows preserved.
 - Stage 1 reports are stored under `reports/remediation/stage1/`.
+- R011 live PostgreSQL validation completed with Docker Desktop PostgreSQL
+  16.14, fresh upgrade, downgrade `-1`, re-upgrade, downgrade base, re-upgrade
+  from base, matching schema fingerprints, and 6 PostgreSQL integration tests.
 
 ## Week 6 Acceptance Metrics
 
@@ -88,8 +93,8 @@ Latest Stage 1 checks executed on Python 3.12.13 from `.venv312`.
 | --- | --- |
 | `ruff format .` | passed |
 | `ruff check .` | passed |
-| `mypy src scripts` | passed, 171 source files |
-| `pytest --cov=cloud_expert --cov-report=term-missing --cov-report=json:reports/remediation/stage1/coverage.json` | passed, 65 passed / 0 failed, 79% coverage |
+| `mypy src scripts` | passed, 172 source files |
+| `pytest --cov=cloud_expert --cov-report=term-missing --cov-report=json:reports/remediation/r011/runs/run_02/coverage.json` | passed, 71 passed / 0 failed, 79% coverage |
 | `scripts/validate_source_registry.py` | passed, 74 valid sources / 4 disabled / 0 errors |
 | `scripts/validate_raw_snapshots.py` | passed, 90 snapshots checked / 0 errors |
 | `scripts/validate_canonical_definitions.py` | passed, 38 canonical fields / 40 mappings / 0 errors |
@@ -100,7 +105,8 @@ Latest Stage 1 checks executed on Python 3.12.13 from `.venv312`.
 | `scripts/validate_default_database.py` | passed, default SQLite at `0006_week06_canonical_normalization` |
 | `alembic current` with default settings | passed, `0006_week06_canonical_normalization (head)` |
 | `docker compose config` | passed |
-| PostgreSQL live migration validation | blocked, Docker daemon unavailable |
+| PostgreSQL live migration validation | passed, R011 run_02 |
+| `pytest -m postgres -ra` | passed, 6 PostgreSQL tests |
 
 ## Acceptance Databases
 
@@ -112,8 +118,6 @@ Latest Stage 1 checks executed on Python 3.12.13 from `.venv312`.
 
 ## Known Issues
 
-- PostgreSQL live migration validation is still open because the local Docker
-  daemon was unavailable on 2026-07-22.
 - Overall test coverage is 79%, below the 85% remediation backlog target.
 - Human review is not complete. Prior low-confidence queues remain open.
 - 240 input specifications could not be normalized into exactly one canonical
@@ -126,9 +130,9 @@ Latest Stage 1 checks executed on Python 3.12.13 from `.venv312`.
 
 ## Next Step Recommendation
 
-Do not start Week 7 product mapping yet. First close
-`R011_postgresql_migration_validation`, then run Remediation Stage 2 for
-Canonical schema/enums, qualifier and scope rules, ComparabilityAssessment,
-Field Matrix status columns, coverage uplift, and ReviewItem governance.
+Do not start Week 7 product mapping yet. R011 is closed, but Remediation Stage
+2 is still required for Canonical schema/enums, qualifier and scope rules,
+ComparabilityAssessment, Field Matrix status columns, coverage uplift, and
+ReviewItem governance.
 Pricing/TCO, RAG, frontend, LLM calls, competitive scoring, and sales scripts
 remain out of scope until explicitly approved.

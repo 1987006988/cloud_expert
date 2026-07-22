@@ -14,6 +14,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Inspect database schema fingerprint.")
     parser.add_argument("--database-url", default=None)
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()
 
     database_url = (
@@ -31,7 +32,8 @@ def main() -> int:
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(payload + "\n", encoding="utf-8")
-    print(payload)
+    if not args.quiet:
+        print(payload)
     return 0
 
 
@@ -53,11 +55,16 @@ def inspect_schema(engine: Engine, database_url: str) -> dict[str, Any]:
             "primary_key": inspector.get_pk_constraint(table_name),
             "foreign_keys": inspector.get_foreign_keys(table_name),
             "unique_constraints": inspector.get_unique_constraints(table_name),
+            "check_constraints": inspector.get_check_constraints(table_name),
             "indexes": inspector.get_indexes(table_name),
         }
     return {
         "database_url": _redact_database_url(database_url),
+        "dialect": engine.dialect.name,
         "alembic_versions": _read_alembic_versions(engine),
+        "postgres_enums": _read_postgres_enums(engine)
+        if engine.dialect.name == "postgresql"
+        else [],
         "tables": tables,
     }
 
@@ -69,6 +76,29 @@ def _read_alembic_versions(engine: Engine) -> list[str]:
             return []
         rows = connection.execute(text("select version_num from alembic_version")).scalars()
         return [str(row) for row in rows]
+
+
+def _read_postgres_enums(engine: Engine) -> list[dict[str, str]]:
+    with engine.connect() as connection:
+        rows = connection.execute(
+            text(
+                """
+                select typ.typname as enum_name, enum.enumlabel as enum_value
+                from pg_type typ
+                join pg_enum enum on typ.oid = enum.enumtypid
+                join pg_namespace ns on ns.oid = typ.typnamespace
+                where ns.nspname not in ('pg_catalog', 'information_schema')
+                order by typ.typname, enum.enumsortorder
+                """
+            )
+        ).mappings()
+        return [
+            {
+                "enum_name": str(row["enum_name"]),
+                "enum_value": str(row["enum_value"]),
+            }
+            for row in rows
+        ]
 
 
 def _redact_database_url(database_url: str) -> str:

@@ -23,6 +23,9 @@ PRODUCT_FAMILY_VALUES = (
 
 
 def upgrade() -> None:
+    if op.get_bind().dialect.name == "postgresql":
+        op.execute("ALTER TABLE alembic_version ALTER COLUMN version_num TYPE VARCHAR(128)")
+
     op.create_table(
         "cloud_partition",
         sa.Column("id", sa.Integer(), nullable=False),

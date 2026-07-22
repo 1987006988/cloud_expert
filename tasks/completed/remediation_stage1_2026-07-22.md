@@ -17,8 +17,16 @@ Completed:
 - Quality gates passed except PostgreSQL live validation and the 85% coverage
   threshold.
 
+R011 follow-up:
+
+- Live PostgreSQL validation completed in
+  `reports/remediation/r011/runs/run_02/`.
+- PostgreSQL 16.14 container was healthy.
+- Fresh upgrade, downgrade `-1`, re-upgrade, downgrade base, and re-upgrade
+  from base passed.
+- PostgreSQL integration tests passed: 6/6.
+
 Remaining:
 
-- PostgreSQL live migration validation.
 - Coverage uplift to 85% or a project-approved coverage gate.
 - Later-stage canonical schema, matrix, comparability, and review queue work.

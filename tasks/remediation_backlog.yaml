@@ -68,10 +68,13 @@ items:
     stage1_result: ruff format . and ruff check . pass.
   - id: R011_postgresql_migration_validation
     severity: HIGH
-    status: open
+    status: complete
     title: Run PostgreSQL migration upgrade/downgrade/re-upgrade
     rationale: PostgreSQL is the target DB but Docker daemon was unavailable during audit.
     stage1_result: docker compose config passes, but live validation remains blocked because Docker daemon is not running.
+    r011_result: Live PostgreSQL validation completed in reports/remediation/r011/runs/run_02 with PostgreSQL 16.14, fresh upgrade, downgrade -1, re-upgrade, downgrade base, re-upgrade from base, matching schema fingerprints, and 6 PostgreSQL integration tests passing.
+    completed_at: "2026-07-22T23:02:12+08:00"
+    validation_report: reports/remediation/r011/runs/run_02/00_summary.md
   - id: R012_restore_tasks_completed
     severity: MEDIUM
     status: complete

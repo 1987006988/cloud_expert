@@ -29,8 +29,18 @@ def _resolve_database_url(url: str) -> str:
     return url
 
 
+def _configured_database_url() -> str:
+    x_arguments = context.get_x_argument(as_dictionary=True)
+    database_url = (
+        x_arguments.get("database_url")
+        or os.getenv("DATABASE_URL")
+        or config.get_main_option("sqlalchemy.url")
+    )
+    return _resolve_database_url(database_url)
+
+
 def run_migrations_offline() -> None:
-    url = _resolve_database_url(os.getenv("DATABASE_URL", config.get_main_option("sqlalchemy.url")))
+    url = _configured_database_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -44,9 +54,7 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     configuration = config.get_section(config.config_ini_section, {})
-    configuration["sqlalchemy.url"] = _resolve_database_url(
-        os.getenv("DATABASE_URL", configuration["sqlalchemy.url"])
-    )
+    configuration["sqlalchemy.url"] = _configured_database_url()
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",

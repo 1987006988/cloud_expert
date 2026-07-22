@@ -2,11 +2,13 @@
 
 ## Summary
 
-Remediation Stage 1 is partially complete after the Week 1-6 independent audit.
-The repository now has a Git delivery baseline, a rebuilt default SQLite
-database at Alembic head, restored Week 6 evidence provenance, Stage 1
-validation scripts, reports, and updated governance documents. The stable
-checkpoint is commit `fa75ded`.
+Remediation Stage 1 core recovery plus R011 live PostgreSQL validation are now
+complete after the Week 1-6 independent audit. The repository has a Git
+delivery baseline, a rebuilt default SQLite database at Alembic head, restored
+Week 6 evidence provenance, Stage 1 validation scripts, PostgreSQL validation
+reports, and updated governance documents. The stable recovery checkpoint is
+commit `fa75ded`; R011 live validation is recorded under
+`reports/remediation/r011/runs/run_02/`.
 
 `WEEK7_GATE=NO-GO`
 
@@ -29,6 +31,7 @@ data, credentials, or final product mapping were added.
 - `scripts/validate_default_database.py`
 - `scripts/relink_normalized_evidence.py`
 - `scripts/validate_week06_projection.py`
+- `scripts/check_database_connection.py`
 - `scripts/generate_field_matrix.py`
 - `scripts/generate_cross_provider_coverage.py`
 - `scripts/generate_normalization_quality_report.py`
@@ -62,7 +65,7 @@ Final local commands passed:
 ruff format .
 ruff check .
 mypy src scripts
-pytest --cov=cloud_expert --cov-report=term-missing --cov-report=json:reports/remediation/stage1/coverage.json
+pytest --cov=cloud_expert --cov-report=term-missing --cov-report=json:reports/remediation/r011/runs/run_02/coverage.json
 scripts/validate_source_registry.py
 scripts/validate_raw_snapshots.py
 scripts/validate_canonical_definitions.py
@@ -74,8 +77,16 @@ scripts/validate_default_database.py
 alembic upgrade head
 ```
 
-PostgreSQL live validation is not complete. `docker compose config` passed, but
-Docker daemon connection failed at `//./pipe/docker_engine`.
+R011 PostgreSQL live validation passed in `run_02`:
+
+- Docker Desktop PostgreSQL container healthy.
+- SQLAlchemy connection check passed.
+- fresh PostgreSQL upgrade to head passed.
+- downgrade `-1` and re-upgrade passed.
+- downgrade base and re-upgrade from base passed.
+- schema fingerprints matched after excluding database URL.
+- `pytest -m postgres -ra` passed, 6 tests.
+- `pytest -m "not network" -ra` passed, 71 tests.
 
 Week 6 combined projection result:
 
@@ -105,7 +116,6 @@ Week 6 combined projection result:
 
 ## Unresolved Issues
 
-- PostgreSQL live migration validation remains open until Docker is available.
 - Coverage is 79%, below the 85% backlog target.
 - Stage 2 Canonical schema/enums, qualifier/scope, ComparabilityAssessment,
   Field Matrix, and ReviewItem governance remain open.
@@ -118,7 +128,8 @@ Week 6 combined projection result:
 ## Next Session Starting Point
 
 Start from `docs/CANONICAL_DATA_MODEL.md`,
-`reports/normalization/normalization_quality_report.json`, and
-`reports/remediation/stage1/00_summary.md`. Do not turn readiness
-assessments into customer-facing product comparisons until human review,
-scope policy, PostgreSQL validation, coverage, and mapping policy are approved.
+`reports/normalization/normalization_quality_report.json`,
+`reports/remediation/stage1/00_summary.md`, and
+`reports/remediation/r011/runs/run_02/00_summary.md`. Do not turn readiness
+assessments into customer-facing product comparisons until human review, scope
+policy, coverage, and mapping policy are approved.

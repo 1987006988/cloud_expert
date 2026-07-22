@@ -1,64 +1,96 @@
 # PostgreSQL Validation
 
-PostgreSQL remains the target database. Stage 1 attempted to run the
-PostgreSQL validation path, but the local Docker daemon was unavailable.
+PostgreSQL remains the target database. Stage 1 originally blocked on Docker
+daemon access, and that blocked evidence is preserved under
+`reports/remediation/r011/`.
 
-## What Passed
+R011 live validation was completed in a second, separate run:
 
-Configuration rendering passed:
+`reports/remediation/r011/runs/run_02/`
+
+## Run 02 Verdict
+
+`R011_STATUS=COMPLETED`
+
+`WEEK7_GATE=NO-GO`
+
+Week 7 remains gated because R005-R009 are still open.
+
+## Environment
+
+| Field | Value |
+| --- | --- |
+| Docker client/server | `25.0.3` |
+| Docker Compose | `v2.24.6-desktop.1` |
+| PostgreSQL image | `postgres:16` |
+| PostgreSQL server | `PostgreSQL 16.14 (Debian 16.14-1.pgdg13+1)` |
+| Container | `cloud_expert-postgres-1` |
+| Container state | `running`, `healthy` |
+| Port | `54329 -> 5432` |
+| Timezone | `Etc/UTC` |
+
+## Databases
+
+R011 used isolated PostgreSQL databases:
+
+- `cloud_expert_r011_fresh`
+- `cloud_expert_r011_full`
+- `cloud_expert_r011_tests`
+
+No SQLite result was used as a substitute.
+
+## Migration Results
+
+Passing commands:
 
 ```powershell
-docker compose config
+.\.venv312\Scripts\python.exe -m alembic -x database_url=<fresh> upgrade head
+.\.venv312\Scripts\python.exe -m alembic -x database_url=<fresh> downgrade -1
+.\.venv312\Scripts\python.exe -m alembic -x database_url=<fresh> upgrade head
+.\.venv312\Scripts\python.exe -m alembic -x database_url=<full> upgrade head
+.\.venv312\Scripts\python.exe -m alembic -x database_url=<full> downgrade base
+.\.venv312\Scripts\python.exe -m alembic -x database_url=<full> upgrade head
 ```
 
-The rendered service uses:
+Schema fingerprints matched after excluding only the database URL:
 
-- image: `postgres:16`
-- database: `cloud_expert_test`
-- user: `cloud_expert`
-- published port: `54329`
+- `schema_after_first_upgrade.json`
+- `schema_after_reupgrade.json`
 
-## What Was Blocked
+## PostgreSQL Compatibility Fix
 
-The command:
+PostgreSQL exposed an Alembic compatibility issue: the default
+`alembic_version.version_num VARCHAR(32)` is too short for existing revision
+IDs such as `0006_week06_canonical_normalization`.
 
-```powershell
-docker compose up -d postgres
-```
+Migration `0004_week04_aws_partition_availability` now widens
+`alembic_version.version_num` to `VARCHAR(128)` for PostgreSQL before the first
+long revision ID is written.
 
-failed with:
+## Test Results
 
-```text
-open //./pipe/docker_engine: The system cannot find the file specified
-```
+| Command | Result |
+| --- | --- |
+| `pytest -m postgres -ra` | 6 passed |
+| `pytest tests\integration -m "not network" -ra` | 6 passed |
+| `pytest -m "not network" -ra` | 71 passed |
+| coverage run | 71 passed, 79% total coverage |
+| `ruff format .` | passed |
+| `ruff format --check .` | passed |
+| `ruff check .` | passed |
+| `mypy src scripts` | passed, 172 source files |
 
-`docker version` showed the Docker client but failed to connect to the server
-with the same missing Windows pipe. Therefore the migration scripts were not
-validated against a live PostgreSQL server in Stage 1.
+PostgreSQL-specific tests cover enum-like check constraints, Numeric/Decimal
+precision, JSON behavior, foreign keys, unique constraints, timezone,
+transaction rollback, and concurrent unique-conflict behavior.
 
-## Required Follow-Up
+## Remaining Non-R011 Risks
 
-When Docker Desktop or another Docker daemon is running:
+- R005 Canonical schema expansion remains open.
+- R006 Field Matrix required columns remain open.
+- R007 ComparabilityAssessment strengthening remains open.
+- R008 ReviewItem governance remains open.
+- R009 coverage uplift remains open because total coverage is still 79%.
 
-```powershell
-docker compose up -d postgres
-$env:DATABASE_URL = "postgresql+psycopg://cloud_expert:cloud_expert_password@localhost:54329/cloud_expert_test"
-.\.venv312\Scripts\python.exe -m alembic upgrade head
-.\.venv312\Scripts\python.exe -m alembic downgrade base
-.\.venv312\Scripts\python.exe -m alembic upgrade head
-```
-
-Stage 1 closeout requires this sequence before Week 7 can be reconsidered:
-
-```text
-start Docker Desktop
-start PostgreSQL container
-fresh migration
-downgrade -1
-upgrade head
-PostgreSQL integration tests
-check enum, numeric, foreign key, unique constraint, and timezone behavior
-```
-
-Backlog item `R011_postgresql_migration_validation` remains open until those
-commands run successfully against a live PostgreSQL instance.
+R011 is closed, but Week 7 product mapping must not start until Stage 2 is
+closed or explicitly waived.

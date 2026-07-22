@@ -1,0 +1,152 @@
+R011 Run 02 command log
+Generated at: 2026-07-22T23:02:12+08:00
+
+Secrets are redacted. Commands were executed from D:\cloud_expert.
+
+1. docker info
+   exit_code=0
+   result=Docker daemon running, server 25.0.3, Docker Desktop.
+
+2. docker compose up -d postgres
+   exit_code=0
+   result=Container cloud_expert-postgres-1 started.
+
+3. docker compose ps
+   exit_code=0
+   result=cloud_expert-postgres-1 Up and healthy, 0.0.0.0:54329->5432/tcp.
+
+4. docker compose logs --tail=100 postgres
+   exit_code=0
+   result=PostgreSQL 16.14 initialized with UTF8 and Etc/UTC; later restart ready.
+
+5. docker compose exec -T postgres pg_isready
+   exit_code=0
+   result=/var/run/postgresql:5432 - accepting connections.
+
+6. ruff format/check early edits
+   exit_code=0
+   result=targeted files formatted/checks passed after small fixes.
+
+7. docker compose exec -T postgres psql ... CREATE DATABASE cloud_expert_r011_fresh
+   exit_code=0
+   result=CREATE DATABASE.
+
+8. docker compose exec -T postgres psql ... CREATE DATABASE cloud_expert_r011_full
+   exit_code=0
+   result=CREATE DATABASE.
+
+9. docker compose exec -T postgres psql ... CREATE DATABASE cloud_expert_r011_tests
+   exit_code=0
+   result=CREATE DATABASE.
+
+10. python scripts/check_database_connection.py --database-url <redacted fresh URL>
+    exit_code=0
+    result=valid true; SELECT 1, pool, identity, commit, and rollback passed.
+
+11. python -m alembic -x database_url=<redacted fresh URL> upgrade head
+    exit_code=0
+    result=fresh PostgreSQL upgrade reached 0006_week06_canonical_normalization.
+
+12. python -m alembic -x database_url=<redacted fresh URL> current
+    exit_code=0
+    result=0006_week06_canonical_normalization (head).
+
+13. python -m alembic -x database_url=<redacted fresh URL> heads
+    exit_code=0
+    result=0006_week06_canonical_normalization (head).
+
+14. python scripts/inspect_database_schema.py --database-url <redacted fresh URL> --output reports/remediation/r011/runs/run_02/schema_after_first_upgrade.json
+    exit_code=0
+    result=schema fingerprint written.
+
+15. python -m alembic -x database_url=<redacted fresh URL> downgrade -1
+    exit_code=0
+    result=downgraded from 0006 to 0005.
+
+16. python -m alembic -x database_url=<redacted fresh URL> current
+    exit_code=0
+    result=0005_week05_aliyun_zone_availability.
+
+17. python -m alembic -x database_url=<redacted fresh URL> upgrade head
+    exit_code=0
+    result=re-upgraded to 0006 head.
+
+18. python -m alembic -x database_url=<redacted full URL> upgrade head
+    exit_code=0
+    result=full database initial upgrade reached 0006 head.
+
+19. python -m alembic -x database_url=<redacted full URL> downgrade base
+    exit_code=0
+    result=downgraded all revisions to base.
+
+20. inspect full database table names after downgrade base
+    exit_code=0
+    result=["alembic_version"].
+
+21. python -m alembic -x database_url=<redacted full URL> upgrade head
+    exit_code=0
+    result=re-upgraded from base to 0006 head.
+
+22. python scripts/inspect_database_schema.py --database-url <redacted full URL> --output reports/remediation/r011/runs/run_02/schema_after_reupgrade.json --quiet
+    exit_code=0
+    result=schema fingerprint written.
+
+23. compare schema_after_first_upgrade.json and schema_after_reupgrade.json
+    exit_code=0
+    result=schema_equal_ignoring_database_url=True; tables=35; postgres_enums=0.
+
+24. python -m alembic -x database_url=<redacted tests URL> upgrade head
+    exit_code=0
+    result=test database upgraded to 0006 head.
+
+25. pytest -m postgres -ra
+    exit_code=0
+    result=6 passed, 65 deselected.
+
+26. pytest tests\integration -m "not network" -ra
+    exit_code=0
+    result=6 passed.
+
+27. ruff format .
+    exit_code=0
+    result=197 files left unchanged.
+
+28. ruff format --check .
+    exit_code=0
+    result=197 files already formatted.
+
+29. ruff check .
+    exit_code=0
+    result=All checks passed.
+
+30. mypy src scripts
+    exit_code=0
+    result=Success: no issues found in 172 source files.
+
+31. pytest -m "not network" -ra
+    exit_code=0
+    result=71 passed.
+
+32. pytest -m postgres -ra
+    exit_code=0
+    result=6 passed, 65 deselected.
+
+33. pytest -m "not network" --cov=cloud_expert --cov-report=term-missing --cov-report=json:reports/remediation/r011/runs/run_02/coverage.json
+    exit_code=0
+    result=71 passed; total coverage 79%; coverage JSON written.
+
+34. python -m alembic heads
+    exit_code=0
+    result=0006_week06_canonical_normalization (head).
+
+35. docker compose ps --format json
+    exit_code=0
+    result=container e6dcd73052da, image postgres:16, state running, health healthy.
+
+36. docker compose exec -T postgres pg_isready
+    exit_code=0
+    result=/var/run/postgresql:5432 - accepting connections.
+
+37. docker compose exec -T postgres psql ... select version(), current_database(), current_user, current_schema(), current_setting('TimeZone')
+    exit_code=0
+    result=PostgreSQL 16.14; cloud_expert_r011_fresh; cloud_expert; public; Etc/UTC.
