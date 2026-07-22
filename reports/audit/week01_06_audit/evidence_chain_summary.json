@@ -1,0 +1,62 @@
+{
+  "week3_huawei_acceptance:huawei_cloud/ecs": {
+    "sampled": 5,
+    "pass": 5,
+    "fail_no_snapshot_link": 0
+  },
+  "week3_huawei_acceptance:huawei_cloud/obs": {
+    "sampled": 5,
+    "pass": 5,
+    "fail_no_snapshot_link": 0
+  },
+  "week4_aws_acceptance:aws/ec2": {
+    "sampled": 5,
+    "pass": 5,
+    "fail_no_snapshot_link": 0
+  },
+  "week4_aws_acceptance:aws/s3": {
+    "sampled": 5,
+    "pass": 5,
+    "fail_no_snapshot_link": 0
+  },
+  "week5_aliyun_acceptance_v2:aliyun/ecs": {
+    "sampled": 5,
+    "pass": 5,
+    "fail_no_snapshot_link": 0
+  },
+  "week5_aliyun_acceptance_v2:aliyun/oss": {
+    "sampled": 5,
+    "pass": 5,
+    "fail_no_snapshot_link": 0
+  },
+  "week6_combined_projection:aliyun/ecs": {
+    "sampled": 5,
+    "pass": 0,
+    "fail_no_snapshot_link": 5
+  },
+  "week6_combined_projection:aliyun/oss": {
+    "sampled": 5,
+    "pass": 0,
+    "fail_no_snapshot_link": 5
+  },
+  "week6_combined_projection:aws/ec2": {
+    "sampled": 5,
+    "pass": 0,
+    "fail_no_snapshot_link": 5
+  },
+  "week6_combined_projection:aws/s3": {
+    "sampled": 5,
+    "pass": 0,
+    "fail_no_snapshot_link": 5
+  },
+  "week6_combined_projection:huawei_cloud/ecs": {
+    "sampled": 5,
+    "pass": 0,
+    "fail_no_snapshot_link": 5
+  },
+  "week6_combined_projection:huawei_cloud/obs": {
+    "sampled": 5,
+    "pass": 0,
+    "fail_no_snapshot_link": 5
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "provider_code": "aws",
+  "product_code": "ec2",
+  "product_records": 1,
+  "sku_records": 678,
+  "product_family_records": 74,
+  "service_tier_records": 0,
+  "region_records": 34,
+  "availability_records": 34,
+  "sla_records": 2,
+  "parsing_runs": 9,
+  "evidence_records": 5012,
+  "review_items": 1349,
+  "missing_evidence_links": 0,
+  "partition_region_violations": 0,
+  "low_confidence_fields": 1349,
+  "field_coverage": {
+    "expected_fields": 23,
+    "observed_fields": 15,
+    "coverage_ratio": 0.6522
+  },
+  "human_review_completed": false
+}

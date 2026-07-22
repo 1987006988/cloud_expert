@@ -1,0 +1,724 @@
+{
+  "audit_scope": "week01_06",
+  "generated_at_utc": "2026-07-22T13:11:02.148378+00:00",
+  "overall_verdict": {
+    "truthfulness": "PARTIAL",
+    "completeness": "PARTIAL",
+    "reproducibility": "FAIL",
+    "week7_gate": "NO_GO"
+  },
+  "week_verdicts": [
+    {
+      "week": "Week 1",
+      "scope": "产品数据模型、迁移、Pydantic、Repository、测试基础",
+      "verdict": "PASS_WITH_RISK",
+      "reason": "模型、迁移和测试存在并可在 SQLite 验证；但无 git 提交、无 PostgreSQL 实测，默认 DB 已漂移。"
+    },
+    {
+      "week": "Week 2",
+      "scope": "官方来源登记、原始快照、采集审计、变更检测",
+      "verdict": "PARTIAL",
+      "reason": "registry 与 raw snapshot 验证通过；Week2/默认 DB 记录了当前迁移链不存在的旧 revision。"
+    },
+    {
+      "week": "Week 3",
+      "scope": "Huawei Cloud ECS/OBS 来源接入和解析",
+      "verdict": "PASS_WITH_RISK",
+      "reason": "21 来源、21 快照、351 Evidence、228 ProductSpecification；抽样链路通过；9 个 open review。"
+    },
+    {
+      "week": "Week 4",
+      "scope": "AWS EC2/S3 来源接入和解析",
+      "verdict": "PASS_WITH_RISK",
+      "reason": "24 来源、22 快照、5723 Evidence、3873 ProductSpecification；AWS partition 验证通过；1350 open review。"
+    },
+    {
+      "week": "Week 5",
+      "scope": "Aliyun ECS/OSS 国内来源接入和解析",
+      "verdict": "PASS_WITH_RISK",
+      "reason": "26 来源、24 快照、8039 Evidence、6311 ProductSpecification；market/zone/partition 验证通过；82 open review。"
+    },
+    {
+      "week": "Week 6",
+      "scope": "统一字段、单位、Scope/Qualifier、标准化和可比性准备",
+      "verdict": "PARTIAL",
+      "reason": "38 字段、40 规则、10172 normalized rows 可复算；但 projection 丢失 SnapshotRecord/ParsingRun/ServiceTier/Region 等链路。"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F001",
+      "severity": "BLOCKER",
+      "status": "FAIL",
+      "area": "Repository/Git",
+      "title": "仓库没有任何 commit，Week1-6 历史不可由 git 复现",
+      "impact": "无法独立证明每周交付边界、变更时间线、代码审查点或可回滚版本。"
+    },
+    {
+      "id": "F002",
+      "severity": "CRITICAL",
+      "status": "FAIL",
+      "area": "Default database",
+      "title": "默认 cloud_expert_dev.sqlite 使用不存在的 Alembic revision",
+      "impact": "README 默认命令和未显式 DATABASE_URL 的验证脚本会落到陈旧数据库并失败。"
+    },
+    {
+      "id": "F003",
+      "severity": "CRITICAL",
+      "status": "FAIL",
+      "area": "Evidence chain",
+      "title": "Week6 combined projection 丢失 Evidence -> SnapshotRecord 链路",
+      "impact": "NormalizedSpecification 虽有 evidence_id，但 projection 中 snapshot_record=0 且 evidence.snapshot_record_id 为空。"
+    },
+    {
+      "id": "F004",
+      "severity": "HIGH",
+      "status": "PARTIAL",
+      "area": "Cross-week integration",
+      "title": "Week6 projection 不是完整的前6周数据底座",
+      "impact": "product_family、service_tier、product_sla、region、availability、zone_availability、parsing_run 等均未保留。"
+    },
+    {
+      "id": "F005",
+      "severity": "HIGH",
+      "status": "PARTIAL",
+      "area": "Week6 model completeness",
+      "title": "Canonical schema/enums 未覆盖 Week6 Prompt 要求",
+      "impact": "缺少多项 qualifier/scope/data type 与 deprecation/precision/null policy 等字段。"
+    },
+    {
+      "id": "F006",
+      "severity": "HIGH",
+      "status": "PARTIAL",
+      "area": "Comparability",
+      "title": "ComparabilityAssessment 逻辑过粗",
+      "impact": "当前主要按 coverage 和 market_mode 判断，没有充分检查 scope identity、证据快照、review status、单位备注或时效。"
+    },
+    {
+      "id": "F007",
+      "severity": "HIGH",
+      "status": "PARTIAL",
+      "area": "Reports",
+      "title": "字段矩阵缺少 Prompt 要求的状态列",
+      "impact": "矩阵只能证明 legacy field mapping，不能独立支撑可比性审查。"
+    },
+    {
+      "id": "F008",
+      "severity": "HIGH",
+      "status": "PARTIAL",
+      "area": "Review workflow",
+      "title": "人工审核队列未闭合，总计至少 1441 个 open review items",
+      "impact": "数据可用于内部工程验证，但不得进入 customer-facing claim、评分或产品映射。"
+    },
+    {
+      "id": "F009",
+      "severity": "HIGH",
+      "status": "NOT_VERIFIABLE",
+      "area": "PostgreSQL",
+      "title": "目标数据库 PostgreSQL 未实测",
+      "impact": "SQLite 迁移链通过，但 PostgreSQL 约束、枚举和 Decimal 行为仍未被本次审计验证。"
+    },
+    {
+      "id": "F010",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "area": "Coverage",
+      "title": "coverage 总体 78.6%，低于 Week6 Prompt 的 85% 门槛",
+      "impact": "标准化核心模块覆盖不足，风险集中在 canonical_service、unit_standardization 和 canonical schemas。"
+    },
+    {
+      "id": "F011",
+      "severity": "MEDIUM",
+      "status": "FAIL",
+      "area": "Formatting",
+      "title": "ruff format --check 失败，18 个文件需要 reformat",
+      "impact": "质量门未全绿，不能声称 Week6 全部质量检查通过。"
+    },
+    {
+      "id": "F012",
+      "severity": "MEDIUM",
+      "status": "FAIL",
+      "area": "Task tracking",
+      "title": "tasks/completed/ 缺失",
+      "impact": "任务完成记录无法按审计要求从仓库结构核验。"
+    },
+    {
+      "id": "F013",
+      "severity": "LOW",
+      "status": "PASS_WITH_RISK",
+      "area": "Security",
+      "title": "未发现真实密钥，但存在本地 docker-compose 测试密码和测试用假 secret 命中",
+      "impact": "未发现真实凭据泄漏；docker-compose 密码应仅作为本地测试凭据。"
+    }
+  ],
+  "commands": [
+    {
+      "command": "pytest --collect-only -q",
+      "result": "PASS",
+      "summary": "62 tests collected",
+      "artifact": "cmd_pytest_collect_only.txt"
+    },
+    {
+      "command": "ruff format --check .",
+      "result": "FAIL",
+      "summary": "18 files would be reformatted",
+      "artifact": "cmd_ruff_format_check.txt"
+    },
+    {
+      "command": "ruff check .",
+      "result": "PASS",
+      "summary": "All checks passed",
+      "artifact": "cmd_ruff_check.txt"
+    },
+    {
+      "command": "mypy src",
+      "result": "PASS",
+      "summary": "138 source files, no issues",
+      "artifact": "cmd_mypy_src.txt"
+    },
+    {
+      "command": "pytest -m \"not network\" -ra",
+      "result": "PASS",
+      "summary": "62 passed",
+      "artifact": "cmd_pytest_not_network_ra.txt"
+    },
+    {
+      "command": "pytest coverage",
+      "result": "PASS_WITH_RISK",
+      "summary": "62 passed; coverage 78.6%",
+      "artifact": "cmd_pytest_not_network_coverage.txt"
+    },
+    {
+      "command": "validate_source_registry.py",
+      "result": "PASS",
+      "summary": "74 valid, 4 disabled, 0 errors",
+      "artifact": "cmd_validate_source_registry.txt"
+    },
+    {
+      "command": "validate_raw_snapshots.py",
+      "result": "PASS",
+      "summary": "90 snapshots checked, 0 errors",
+      "artifact": "cmd_validate_raw_snapshots.txt"
+    },
+    {
+      "command": "validate_evidence_links.py default DB",
+      "result": "FAIL",
+      "summary": "default DB lacks current tables",
+      "artifact": "cmd_validate_evidence_links_default_db.txt"
+    },
+    {
+      "command": "alembic current default DB",
+      "result": "FAIL",
+      "summary": "missing revision 0002_ingestion_runs_and_snapshots",
+      "artifact": "cmd_alembic_current_default_db.txt"
+    },
+    {
+      "command": "alembic audit SQLite upgrade/downgrade/reupgrade",
+      "result": "PASS",
+      "summary": "fresh DB and prior-week copies upgrade to 0006",
+      "artifact": "cmd_alembic_audit_empty_upgrade_head.txt"
+    }
+  ],
+  "coverage_percent": 78.6,
+  "database_counts": {
+    "default_dev": {
+      "path": "D:\\cloud_expert\\cloud_expert_dev.sqlite",
+      "exists": true,
+      "tables": {
+        "alembic_version": 1,
+        "provider": 1,
+        "product_category": 0,
+        "product": 0,
+        "source_document": 1,
+        "snapshot_record": 1,
+        "ingestion_run": 2,
+        "parsing_run": null,
+        "parsed_field_candidate": null,
+        "evidence": 0,
+        "product_specification": 0,
+        "sku": 0,
+        "product_family": null,
+        "service_tier": null,
+        "product_sla": null,
+        "cloud_partition": null,
+        "region": 0,
+        "availability": 0,
+        "availability_zone": null,
+        "zone_availability": null,
+        "review_item": null,
+        "data_quality_issue": null,
+        "canonical_field_definition": null,
+        "normalization_rule": null,
+        "normalization_run": null,
+        "normalized_specification": null,
+        "comparability_assessment": null,
+        "price_sku": 0,
+        "price_snapshot": 0,
+        "product_mapping": 0,
+        "competitive_claim": 0
+      },
+      "alembic_versions": [
+        "0002_ingestion_runs_and_snapshots"
+      ]
+    },
+    "week2_e2e": {
+      "path": "D:\\cloud_expert\\test_outputs\\week2_e2e_20260721_01.sqlite",
+      "exists": true,
+      "tables": {
+        "alembic_version": 1,
+        "provider": 1,
+        "product_category": 0,
+        "product": 0,
+        "source_document": 1,
+        "snapshot_record": 1,
+        "ingestion_run": 2,
+        "parsing_run": null,
+        "parsed_field_candidate": null,
+        "evidence": 0,
+        "product_specification": 0,
+        "sku": 0,
+        "product_family": null,
+        "service_tier": null,
+        "product_sla": null,
+        "cloud_partition": null,
+        "region": 0,
+        "availability": 0,
+        "availability_zone": null,
+        "zone_availability": null,
+        "review_item": null,
+        "data_quality_issue": null,
+        "canonical_field_definition": null,
+        "normalization_rule": null,
+        "normalization_run": null,
+        "normalized_specification": null,
+        "comparability_assessment": null,
+        "price_sku": 0,
+        "price_snapshot": 0,
+        "product_mapping": 0,
+        "competitive_claim": 0
+      },
+      "alembic_versions": [
+        "0002_ingestion_runs_and_snapshots"
+      ]
+    },
+    "week3_huawei_acceptance": {
+      "path": "D:\\cloud_expert\\test_outputs\\week3_huawei_acceptance.sqlite",
+      "exists": true,
+      "tables": {
+        "alembic_version": 1,
+        "provider": 1,
+        "product_category": 2,
+        "product": 2,
+        "source_document": 21,
+        "snapshot_record": 21,
+        "ingestion_run": 21,
+        "parsing_run": 21,
+        "parsed_field_candidate": 390,
+        "evidence": 351,
+        "product_specification": 228,
+        "sku": 37,
+        "product_family": 17,
+        "service_tier": 4,
+        "product_sla": 7,
+        "cloud_partition": null,
+        "region": 0,
+        "availability": 0,
+        "availability_zone": null,
+        "zone_availability": null,
+        "review_item": 9,
+        "data_quality_issue": 0,
+        "canonical_field_definition": null,
+        "normalization_rule": null,
+        "normalization_run": null,
+        "normalized_specification": null,
+        "comparability_assessment": null,
+        "price_sku": 0,
+        "price_snapshot": 0,
+        "product_mapping": 0,
+        "competitive_claim": 0
+      },
+      "alembic_versions": [
+        "0003_week03_parsing_models"
+      ]
+    },
+    "week4_aws_acceptance": {
+      "path": "D:\\cloud_expert\\test_outputs\\week4_aws_acceptance.sqlite",
+      "exists": true,
+      "tables": {
+        "alembic_version": 1,
+        "provider": 1,
+        "product_category": 2,
+        "product": 2,
+        "source_document": 22,
+        "snapshot_record": 22,
+        "ingestion_run": 44,
+        "parsing_run": 22,
+        "parsed_field_candidate": 5723,
+        "evidence": 5723,
+        "product_specification": 3873,
+        "sku": 678,
+        "product_family": 74,
+        "service_tier": 8,
+        "product_sla": 3,
+        "cloud_partition": 1,
+        "region": 34,
+        "availability": 68,
+        "availability_zone": null,
+        "zone_availability": null,
+        "review_item": 1350,
+        "data_quality_issue": 0,
+        "canonical_field_definition": null,
+        "normalization_rule": null,
+        "normalization_run": null,
+        "normalized_specification": null,
+        "comparability_assessment": null,
+        "price_sku": 0,
+        "price_snapshot": 0,
+        "product_mapping": 0,
+        "competitive_claim": 0
+      },
+      "alembic_versions": [
+        "0004_week04_aws_partition_availability"
+      ]
+    },
+    "week5_aliyun_acceptance_v2": {
+      "path": "D:\\cloud_expert\\test_outputs\\week5_aliyun_acceptance_v2.sqlite",
+      "exists": true,
+      "tables": {
+        "alembic_version": 1,
+        "provider": 1,
+        "product_category": 2,
+        "product": 2,
+        "source_document": 24,
+        "snapshot_record": 24,
+        "ingestion_run": 24,
+        "parsing_run": 24,
+        "parsed_field_candidate": 8071,
+        "evidence": 8039,
+        "product_specification": 6311,
+        "sku": 994,
+        "product_family": 208,
+        "service_tier": 5,
+        "product_sla": 3,
+        "cloud_partition": 1,
+        "region": 19,
+        "availability": 34,
+        "availability_zone": 62,
+        "zone_availability": 62,
+        "review_item": 82,
+        "data_quality_issue": 0,
+        "canonical_field_definition": null,
+        "normalization_rule": null,
+        "normalization_run": null,
+        "normalized_specification": null,
+        "comparability_assessment": null,
+        "price_sku": 0,
+        "price_snapshot": 0,
+        "product_mapping": 0,
+        "competitive_claim": 0
+      },
+      "alembic_versions": [
+        "0005_week05_aliyun_zone_availability"
+      ]
+    },
+    "week6_combined_projection": {
+      "path": "D:\\cloud_expert\\test_outputs\\week6_combined_projection.sqlite",
+      "exists": true,
+      "tables": {
+        "alembic_version": 1,
+        "provider": 3,
+        "product_category": 2,
+        "product": 6,
+        "source_document": 67,
+        "snapshot_record": 0,
+        "ingestion_run": 0,
+        "parsing_run": 0,
+        "parsed_field_candidate": 0,
+        "evidence": 14113,
+        "product_specification": 10412,
+        "sku": 1709,
+        "product_family": 0,
+        "service_tier": 0,
+        "product_sla": 0,
+        "cloud_partition": 0,
+        "region": 0,
+        "availability": 0,
+        "availability_zone": 0,
+        "zone_availability": 0,
+        "review_item": 0,
+        "data_quality_issue": 0,
+        "canonical_field_definition": 38,
+        "normalization_rule": 40,
+        "normalization_run": 1,
+        "normalized_specification": 10172,
+        "comparability_assessment": 116,
+        "price_sku": 0,
+        "price_snapshot": 0,
+        "product_mapping": 0,
+        "competitive_claim": 0
+      },
+      "alembic_versions": [
+        "0006_week06_canonical_normalization"
+      ]
+    },
+    "audit_week3_to_head": {
+      "path": "D:\\cloud_expert\\reports\\audit\\week01_06_audit\\audit_week3_to_head.sqlite",
+      "exists": true,
+      "tables": {
+        "alembic_version": 1,
+        "provider": 1,
+        "product_category": 2,
+        "product": 2,
+        "source_document": 21,
+        "snapshot_record": 21,
+        "ingestion_run": 21,
+        "parsing_run": 21,
+        "parsed_field_candidate": 390,
+        "evidence": 351,
+        "product_specification": 228,
+        "sku": 37,
+        "product_family": 17,
+        "service_tier": 4,
+        "product_sla": 7,
+        "cloud_partition": 0,
+        "region": 0,
+        "availability": 0,
+        "availability_zone": 0,
+        "zone_availability": 0,
+        "review_item": 9,
+        "data_quality_issue": 0,
+        "canonical_field_definition": 0,
+        "normalization_rule": 0,
+        "normalization_run": 0,
+        "normalized_specification": 0,
+        "comparability_assessment": 0,
+        "price_sku": 0,
+        "price_snapshot": 0,
+        "product_mapping": 0,
+        "competitive_claim": 0
+      },
+      "alembic_versions": [
+        "0006_week06_canonical_normalization"
+      ]
+    },
+    "audit_week4_to_head": {
+      "path": "D:\\cloud_expert\\reports\\audit\\week01_06_audit\\audit_week4_to_head.sqlite",
+      "exists": true,
+      "tables": {
+        "alembic_version": 1,
+        "provider": 1,
+        "product_category": 2,
+        "product": 2,
+        "source_document": 22,
+        "snapshot_record": 22,
+        "ingestion_run": 44,
+        "parsing_run": 22,
+        "parsed_field_candidate": 5723,
+        "evidence": 5723,
+        "product_specification": 3873,
+        "sku": 678,
+        "product_family": 74,
+        "service_tier": 8,
+        "product_sla": 3,
+        "cloud_partition": 1,
+        "region": 34,
+        "availability": 68,
+        "availability_zone": 0,
+        "zone_availability": 0,
+        "review_item": 1350,
+        "data_quality_issue": 0,
+        "canonical_field_definition": 0,
+        "normalization_rule": 0,
+        "normalization_run": 0,
+        "normalized_specification": 0,
+        "comparability_assessment": 0,
+        "price_sku": 0,
+        "price_snapshot": 0,
+        "product_mapping": 0,
+        "competitive_claim": 0
+      },
+      "alembic_versions": [
+        "0006_week06_canonical_normalization"
+      ]
+    },
+    "audit_week5_to_head": {
+      "path": "D:\\cloud_expert\\reports\\audit\\week01_06_audit\\audit_week5_to_head.sqlite",
+      "exists": true,
+      "tables": {
+        "alembic_version": 1,
+        "provider": 1,
+        "product_category": 2,
+        "product": 2,
+        "source_document": 24,
+        "snapshot_record": 24,
+        "ingestion_run": 24,
+        "parsing_run": 24,
+        "parsed_field_candidate": 8071,
+        "evidence": 8039,
+        "product_specification": 6311,
+        "sku": 994,
+        "product_family": 208,
+        "service_tier": 5,
+        "product_sla": 3,
+        "cloud_partition": 1,
+        "region": 19,
+        "availability": 34,
+        "availability_zone": 62,
+        "zone_availability": 62,
+        "review_item": 82,
+        "data_quality_issue": 0,
+        "canonical_field_definition": 0,
+        "normalization_rule": 0,
+        "normalization_run": 0,
+        "normalized_specification": 0,
+        "comparability_assessment": 0,
+        "price_sku": 0,
+        "price_snapshot": 0,
+        "product_mapping": 0,
+        "competitive_claim": 0
+      },
+      "alembic_versions": [
+        "0006_week06_canonical_normalization"
+      ]
+    },
+    "audit_empty": {
+      "path": "D:\\cloud_expert\\reports\\audit\\week01_06_audit\\audit_empty.sqlite",
+      "exists": true,
+      "tables": {
+        "alembic_version": 1,
+        "provider": 0,
+        "product_category": 0,
+        "product": 0,
+        "source_document": 0,
+        "snapshot_record": 0,
+        "ingestion_run": 0,
+        "parsing_run": 0,
+        "parsed_field_candidate": 0,
+        "evidence": 0,
+        "product_specification": 0,
+        "sku": 0,
+        "product_family": 0,
+        "service_tier": 0,
+        "product_sla": 0,
+        "cloud_partition": 0,
+        "region": 0,
+        "availability": 0,
+        "availability_zone": 0,
+        "zone_availability": 0,
+        "review_item": 0,
+        "data_quality_issue": 0,
+        "canonical_field_definition": 0,
+        "normalization_rule": 0,
+        "normalization_run": 0,
+        "normalized_specification": 0,
+        "comparability_assessment": 0,
+        "price_sku": 0,
+        "price_snapshot": 0,
+        "product_mapping": 0,
+        "competitive_claim": 0
+      },
+      "alembic_versions": [
+        "0006_week06_canonical_normalization"
+      ]
+    }
+  },
+  "evidence_chain_summary": {
+    "week3_huawei_acceptance:huawei_cloud/ecs": {
+      "sampled": 5,
+      "pass": 5,
+      "fail_no_snapshot_link": 0
+    },
+    "week3_huawei_acceptance:huawei_cloud/obs": {
+      "sampled": 5,
+      "pass": 5,
+      "fail_no_snapshot_link": 0
+    },
+    "week4_aws_acceptance:aws/ec2": {
+      "sampled": 5,
+      "pass": 5,
+      "fail_no_snapshot_link": 0
+    },
+    "week4_aws_acceptance:aws/s3": {
+      "sampled": 5,
+      "pass": 5,
+      "fail_no_snapshot_link": 0
+    },
+    "week5_aliyun_acceptance_v2:aliyun/ecs": {
+      "sampled": 5,
+      "pass": 5,
+      "fail_no_snapshot_link": 0
+    },
+    "week5_aliyun_acceptance_v2:aliyun/oss": {
+      "sampled": 5,
+      "pass": 5,
+      "fail_no_snapshot_link": 0
+    },
+    "week6_combined_projection:aliyun/ecs": {
+      "sampled": 5,
+      "pass": 0,
+      "fail_no_snapshot_link": 5
+    },
+    "week6_combined_projection:aliyun/oss": {
+      "sampled": 5,
+      "pass": 0,
+      "fail_no_snapshot_link": 5
+    },
+    "week6_combined_projection:aws/ec2": {
+      "sampled": 5,
+      "pass": 0,
+      "fail_no_snapshot_link": 5
+    },
+    "week6_combined_projection:aws/s3": {
+      "sampled": 5,
+      "pass": 0,
+      "fail_no_snapshot_link": 5
+    },
+    "week6_combined_projection:huawei_cloud/ecs": {
+      "sampled": 5,
+      "pass": 0,
+      "fail_no_snapshot_link": 5
+    },
+    "week6_combined_projection:huawei_cloud/obs": {
+      "sampled": 5,
+      "pass": 0,
+      "fail_no_snapshot_link": 5
+    }
+  },
+  "prompt_attachment_hashes": [
+    {
+      "Path": "C:\\Users\\taotao\\.codex\\attachments\\99ce2720-3e72-4c55-ab62-21bba75ca4f9\\pasted-text.txt",
+      "Length": 23397,
+      "Sha256": "0ADD3FE34FEC1B7C5BBB71BF0F5A59F288175C35F6879D9DE9F0927F5754785E"
+    },
+    {
+      "Path": "C:\\Users\\taotao\\.codex\\attachments\\3bee456e-32fb-4c47-9668-153d7062a674\\pasted-text.txt",
+      "Length": 38339,
+      "Sha256": "A5E70035593780A3ECB77A71E7D11013310EB03F1C9E3A6BAC0E5F82DE77A7D3"
+    },
+    {
+      "Path": "C:\\Users\\taotao\\.codex\\attachments\\933281dc-2bdf-4dbb-8ca5-a405b697526c\\pasted-text.txt",
+      "Length": 43549,
+      "Sha256": "EE60CA304707522D729F36F6A2272B50AF9D2C444B4F62A78741F59876431558"
+    },
+    {
+      "Path": "C:\\Users\\taotao\\.codex\\attachments\\fd601af0-0614-456c-ad62-fb1a19ee8519\\pasted-text.txt",
+      "Length": 53479,
+      "Sha256": "2F7F350EA9C9510C5E121370052B54DECE2D16C31130737D2C17B474DF1167CD"
+    },
+    {
+      "Path": "C:\\Users\\taotao\\.codex\\attachments\\a59ab78d-35a9-4be4-b5c8-405e45c29f5a\\pasted-text.txt",
+      "Length": 60788,
+      "Sha256": "13DD547CF91EB3EF3730FBE33FAA7D145DE293B8C0697ED20ABDE238A6BB875E"
+    },
+    {
+      "Path": "C:\\Users\\taotao\\.codex\\attachments\\6439b415-2a4a-4f8a-adbe-42676ecfd975\\pasted-text.txt",
+      "Length": 52364,
+      "Sha256": "142CBA97EBD2B732C8E083945582CA36151F4FD101C111158DF724A3E41D78DB"
+    },
+    {
+      "Path": "C:\\Users\\taotao\\.codex\\attachments\\3882b5a1-8732-400c-b692-4fcd98dd0a3a\\pasted-text.txt",
+      "Length": 30527,
+      "Sha256": "0F486D99BFB7568FAF959702B0F3170E3C42B6A7DAFC2CD01D51A26073344ADE"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+﻿{
+  "normalized_specifications": 10172,
+  "missing_evidence_links": 0
+}

@@ -1,0 +1,35 @@
+id: week_006_canonical_normalization_readiness
+title: "Week 6: Cross-provider canonical normalization and comparability readiness"
+status: complete
+scope:
+  include:
+    - canonical field definitions
+    - legacy parser field to canonical field mappings
+    - unit normalization rules
+    - value qualifier normalization
+    - specification scope preparation
+    - derived normalized specifications
+    - field-level comparability-readiness assessments
+    - combined acceptance projection from Week 3, Week 4, and Week 5 databases
+    - canonical validation scripts
+    - normalization quality reports
+    - compute and object-storage field matrices
+    - Alembic migration 0006
+    - tests
+    - state and handoff documentation
+  exclude:
+    - new providers
+    - new cloud product families
+    - new source fetching
+    - pricing ingestion
+    - pricing parsing
+    - TCO
+    - embeddings or vector database
+    - LLM calls
+    - RAG
+    - frontend UI
+    - sales script generation
+    - competitive scoring
+    - automatic product mapping
+    - final product equivalence claims
+    - real customer data

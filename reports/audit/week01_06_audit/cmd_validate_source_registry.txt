@@ -1,0 +1,7 @@
+﻿{
+  "total_sources": 74,
+  "valid_sources": 74,
+  "disabled_sources": 4,
+  "configuration_errors": 0,
+  "duplicate_source_ids": 0
+}

@@ -1,0 +1,19 @@
+﻿Would reformat: alembic\versions\0004_week04_aws_partition_availability.py
+Would reformat: alembic\versions\0005_week05_aliyun_zone_availability.py
+Would reformat: alembic\versions\0006_week06_canonical_normalization.py
+Would reformat: scripts\build_week6_combined_acceptance.py
+Would reformat: scripts\generate_field_matrix.py
+Would reformat: scripts\normalize_provider_data.py
+Would reformat: scripts\rollback_canonical_migration.py
+Would reformat: scripts\validate_provider_market_scope.py
+Would reformat: src\cloud_expert\ingestion\providers\aliyun\ecs\parser.py
+Would reformat: src\cloud_expert\ingestion\providers\aliyun\oss\parser.py
+Would reformat: src\cloud_expert\ingestion\providers\aws\ec2\parser.py
+Would reformat: src\cloud_expert\ingestion\providers\aws\s3\parser.py
+Would reformat: src\cloud_expert\normalization\canonical_fields.py
+Would reformat: src\cloud_expert\normalization\canonical_service.py
+Would reformat: src\cloud_expert\normalization\reports.py
+Would reformat: src\cloud_expert\normalization\unit_standardization.py
+Would reformat: tests\unit\test_aliyun_parsing_pipeline.py
+Would reformat: tests\unit\test_aws_parsing_pipeline.py
+18 files would be reformatted, 171 files already formatted

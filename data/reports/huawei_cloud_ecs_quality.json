@@ -1,0 +1,20 @@
+{
+  "provider_code": "huawei_cloud",
+  "product_code": "ecs",
+  "product_records": 1,
+  "sku_records": 37,
+  "product_family_records": 17,
+  "service_tier_records": 0,
+  "sla_records": 2,
+  "parsing_runs": 9,
+  "evidence_records": 268,
+  "review_items": 7,
+  "missing_evidence_links": 0,
+  "low_confidence_fields": 7,
+  "field_coverage": {
+    "expected_fields": 20,
+    "observed_fields": 11,
+    "coverage_ratio": 0.55
+  },
+  "human_review_completed": false
+}

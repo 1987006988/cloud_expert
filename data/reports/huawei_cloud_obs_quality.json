@@ -1,0 +1,20 @@
+{
+  "provider_code": "huawei_cloud",
+  "product_code": "obs",
+  "product_records": 1,
+  "sku_records": 0,
+  "product_family_records": 0,
+  "service_tier_records": 4,
+  "sla_records": 5,
+  "parsing_runs": 12,
+  "evidence_records": 83,
+  "review_items": 2,
+  "missing_evidence_links": 0,
+  "low_confidence_fields": 2,
+  "field_coverage": {
+    "expected_fields": 19,
+    "observed_fields": 16,
+    "coverage_ratio": 0.8421
+  },
+  "human_review_completed": false
+}

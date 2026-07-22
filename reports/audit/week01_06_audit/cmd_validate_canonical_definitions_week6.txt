@@ -1,0 +1,5 @@
+﻿{
+  "canonical_fields": 38,
+  "legacy_mappings": 40,
+  "errors": []
+}

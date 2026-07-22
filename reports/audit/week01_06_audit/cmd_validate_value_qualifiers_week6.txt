@@ -1,0 +1,11 @@
+﻿{
+  "qualifier_counts": {
+    "baseline": 680,
+    "designed": 18,
+    "exact": 5524,
+    "maximum": 3891,
+    "minimum": 14,
+    "supported": 45
+  },
+  "unknown_qualifiers": []
+}

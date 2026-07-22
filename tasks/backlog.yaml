@@ -1,0 +1,33 @@
+items:
+  - id: week_002_source_registry
+    title: "Official source registry and raw snapshot layer"
+    status: complete
+    notes: "Implemented and verified with synthetic fixtures, SQLite E2E, and PostgreSQL Alembic migration checks."
+  - id: week_003_official_source_curation
+    title: "Huawei Cloud ECS and OBS official source parsing"
+    status: complete
+    notes: "Registered 21 Huawei Cloud domestic ECS/OBS sources, captured snapshots, parsed evidence-backed product facts, generated quality reports and a 66-row manual review sample, and left 9 low-confidence review items open."
+  - id: week_004_aws_ec2_s3_baseline
+    title: "AWS EC2 and S3 official source parsing"
+    status: complete
+    notes: "Registered 24 AWS commercial global sources, captured 22 enabled snapshots, parsed EC2/S3 product facts, added cloud partition support, generated quality reports and a 125-row manual review sample."
+  - id: week_005_aliyun_domestic_ecs_oss_baseline
+    title: "Aliyun ECS and OSS domestic official source parsing"
+    status: complete
+    notes: "User prompt superseded the earlier overseas proposal. Registered 26 Aliyun domestic sources, captured 24 enabled snapshots, parsed ECS/OSS product facts, added Zone availability support, generated quality reports and a 153-row manual review sample."
+  - id: week_006_canonical_normalization_readiness
+    title: "Cross-provider canonical normalization and comparability readiness"
+    status: complete
+    notes: "Added 38 canonical fields, 40 normalization rules, 10172 normalized specifications, 116 field-level comparability-readiness assessments, validation scripts, and normalization reports."
+  - id: future_service_tier_scope_keys
+    title: "Persist service-tier keys for object-storage specifications"
+    status: backlog
+    notes: "Week 6 exposed 90 object-storage scope mismatch warnings because ProductSpecification does not persist a direct service-tier key."
+  - id: future_aliyun_overseas_baseline
+    title: "Aliyun overseas official source baseline"
+    status: deferred
+    notes: "Requires separate source review and must not reuse aliyun_public_cn domestic facts."
+  - id: future_pricing_ingestion
+    title: "Pricing source ingestion"
+    status: blocked
+    notes: "Out of scope until pricing-specific source policy, schema review, and acceptance criteria are approved."

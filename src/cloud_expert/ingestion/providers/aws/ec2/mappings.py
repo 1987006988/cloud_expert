@@ -1,0 +1,17 @@
+EC2_SPEC_DEFINITIONS = {
+    "compute.vcpu_count": ("vCPU count", "numeric", "count"),
+    "compute.memory_gib": ("Memory", "numeric", "GiB"),
+    "compute.cpu_architecture": ("CPU architecture", "text", None),
+    "compute.processor_vendor": ("Processor vendor", "text", None),
+    "compute.processor_model": ("Processor model", "text", None),
+    "network.baseline_bandwidth_gbps": ("Baseline network bandwidth", "numeric", "Gbps"),
+    "network.max_bandwidth_gbps": ("Maximum network bandwidth", "numeric", "Gbps"),
+    "network.ebs_bandwidth_gbps": ("EBS-optimized bandwidth", "numeric", "Gbps"),
+    "network.ena_express_supported": ("ENA Express supported", "boolean", None),
+    "storage.local_disk_count": ("Local disk count", "numeric", "count"),
+    "storage.local_disk_capacity_gib": ("Local disk capacity", "numeric", "GiB"),
+    "storage.local_disk_type": ("Local disk type", "text", None),
+    "gpu.count": ("GPU count", "numeric", "count"),
+    "gpu.model": ("GPU model", "text", None),
+    "system.supported_os_family": ("Supported OS family", "text", None),
+}

@@ -1,0 +1,13 @@
+database_label,provider,product,market_mode,entity_type,record_count,official_count,synthetic_count,fixture_count,unknown_origin_count,source_document_count,snapshot_count,evidence_count,evidence_with_snapshot_count,evidence_without_snapshot_count,product_specification_count,normalized_specification_count,sku_count,product_family_count,service_tier_count,region_count_from_availability,availability_count,zone_count_provider_level,zone_availability_count,review_open_count
+week3_huawei_acceptance,huawei_cloud,ecs,domestic,product_dataset,239,239,0,0,0,9,21,185,185,0,185,0,37,17,0,0,0,0,0,7
+week3_huawei_acceptance,huawei_cloud,obs,domestic,product_dataset,47,47,0,0,0,12,21,43,43,0,43,0,0,0,4,0,0,0,0,2
+week4_aws_acceptance,aws,ec2,international,product_dataset,4642,4642,0,0,0,8,22,3856,3856,0,3856,0,678,74,0,34,34,0,0,1349
+week4_aws_acceptance,aws,s3,international,product_dataset,59,59,0,0,0,13,22,17,17,0,17,0,0,0,8,34,34,0,0,1
+week5_aliyun_acceptance_v2,aliyun,ecs,domestic,product_dataset,7560,7560,0,0,0,8,24,6281,6281,0,6281,0,994,208,0,15,15,62,62,70
+week5_aliyun_acceptance_v2,aliyun,oss,domestic,product_dataset,54,54,0,0,0,14,24,30,30,0,30,0,0,0,5,19,19,62,0,12
+week6_combined_projection,aliyun,ecs,domestic,product_dataset,13556,7275,0,0,0,17,0,6281,0,6281,6281,6281,994,0,0,0,0,0,0,0
+week6_combined_projection,aliyun,oss,domestic,product_dataset,60,30,0,0,0,14,0,30,0,30,30,30,0,0,0,0,0,0,0,0
+week6_combined_projection,aws,ec2,international,product_dataset,8150,4534,0,0,0,8,0,3856,0,3856,3856,3616,678,0,0,0,0,0,0,0
+week6_combined_projection,aws,s3,international,product_dataset,34,17,0,0,0,13,0,17,0,17,17,17,0,0,0,0,0,0,0,0
+week6_combined_projection,huawei_cloud,ecs,domestic,product_dataset,407,222,0,0,0,17,0,185,0,185,185,185,37,0,0,0,0,0,0,0
+week6_combined_projection,huawei_cloud,obs,domestic,product_dataset,86,43,0,0,0,12,0,43,0,43,43,43,0,0,0,0,0,0,0,0

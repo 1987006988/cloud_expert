@@ -1,0 +1,25 @@
+﻿tests\unit\test_ingestion_fetcher_storage.py:109:    def handler(request: httpx.Request) -> httpx.Response:
+tests\unit\test_ingestion_fetcher_storage.py:110:        return httpx.Response(
+tests\unit\test_ingestion_fetcher_storage.py:115:        client=httpx.Client(transport=httpx.MockTransport(handler)),
+tests\unit\test_ingestion_fetcher_storage.py:129:    def handler(request: httpx.Request) -> httpx.Response:
+tests\unit\test_ingestion_fetcher_storage.py:131:        return httpx.Response(500, request=request)
+tests\unit\test_ingestion_fetcher_storage.py:134:        client=httpx.Client(transport=httpx.MockTransport(handler)),
+scripts\validate_provider_market_scope.py:3:from urllib.parse import urlparse
+src\cloud_expert\schemas\base.py:4:from urllib.parse import urlparse
+src\cloud_expert\ingestion\client.py:9:def build_http_client(entry: SourceRegistryEntry, *, env: str = "development") -> httpx.Client:
+src\cloud_expert\ingestion\client.py:17:        def _handler(request: httpx.Request) -> httpx.Response:
+src\cloud_expert\ingestion\client.py:18:            return httpx.Response(
+src\cloud_expert\ingestion\client.py:29:        return httpx.Client(transport=httpx.MockTransport(_handler), headers=headers)
+src\cloud_expert\ingestion\client.py:30:    return httpx.Client(headers=headers, follow_redirects=False)
+src\cloud_expert\ingestion\fetcher.py:55:        client: httpx.Client | None = None,
+src\cloud_expert\ingestion\fetcher.py:146:        except httpx.TimeoutException as exc:
+src\cloud_expert\ingestion\fetcher.py:155:        except httpx.ConnectError as exc:
+src\cloud_expert\ingestion\fetcher.py:164:        except httpx.TransportError as exc:
+src\cloud_expert\ingestion\fetcher.py:226:                except httpx.TimeoutException:
+src\cloud_expert\ingestion\fetcher.py:254:        client: httpx.Client,
+src\cloud_expert\ingestion\fetcher.py:266:                timeout=httpx.Timeout(
+src\cloud_expert\ingestion\security\url_validator.py:3:from urllib.parse import urlparse
+src\cloud_expert\ingestion\security\redirect_validator.py:1:from urllib.parse import urljoin
+src\cloud_expert\ingestion\security\domain_policy.py:1:from urllib.parse import urlparse
+src\cloud_expert\ingestion\registry\schemas.py:4:from urllib.parse import urlparse
+src\cloud_expert\ingestion\rate_limit.py:3:from urllib.parse import urlparse

@@ -1,0 +1,9 @@
+﻿{
+  "scope_counts": {
+    "product": 90,
+    "sku": 10082
+  },
+  "unknown_scopes": [],
+  "scope_mismatch_warning_count": 90,
+  "scope_mismatch_warnings": []
+}

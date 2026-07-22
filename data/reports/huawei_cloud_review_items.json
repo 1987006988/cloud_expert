@@ -1,0 +1,92 @@
+[
+  {
+    "id": 6,
+    "item_type": "low_confidence_field",
+    "severity": "medium",
+    "status": "open",
+    "provider_code": "huawei_cloud",
+    "product_code": "ecs",
+    "field_code": "ecs.instance_family",
+    "reason": "Field was machine parsed below the confidence threshold."
+  },
+  {
+    "id": 7,
+    "item_type": "low_confidence_field",
+    "severity": "medium",
+    "status": "open",
+    "provider_code": "huawei_cloud",
+    "product_code": "ecs",
+    "field_code": "ecs.instance_family",
+    "reason": "Field was machine parsed below the confidence threshold."
+  },
+  {
+    "id": 8,
+    "item_type": "low_confidence_field",
+    "severity": "medium",
+    "status": "open",
+    "provider_code": "huawei_cloud",
+    "product_code": "ecs",
+    "field_code": "ecs.instance_family",
+    "reason": "Field was machine parsed below the confidence threshold."
+  },
+  {
+    "id": 9,
+    "item_type": "low_confidence_field",
+    "severity": "medium",
+    "status": "open",
+    "provider_code": "huawei_cloud",
+    "product_code": "ecs",
+    "field_code": "ecs.instance_family",
+    "reason": "Field was machine parsed below the confidence threshold."
+  },
+  {
+    "id": 1,
+    "item_type": "low_confidence_field",
+    "severity": "medium",
+    "status": "open",
+    "provider_code": "huawei_cloud",
+    "product_code": "obs",
+    "field_code": "object_storage.retrieval_time_description",
+    "reason": "Field was machine parsed below the confidence threshold."
+  },
+  {
+    "id": 2,
+    "item_type": "low_confidence_field",
+    "severity": "medium",
+    "status": "open",
+    "provider_code": "huawei_cloud",
+    "product_code": "obs",
+    "field_code": "object_storage.retrieval_time_description",
+    "reason": "Field was machine parsed below the confidence threshold."
+  },
+  {
+    "id": 3,
+    "item_type": "low_confidence_field",
+    "severity": "medium",
+    "status": "open",
+    "provider_code": "huawei_cloud",
+    "product_code": "ecs",
+    "field_code": "ecs.instance_family",
+    "reason": "Field was machine parsed below the confidence threshold."
+  },
+  {
+    "id": 4,
+    "item_type": "low_confidence_field",
+    "severity": "medium",
+    "status": "open",
+    "provider_code": "huawei_cloud",
+    "product_code": "ecs",
+    "field_code": "ecs.instance_family",
+    "reason": "Field was machine parsed below the confidence threshold."
+  },
+  {
+    "id": 5,
+    "item_type": "low_confidence_field",
+    "severity": "medium",
+    "status": "open",
+    "provider_code": "huawei_cloud",
+    "product_code": "ecs",
+    "field_code": "ecs.instance_family",
+    "reason": "Field was machine parsed below the confidence threshold."
+  }
+]

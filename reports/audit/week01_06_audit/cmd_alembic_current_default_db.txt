@@ -1,0 +1,4 @@
+﻿INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+ERROR [alembic.util.messaging] Can't locate revision identified by '0002_ingestion_runs_and_snapshots'
+FAILED: Can't locate revision identified by '0002_ingestion_runs_and_snapshots'

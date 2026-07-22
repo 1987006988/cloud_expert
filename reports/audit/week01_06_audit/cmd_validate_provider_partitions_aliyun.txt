@@ -1,0 +1,6 @@
+﻿{
+  "provider": "aliyun",
+  "partition": "aliyun_public_cn",
+  "partition_region_violations": 0,
+  "errors": 0
+}

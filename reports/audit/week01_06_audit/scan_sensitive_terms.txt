@@ -1,0 +1,81 @@
+﻿.\tests\unit\test_ingestion_registry_security.py:63:            "Set-Cookie": "session=secret",
+.\tests\unit\test_ingestion_registry_security.py:64:            "X-Api-Key": "secret",
+.\tests\unit\test_ingestion_registry_security.py:69:    assert headers["Set-Cookie"] == "[REDACTED]"
+.\tests\unit\test_ingestion_registry_security.py:70:    assert headers["X-Api-Key"] == "[REDACTED]"
+.\docker-compose.yml:7:      POSTGRES_PASSWORD: cloud_expert_password
+.\tests\unit\test_additional_schemas_and_config.py:24:def test_settings_read_database_url_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+.\tests\unit\test_additional_schemas_and_config.py:26:    monkeypatch.setenv("DATABASE_URL", "sqlite:///./synthetic_settings.sqlite")
+.\tests\unit\test_additional_schemas_and_config.py:27:    assert get_settings().database_url == "sqlite:///./synthetic_settings.sqlite"
+.\README.md:44:$env:DATABASE_URL = "postgresql+psycopg://cloud_expert:cloud_expert_password@localhost:54329/cloud_expert_test"
+.\README.md:102:Set `DATABASE_URL` to a database upgraded to Alembic head before running the
+.\alembic\env.py:19:    url = os.getenv("DATABASE_URL", config.get_main_option("sqlalchemy.url"))
+.\alembic\env.py:34:        "DATABASE_URL",
+.\docs\ARCHITECTURE.md:128:reference pages are parsed as documentation snapshots only; no AccessKey,
+.\docs\ARCHITECTURE.md:129:signed API calls, console sessions, cookies, or account data are used.
+.\docs\DECISIONS.md:184:provider APIs, use AccessKeys, sign requests, scrape console pages, or ingest
+.\docs\SOURCE_POLICY.md:25:- Pages requiring login, cookies tied to a user account, captcha, browser-only
+.\docs\SOURCE_POLICY.md:31:- Any customer data, account identifiers, credentials, tokens, private keys, or
+.\docs\SOURCE_POLICY.md:73:- Username or password in URLs.
+.\docs\SOURCE_POLICY.md:80:such as cookies, authorization tokens, and API keys are redacted.
+.\docs\reviews\WEEK05_SOURCE_REVIEW.md:54:- Console, account-specific, AccessKey/API calls, cookies, private endpoints,
+.\docs\reviews\WEEK04_SOURCE_REVIEW.md:70:  cookies, console, or browser-rendered pages.
+.\docs\reviews\WEEK03_SOURCE_REVIEW.md:24:  policies. No cookies, account sessions, captcha bypass, browser login, or
+.\docs\reviews\WEEK03_SOURCE_REVIEW.md:65:| Console pages under `console.huaweicloud.com` | Rejected | Console pages may require account context, login, cookies, and customer-specific data. |
+.\docs\PARSING_ARCHITECTURE.md:70:  credentials, cookies, or customer data.
+.\docs\providers\ALIYUN.md:15:console pages, AccessKey/API calls, cookies, private endpoints, and
+.\src\cloud_expert\normalization\canonical_fields.py:89:        "Official processor vendor or inferred vendor token from an official table.",
+.\src\cloud_expert\normalization\booleans.py:1:TRUE_TOKENS = {"true", "yes", "supported", "支持", "是", "有"}
+.\src\cloud_expert\normalization\booleans.py:2:FALSE_TOKENS = {"false", "no", "unsupported", "不支持", "否", "无"}
+.\src\cloud_expert\normalization\booleans.py:7:    if text in TRUE_TOKENS:
+.\src\cloud_expert\normalization\booleans.py:9:    if text in FALSE_TOKENS:
+.\src\cloud_expert\normalization\ecs.py:6:        tokens = provider_sku_code.split(".")
+.\src\cloud_expert\normalization\ecs.py:7:        if len(tokens) >= 2:
+.\src\cloud_expert\normalization\ecs.py:8:            return tokens[1]
+.\src\cloud_expert\normalization\ecs.py:9:    token = provider_sku_code.strip().split(".", 1)[0]
+.\src\cloud_expert\normalization\ecs.py:10:    return token or provider_sku_code
+.\src\cloud_expert\config\settings.py:10:    database_url: str
+.\src\cloud_expert\config\settings.py:26:        database_url=os.getenv("DATABASE_URL", "sqlite:///./cloud_expert_dev.sqlite"),
+.\src\cloud_expert\database\session.py:10:def make_engine(database_url: str | None = None) -> Engine:
+.\src\cloud_expert\database\session.py:11:    url = database_url or get_settings().database_url
+.\src\cloud_expert\parsing\pipeline.py:1072:        return "Asia Pacific"
+.\reports\review_samples\week04_aws_manual_review_sample.csv:61:availability,availability:ap-east-1:product:ec2,availability.status,available,available,https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[5],Asia Pacific (Hong Kong) | ap-east-1 | ec2.ap-east-1.amazonaws.com ec2.ap-east-1.api.aws | HTTP and HTTPS HTTPS,0.84,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:62:availability,availability:ap-east-1:product:ec2,cloud.partition,aws,aws,https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[5],Asia Pacific (Hong Kong) | ap-east-1 | ec2.ap-east-1.amazonaws.com ec2.ap-east-1.api.aws | HTTP and HTTPS HTTPS,0.9,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:63:availability,availability:ap-east-1:product:ec2,region.code,ap-east-1,ap-east-1,https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[5],Asia Pacific (Hong Kong) | ap-east-1 | ec2.ap-east-1.amazonaws.com ec2.ap-east-1.api.aws | HTTP and HTTPS HTTPS,0.92,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:64:availability,availability:ap-east-1:product:ec2,region.name,Asia Pacific (Hong Kong),Asia Pacific (Hong Kong),https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[5],Asia Pacific (Hong Kong) | ap-east-1 | ec2.ap-east-1.amazonaws.com ec2.ap-east-1.api.aws | HTTP and HTTPS HTTPS,0.9,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:65:availability,availability:ap-east-2:product:ec2,availability.status,available,available,https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[16],Asia Pacific (Taipei) | ap-east-2 | ec2.ap-east-2.amazonaws.com | HTTPS,0.84,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:66:availability,availability:ap-east-2:product:ec2,cloud.partition,aws,aws,https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[16],Asia Pacific (Taipei) | ap-east-2 | ec2.ap-east-2.amazonaws.com | HTTPS,0.9,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:67:availability,availability:ap-east-2:product:ec2,region.code,ap-east-2,ap-east-2,https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[16],Asia Pacific (Taipei) | ap-east-2 | ec2.ap-east-2.amazonaws.com | HTTPS,0.92,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:68:availability,availability:ap-east-2:product:ec2,region.name,Asia Pacific (Taipei),Asia Pacific (Taipei),https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[16],Asia Pacific (Taipei) | ap-east-2 | ec2.ap-east-2.amazonaws.com | HTTPS,0.9,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:69:availability,availability:ap-northeast-1:product:ec2,availability.status,available,available,https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[18],Asia Pacific (Tokyo) | ap-northeast-1 | ec2.ap-northeast-1.amazonaws.com ec2.ap-northeast-1.api.aws | HTTP and HTTPS HTTPS,0.84,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:70:availability,availability:ap-northeast-1:product:ec2,cloud.partition,aws,aws,https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[18],Asia Pacific (Tokyo) | ap-northeast-1 | ec2.ap-northeast-1.amazonaws.com ec2.ap-northeast-1.api.aws | HTTP and HTTPS HTTPS,0.9,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:71:availability,availability:ap-northeast-1:product:ec2,region.code,ap-northeast-1,ap-northeast-1,https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[18],Asia Pacific (Tokyo) | ap-northeast-1 | ec2.ap-northeast-1.amazonaws.com ec2.ap-northeast-1.api.aws | HTTP and HTTPS HTTPS,0.92,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:72:availability,availability:ap-northeast-1:product:ec2,region.name,Asia Pacific (Tokyo),Asia Pacific (Tokyo),https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[18],Asia Pacific (Tokyo) | ap-northeast-1 | ec2.ap-northeast-1.amazonaws.com ec2.ap-northeast-1.api.aws | HTTP and HTTPS HTTPS,0.9,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:73:availability,availability:ap-northeast-2:product:ec2,availability.status,available,available,https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[13],Asia Pacific (Seoul) | ap-northeast-2 | ec2.ap-northeast-2.amazonaws.com ec2.ap-northeast-2.api.aws | HTTP and HTTPS HTTPS,0.84,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:74:availability,availability:ap-northeast-2:product:ec2,cloud.partition,aws,aws,https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[13],Asia Pacific (Seoul) | ap-northeast-2 | ec2.ap-northeast-2.amazonaws.com ec2.ap-northeast-2.api.aws | HTTP and HTTPS HTTPS,0.9,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:75:availability,availability:ap-northeast-2:product:ec2,region.code,ap-northeast-2,ap-northeast-2,https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[13],Asia Pacific (Seoul) | ap-northeast-2 | ec2.ap-northeast-2.amazonaws.com ec2.ap-northeast-2.api.aws | HTTP and HTTPS HTTPS,0.92,,
+.\reports\review_samples\week04_aws_manual_review_sample.csv:76:availability,availability:ap-northeast-2:product:ec2,region.name,Asia Pacific (Seoul),Asia Pacific (Seoul),https://docs.aws.amazon.com/general/latest/gr/ec2-service.html,international\aws\ec2\aws_ec2_regions\2026\07\20260721T172853Z_e8739859\raw.bin,html:table[0]:row[13],Asia Pacific (Seoul) | ap-northeast-2 | ec2.ap-northeast-2.amazonaws.com ec2.ap-northeast-2.api.aws | HTTP and HTTPS HTTPS,0.9,,
+.\src\cloud_expert\ingestion\security\headers.py:2:    "authorization",
+.\src\cloud_expert\ingestion\security\headers.py:3:    "proxy-authorization",
+.\src\cloud_expert\ingestion\security\headers.py:4:    "cookie",
+.\src\cloud_expert\ingestion\security\headers.py:5:    "set-cookie",
+.\src\cloud_expert\ingestion\security\headers.py:6:    "x-api-key",
+.\src\cloud_expert\ingestion\security\headers.py:7:    "x-auth-token",
+.\src\cloud_expert\ingestion\security\headers.py:8:    "x-amz-security-token",
+.\src\cloud_expert\ingestion\security\headers.py:10:SENSITIVE_HEADER_KEYWORDS = ("token", "secret", "key", "credential")
+.\src\cloud_expert\ingestion\security\url_validator.py:66:    if parsed.username or parsed.password:
+.\src\cloud_expert\ingestion\security\url_validator.py:67:        msg = "URL username and password are not allowed"
+.\src\cloud_expert\ingestion\providers\aws\ec2\parser.py:730:    if any(token in lowered for token in ("intel", "xeon", "amd", "epyc")):
+.\src\cloud_expert\ingestion\providers\aws\s3\parser.py:277:    for source_token, field_code, keyword, section_title in source_rules:
+.\src\cloud_expert\ingestion\providers\aws\s3\parser.py:278:        if source_token not in source_id:
+.\src\cloud_expert\ingestion\providers\aws\s3\parser.py:293:                parser_rule=f"aws.s3.capability.{source_token}",
+.\src\cloud_expert\ingestion\providers\aws\s3\parser.py:300:        if source_token == "encryption" and "kms" in source_id.lower():
+.\src\cloud_expert\ingestion\providers\aliyun\ecs\parser.py:129:    if not any(token in source_id for token in ("instance", "describe_instance_types")):
+.\src\cloud_expert\ingestion\providers\aliyun\ecs\parser.py:885:    tokens = instance_type.split(".")
+.\src\cloud_expert\ingestion\providers\aliyun\ecs\parser.py:886:    if len(tokens) >= 2 and tokens[0] == "ecs":
+.\src\cloud_expert\ingestion\providers\aliyun\ecs\parser.py:887:        return tokens[1]
+.\src\cloud_expert\ingestion\providers\aliyun\ecs\parser.py:888:    return tokens[0]
+.\src\cloud_expert\ingestion\providers\aliyun\ecs\parser.py:957:    if any(token in lowered for token in ("intel", "xeon", "amd", "epyc")) or "海光" in value:
+.\src\cloud_expert\ingestion\providers\aliyun\oss\parser.py:292:    for source_token, field_code, keyword, title in rules:
+.\src\cloud_expert\ingestion\providers\aliyun\oss\parser.py:293:        if source_token not in source_id:
+.\src\cloud_expert\ingestion\providers\aliyun\oss\parser.py:315:        if source_token == "encryption" and ("KMS" in excerpt or "密钥管理" in excerpt):
+.\src\cloud_expert\ingestion\providers\aliyun\oss\parser.py:514:            if any(token in text for token in ("最低存储时间", "最小计量", "访问", "冗余")):

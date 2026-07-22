@@ -1,0 +1,9 @@
+﻿{
+  "provider": "aliyun",
+  "registry_sources_checked": 26,
+  "source_documents_checked": 24,
+  "regions_checked": 19,
+  "zones_checked": 62,
+  "errors": 0,
+  "error_messages": []
+}

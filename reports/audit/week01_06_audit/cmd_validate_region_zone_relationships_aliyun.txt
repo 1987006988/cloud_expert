@@ -1,0 +1,7 @@
+﻿{
+  "provider": "aliyun",
+  "zones_checked": 62,
+  "zone_availability_checked": 62,
+  "errors": 0,
+  "error_messages": []
+}

@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head><title>Amazon S3 storage classes</title></head>
+  <body>
+    <h1>Understanding and managing Amazon S3 storage classes</h1>
+    <p>Amazon S3 stores data as objects within buckets.</p>
+    <table>
+      <tr>
+        <th>Storage class</th>
+        <th>Durability</th>
+        <th>Availability</th>
+        <th>Minimum storage duration</th>
+        <th>Retrieval</th>
+        <th>Minimum billable object size</th>
+      </tr>
+      <tr>
+        <td>S3 Standard</td>
+        <td>99.999999999%</td>
+        <td>99.99%</td>
+        <td>None</td>
+        <td>Milliseconds</td>
+        <td>None</td>
+      </tr>
+      <tr>
+        <td>S3 Glacier Deep Archive</td>
+        <td>99.999999999%</td>
+        <td>99.99%</td>
+        <td>180 days</td>
+        <td>Within 12 hours</td>
+        <td>40 KB</td>
+      </tr>
+    </table>
+  </body>
+</html>

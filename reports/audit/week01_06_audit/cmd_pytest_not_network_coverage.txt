@@ -1,0 +1,169 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.13, pytest-9.1.1, pluggy-1.6.0
+rootdir: D:\cloud_expert
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.14.2, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 62 items
+
+tests\migrations\test_alembic_migration.py .                             [  1%]
+tests\unit\test_additional_schemas_and_config.py ........                [ 14%]
+tests\unit\test_aliyun_parsing_pipeline.py ...                           [ 19%]
+tests\unit\test_aws_parsing_pipeline.py ...                              [ 24%]
+tests\unit\test_canonical_normalization.py ...                           [ 29%]
+tests\unit\test_huawei_parsing_pipeline.py .....                         [ 37%]
+tests\unit\test_ingestion_cli_and_content.py ...                         [ 41%]
+tests\unit\test_ingestion_fetcher_storage.py .......                     [ 53%]
+tests\unit\test_ingestion_registry_security.py ......                    [ 62%]
+tests\unit\test_model_constraints.py ...........                         [ 80%]
+tests\unit\test_pydantic_schemas.py .......                              [ 91%]
+tests\unit\test_repositories.py .....                                    [100%]
+
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.12.13-final-0 _______________
+
+Name                                                                  Stmts   Miss Branch BrPart  Cover   Missing
+-----------------------------------------------------------------------------------------------------------------
+src\cloud_expert\__init__.py                                              0      0      0      0   100%
+src\cloud_expert\common\__init__.py                                       0      0      0      0   100%
+src\cloud_expert\common\exceptions.py                                     3      0      0      0   100%
+src\cloud_expert\common\types.py                                          2      2      0      0     0%   1-3
+src\cloud_expert\config\__init__.py                                       0      0      0      0   100%
+src\cloud_expert\config\settings.py                                      19      0      0      0   100%
+src\cloud_expert\database\__init__.py                                     0      0      0      0   100%
+src\cloud_expert\database\base.py                                        30      0      6      1    97%   54->56
+src\cloud_expert\database\enums.py                                      237      0      0      0   100%
+src\cloud_expert\database\models\__init__.py                             17      0      0      0   100%
+src\cloud_expert\database\models\canonical.py                           105      0      0      0   100%
+src\cloud_expert\database\models\cloud_partition.py                      14      0      0      0   100%
+src\cloud_expert\database\models\competition.py                          25      0      0      0   100%
+src\cloud_expert\database\models\evaluation.py                           23      0      0      0   100%
+src\cloud_expert\database\models\ingestion.py                            25      0      0      0   100%
+src\cloud_expert\database\models\mapping.py                              24      0      0      0   100%
+src\cloud_expert\database\models\parsing.py                              47      0      0      0   100%
+src\cloud_expert\database\models\pricing.py                              41      0      0      0   100%
+src\cloud_expert\database\models\product.py                              54      0      0      0   100%
+src\cloud_expert\database\models\product_extension.py                    57      0      0      0   100%
+src\cloud_expert\database\models\provider.py                             13      0      0      0   100%
+src\cloud_expert\database\models\region.py                               72      0      0      0   100%
+src\cloud_expert\database\models\review.py                               39      0      0      0   100%
+src\cloud_expert\database\models\snapshot.py                             24      0      0      0   100%
+src\cloud_expert\database\models\source.py                               41      0      0      0   100%
+src\cloud_expert\database\models\specification.py                        36      0      0      0   100%
+src\cloud_expert\database\repositories\__init__.py                       13      0      0      0   100%
+src\cloud_expert\database\repositories\base.py                           62      7     18      4    81%   48, 50->49, 60-65, 80
+src\cloud_expert\database\repositories\canonical.py                      25      5      0      0    80%   32, 40, 53, 62, 75
+src\cloud_expert\database\repositories\ingestion.py                       6      1      0      0    83%   9
+src\cloud_expert\database\repositories\mapping.py                         6      0      0      0   100%
+src\cloud_expert\database\repositories\parsing.py                         6      0      0      0   100%
+src\cloud_expert\database\repositories\pricing.py                         6      0      0      0   100%
+src\cloud_expert\database\repositories\product.py                         6      0      0      0   100%
+src\cloud_expert\database\repositories\product_extension.py               8      0      0      0   100%
+src\cloud_expert\database\repositories\provider.py                        6      0      0      0   100%
+src\cloud_expert\database\repositories\region.py                         14      2      0      0    86%   16, 23
+src\cloud_expert\database\repositories\review.py                          6      0      0      0   100%
+src\cloud_expert\database\repositories\snapshot.py                        8      2      0      0    75%   9, 14
+src\cloud_expert\database\repositories\source.py                          8      0      0      0   100%
+src\cloud_expert\database\session.py                                     14      0      0      0   100%
+src\cloud_expert\ingestion\__init__.py                                    0      0      0      0   100%
+src\cloud_expert\ingestion\change_detection\__init__.py                   0      0      0      0   100%
+src\cloud_expert\ingestion\change_detection\detector.py                  29      5     16      1    78%   53-58
+src\cloud_expert\ingestion\change_detection\models.py                    14      0      0      0   100%
+src\cloud_expert\ingestion\change_detection\reporter.py                   5      0      0      0   100%
+src\cloud_expert\ingestion\client.py                                     15      1      4      1    89%   30
+src\cloud_expert\ingestion\content\__init__.py                            0      0      0      0   100%
+src\cloud_expert\ingestion\content\html.py                                6      0      0      0   100%
+src\cloud_expert\ingestion\content\inspector.py                          15      1      6      1    90%   20
+src\cloud_expert\ingestion\content\json_content.py                        9      0      0      0   100%
+src\cloud_expert\ingestion\content\pdf.py                                 8      0      2      0   100%
+src\cloud_expert\ingestion\exceptions.py                                 28      0      0      0   100%
+src\cloud_expert\ingestion\fetcher.py                                   199     46     56     15    75%   75-84, 88-100, 146-174, 185-186, 188-189, 191-192, 210->219, 216, 218, 227-231, 237-241, 277-278, 282, 306-307, 314-315, 317-318, 320-321, 349
+src\cloud_expert\ingestion\providers\__init__.py                          0      0      0      0   100%
+src\cloud_expert\ingestion\providers\aliyun\__init__.py                   0      0      0      0   100%
+src\cloud_expert\ingestion\providers\aliyun\common.py                     8      0      0      0   100%
+src\cloud_expert\ingestion\providers\aliyun\ecs\__init__.py               0      0      0      0   100%
+src\cloud_expert\ingestion\providers\aliyun\ecs\mappings.py               1      0      0      0   100%
+src\cloud_expert\ingestion\providers\aliyun\ecs\parser.py               345     95    160     36    68%   32->43, 137, 141, 145->157, 158->138, 171, 179-227, 286->304, 305->307, 308->310, 311->313, 314->316, 317->320, 321->323, 324->326, 328, 355->372, 373->390, 401, 426-428, 431, 456-478, 491, 509, 517, 519, 538-556, 741, 796->774, 811->803, 832, 869, 880-881, 888, 896-906, 910-915, 919-924, 930, 933-935, 943, 945, 948-950, 959
+src\cloud_expert\ingestion\providers\aliyun\oss\__init__.py               0      0      0      0   100%
+src\cloud_expert\ingestion\providers\aliyun\oss\mappings.py               1      0      0      0   100%
+src\cloud_expert\ingestion\providers\aliyun\oss\parser.py               207     59     96     16    67%   34->45, 141, 233->250, 256, 295-316, 334, 359, 371, 379-391, 478, 480, 514->513, 516-520, 543, 549, 555-561, 581, 587-597, 601-606
+src\cloud_expert\ingestion\providers\aws\__init__.py                      0      0      0      0   100%
+src\cloud_expert\ingestion\providers\aws\common.py                        5      0      0      0   100%
+src\cloud_expert\ingestion\providers\aws\ec2\__init__.py                  0      0      0      0   100%
+src\cloud_expert\ingestion\providers\aws\ec2\mappings.py                  1      0      0      0   100%
+src\cloud_expert\ingestion\providers\aws\ec2\parser.py                  239     48    122     28    73%   31->43, 139, 143->155, 156->136, 227->245, 246->299, 264->281, 282->299, 300->306, 302->304, 304->306, 307->325, 327, 344->346, 348, 394, 424->458, 459->476, 485-524, 539, 624-663, 685, 689, 721-723, 732, 738, 741-743, 749, 751, 756-761, 765-766
+src\cloud_expert\ingestion\providers\aws\s3\__init__.py                   0      0      0      0   100%
+src\cloud_expert\ingestion\providers\aws\s3\mappings.py                   1      0      0      0   100%
+src\cloud_expert\ingestion\providers\aws\s3\parser.py                   210     58     98     14    68%   25->36, 132, 175->193, 204, 222->239, 240->258, 280-301, 320, 335-377, 392, 477-494, 557, 582, 584, 589-596, 605-609
+src\cloud_expert\ingestion\providers\huawei_cloud\__init__.py             0      0      0      0   100%
+src\cloud_expert\ingestion\providers\huawei_cloud\common.py               5      0      0      0   100%
+src\cloud_expert\ingestion\providers\huawei_cloud\ecs\__init__.py         0      0      0      0   100%
+src\cloud_expert\ingestion\providers\huawei_cloud\ecs\connector.py        2      2      0      0     0%   1-3
+src\cloud_expert\ingestion\providers\huawei_cloud\ecs\mappings.py         1      0      0      0   100%
+src\cloud_expert\ingestion\providers\huawei_cloud\ecs\parser.py         139      8     72     16    89%   26->37, 154, 178, 201, 226, 230, 265->251, 272, 294->312, 312->330, 330->349, 349->367, 367->403, 403->420, 452, 482
+src\cloud_expert\ingestion\providers\huawei_cloud\ecs\schemas.py         12      0      0      0   100%
+src\cloud_expert\ingestion\providers\huawei_cloud\ecs\validators.py       3      3      0      0     0%   1-5
+src\cloud_expert\ingestion\providers\huawei_cloud\obs\__init__.py         0      0      0      0   100%
+src\cloud_expert\ingestion\providers\huawei_cloud\obs\connector.py        2      2      0      0     0%   1-3
+src\cloud_expert\ingestion\providers\huawei_cloud\obs\mappings.py         1      0      0      0   100%
+src\cloud_expert\ingestion\providers\huawei_cloud\obs\parser.py         132     16     58     13    82%   23->34, 59->70, 160, 163, 187-196, 235->252, 266, 323->319, 326, 365, 375, 407, 442
+src\cloud_expert\ingestion\providers\huawei_cloud\obs\schemas.py          6      0      0      0   100%
+src\cloud_expert\ingestion\providers\huawei_cloud\obs\validators.py       3      3      0      0     0%   1-5
+src\cloud_expert\ingestion\providers\huawei_cloud\source_catalog.py       8      8      0      0     0%   1-12
+src\cloud_expert\ingestion\rate_limit.py                                 16      1      4      1    90%   18
+src\cloud_expert\ingestion\registry\__init__.py                           0      0      0      0   100%
+src\cloud_expert\ingestion\registry\loader.py                            27      4     10      3    81%   14-15, 22, 39
+src\cloud_expert\ingestion\registry\schemas.py                          152     20     24     10    83%   44->46, 63-64, 79-80, 82-83, 97-98, 152-153, 168-169, 171-172, 183-184, 188-189, 209-210
+src\cloud_expert\ingestion\registry\validator.py                         29     29      8      0     0%   1-52
+src\cloud_expert\ingestion\result.py                                     37      0      0      0   100%
+src\cloud_expert\ingestion\retry.py                                       6      0      0      0   100%
+src\cloud_expert\ingestion\security\__init__.py                           0      0      0      0   100%
+src\cloud_expert\ingestion\security\domain_policy.py                     28      6     14      3    79%   12-13, 17-18, 45-46
+src\cloud_expert\ingestion\security\headers.py                           12      0      6      1    94%   34->28
+src\cloud_expert\ingestion\security\path_safety.py                       27      8     10      4    62%   11, 13-14, 23-25, 32-33
+src\cloud_expert\ingestion\security\redirect_validator.py                16      4      2      1    72%   11-12, 16, 23
+src\cloud_expert\ingestion\security\url_validator.py                     47      8     18      3    77%   39-40, 64-65, 76-79
+src\cloud_expert\ingestion\storage\__init__.py                            0      0      0      0   100%
+src\cloud_expert\ingestion\storage\atomic_write.py                       17      3      0      0    82%   15-17
+src\cloud_expert\ingestion\storage\hashing.py                             3      0      0      0   100%
+src\cloud_expert\ingestion\storage\manifest.py                           31      0      0      0   100%
+src\cloud_expert\ingestion\storage\snapshot_store.py                     96      3     20      3    95%   36, 124-125, 162->164
+src\cloud_expert\ingestion\user_agents.py                                 6      1      2      1    75%   7
+src\cloud_expert\normalization\__init__.py                                0      0      0      0   100%
+src\cloud_expert\normalization\booleans.py                                9      9      4      0     0%   1-11
+src\cloud_expert\normalization\canonical_fields.py                       58      3      6      2    92%   743, 766, 771
+src\cloud_expert\normalization\canonical_service.py                     204     61     72     10    63%   78, 171->173, 173->176, 194-195, 207-208, 268, 287-297, 308-383, 416, 429-443, 453, 455, 457, 472, 480-482, 491, 510, 530-551
+src\cloud_expert\normalization\ecs.py                                    17      2      8      3    80%   7->9, 16, 18
+src\cloud_expert\normalization\obs.py                                     4      0      0      0   100%
+src\cloud_expert\normalization\percentages.py                            13      4      4      2    65%   8, 11, 14-15
+src\cloud_expert\normalization\reports.py                                80     80     18      0     0%   1-200
+src\cloud_expert\normalization\unit_standardization.py                  104     54     60     13    40%   31-34, 46-47, 58, 85, 90, 93-94, 99, 109, 114, 116, 118, 121, 125-135, 139-145, 149-157, 162, 165-169, 173-178
+src\cloud_expert\normalization\units.py                                  41     11     20      9    67%   7, 9, 12, 18-19, 26, 29, 31, 38, 41, 48
+src\cloud_expert\parsing\__init__.py                                      0      0      0      0   100%
+src\cloud_expert\parsing\evidence.py                                     14      0      2      0   100%
+src\cloud_expert\parsing\hashing.py                                       4      0      0      0   100%
+src\cloud_expert\parsing\html_adapter.py                                 53      3     18      4    90%   25, 34, 52->47, 55
+src\cloud_expert\parsing\models.py                                       40      1      0      0    98%   28
+src\cloud_expert\parsing\pipeline.py                                    565     89    230     38    81%   106-119, 130, 150, 174-180, 186-190, 277, 303-313, 329, 345, 384, 443-444, 446, 451, 453, 472, 480-482, 629-640, 660, 662, 664, 694, 698, 700, 768, 785-786, 854, 871-872, 885-896, 935, 975, 984->982, 991, 1025, 1028-1061, 1067-1079, 1084, 1087-1088, 1110, 1143, 1216
+src\cloud_expert\quality\__init__.py                                      0      0      0      0   100%
+src\cloud_expert\quality\consistency.py                                   7      0      0      0   100%
+src\cloud_expert\quality\coverage.py                                     33      7     14      3    70%   19, 50, 64-85
+src\cloud_expert\quality\evidence_checks.py                              16      0      0      0   100%
+src\cloud_expert\quality\partitions.py                                   34      1     10      1    95%   88
+src\cloud_expert\quality\reports.py                                      61      5     10      4    87%   131, 164, 173, 185, 197
+src\cloud_expert\schemas\__init__.py                                      0      0      0      0   100%
+src\cloud_expert\schemas\base.py                                         73      9     14      2    85%   29, 39, 71-72, 81-82, 104-106
+src\cloud_expert\schemas\canonical.py                                   132    132      2      0     0%   1-186
+src\cloud_expert\schemas\competition.py                                  49      1      0      0    98%   54
+src\cloud_expert\schemas\mapping.py                                      38      0      0      0   100%
+src\cloud_expert\schemas\pricing.py                                      91      5      6      3    92%   46, 89-90, 119-120
+src\cloud_expert\schemas\product.py                                     113      1      0      0    99%   86
+src\cloud_expert\schemas\provider.py                                     35      1      0      0    97%   36
+src\cloud_expert\schemas\region.py                                      137      5      4      0    95%   175-190
+src\cloud_expert\schemas\source.py                                       69      0      0      0   100%
+src\cloud_expert\schemas\specification.py                                81      2      2      0    98%   100-101
+-----------------------------------------------------------------------------------------------------------------
+TOTAL                                                                  5527    947   1336    270    79%
+Coverage JSON written to file reports/audit/week01_06_audit/coverage.json
+============================= 62 passed in 21.29s =============================

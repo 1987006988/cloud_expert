@@ -1,0 +1,26 @@
+{
+  "provider_code": "aliyun",
+  "product_code": "ecs",
+  "product_records": 1,
+  "sku_records": 994,
+  "product_family_records": 208,
+  "service_tier_records": 0,
+  "region_records": 15,
+  "availability_records": 15,
+  "zone_records": 62,
+  "zone_availability_records": 62,
+  "sla_records": 2,
+  "parsing_runs": 9,
+  "evidence_records": 7891,
+  "review_items": 70,
+  "missing_evidence_links": 0,
+  "partition_region_violations": 0,
+  "partition_zone_violations": 0,
+  "low_confidence_fields": 70,
+  "field_coverage": {
+    "expected_fields": 26,
+    "observed_fields": 20,
+    "coverage_ratio": 0.7692
+  },
+  "human_review_completed": false
+}

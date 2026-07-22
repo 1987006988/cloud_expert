@@ -1,0 +1,11 @@
+{
+  "fixture": true,
+  "source": "synthetic",
+  "items": [
+    {
+      "name": "Synthetic JSON Fixture",
+      "value": "not a real cloud product fact"
+    }
+  ]
+}
+

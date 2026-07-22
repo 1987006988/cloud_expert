@@ -1,0 +1,6 @@
+{
+  "fixture": true,
+  "source": "synthetic",
+  "note": "Synthetic price payload for tests only. Not a real cloud provider price."
+}
+

@@ -1,0 +1,72 @@
+items:
+  - id: R001_git_provenance_baseline
+    severity: BLOCKER
+    status: open
+    title: Establish version-control provenance for Week1-6 baseline
+    rationale: No commits, tags, tracked files, or remote exist; weekly history is not reproducible.
+    acceptance_criteria:
+      - All intended project files are tracked.
+      - Generated/ignored artifacts remain ignored.
+      - A baseline commit and audit tag exist.
+  - id: R002_default_database_rebuild
+    severity: CRITICAL
+    status: open
+    title: Rebuild or retire stale cloud_expert_dev.sqlite
+    rationale: Default DB references non-existent Alembic revision 0002_ingestion_runs_and_snapshots.
+    acceptance_criteria:
+      - `alembic current` succeeds with default settings or docs require explicit DATABASE_URL.
+      - `validate_evidence_links.py` no longer fails on an unintended stale default DB.
+  - id: R003_week6_projection_full_provenance
+    severity: CRITICAL
+    status: open
+    title: Preserve SnapshotRecord provenance in Week6 combined projection
+    rationale: Current projection sets Evidence.snapshot_record_id to null and has zero snapshot records.
+    acceptance_criteria:
+      - SnapshotRecord rows are copied or remapped.
+      - Evidence rows retain snapshot_record_id and content_hash.
+      - NormalizedSpecification samples pass ProductSpecification -> Evidence -> SourceDocument -> SnapshotRecord -> raw manifest.
+  - id: R004_week6_projection_complete_dataset
+    severity: HIGH
+    status: open
+    title: Include product shape, SLA, partition, availability, and review tables in combined dataset
+    rationale: Current projection omits ProductFamily, ServiceTier, ProductSLA, Region, Availability, ZoneAvailability, ReviewItem, and related rows.
+  - id: R005_expand_canonical_schema_to_prompt
+    severity: HIGH
+    status: open
+    title: Expand canonical fields, qualifiers, scopes, data types, and deprecation metadata
+    rationale: Week6 schema does not cover all Prompt-required qualifiers/scopes/metadata.
+  - id: R006_field_matrix_required_columns
+    severity: HIGH
+    status: open
+    title: Add semantic/unit/scope/qualifier/evidence/comparability status columns to field matrices
+    rationale: Current matrices only list mapping rows and provider products.
+  - id: R007_strengthen_comparability_assessment
+    severity: HIGH
+    status: open
+    title: Make comparability assessment blocker-aware
+    rationale: Current logic mostly counts rows and market-mode mismatch.
+  - id: R008_review_queue_policy
+    severity: HIGH
+    status: open
+    title: Route or close open human review queues before customer-facing use
+    rationale: At least 1441 open review items remain across Huawei, AWS, and Aliyun data.
+  - id: R009_raise_test_coverage
+    severity: HIGH
+    status: open
+    title: Raise coverage and negative test depth for normalization/comparability
+    rationale: Overall coverage is below the 85% gate.
+  - id: R010_ruff_format_gate
+    severity: MEDIUM
+    status: open
+    title: Run and commit ruff formatting
+    rationale: `ruff format --check .` reports 18 files would be reformatted.
+  - id: R011_postgresql_migration_validation
+    severity: HIGH
+    status: open
+    title: Run PostgreSQL migration upgrade/downgrade/re-upgrade
+    rationale: PostgreSQL is the target DB but Docker daemon was unavailable during audit.
+  - id: R012_restore_tasks_completed
+    severity: MEDIUM
+    status: open
+    title: Restore or create task completion ledger according to project governance
+    rationale: `tasks/completed/` is required by the audit prompt but missing.

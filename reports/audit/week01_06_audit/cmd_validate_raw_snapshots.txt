@@ -1,0 +1,5 @@
+﻿{
+  "snapshots_checked": 90,
+  "errors": 0,
+  "details": []
+}

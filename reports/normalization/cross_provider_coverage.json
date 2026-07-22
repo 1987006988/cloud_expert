@@ -1,0 +1,545 @@
+{
+  "canonical_fields": 38,
+  "products": [
+    "aliyun/ecs",
+    "aliyun/oss",
+    "aws/ec2",
+    "aws/s3",
+    "huawei_cloud/ecs",
+    "huawei_cloud/obs"
+  ],
+  "rows": [
+    {
+      "canonical_field_code": "compute.accelerator.gpu_count",
+      "domain": "compute",
+      "data_type": "numeric",
+      "canonical_unit": "count",
+      "products": {
+        "aliyun/ecs": 14,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.accelerator.gpu_model",
+      "domain": "compute",
+      "data_type": "text",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 1,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.block_storage.bandwidth_gbps",
+      "domain": "compute",
+      "data_type": "numeric",
+      "canonical_unit": "Gbps",
+      "products": {
+        "aliyun/ecs": 810,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.block_storage.iops",
+      "domain": "compute",
+      "data_type": "numeric",
+      "canonical_unit": "IOPS",
+      "products": {
+        "aliyun/ecs": 788,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.cpu.architecture",
+      "domain": "compute",
+      "data_type": "text",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 671,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.cpu.processor_model",
+      "domain": "compute",
+      "data_type": "text",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 23,
+        "aliyun/oss": 0,
+        "aws/ec2": 678,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.cpu.processor_vendor",
+      "domain": "compute",
+      "data_type": "text",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 671,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.cpu.vcpu_count",
+      "domain": "compute",
+      "data_type": "numeric",
+      "canonical_unit": "count",
+      "products": {
+        "aliyun/ecs": 993,
+        "aliyun/oss": 0,
+        "aws/ec2": 678,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 37,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.instance.family_level",
+      "domain": "compute",
+      "data_type": "text",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.memory.capacity_gib",
+      "domain": "compute",
+      "data_type": "numeric",
+      "canonical_unit": "GiB",
+      "products": {
+        "aliyun/ecs": 993,
+        "aliyun/oss": 0,
+        "aws/ec2": 678,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 37,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.network.bandwidth_gbps",
+      "domain": "compute",
+      "data_type": "numeric",
+      "canonical_unit": "Gbps",
+      "products": {
+        "aliyun/ecs": 993,
+        "aliyun/oss": 0,
+        "aws/ec2": 240,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 37,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.network.connections",
+      "domain": "compute",
+      "data_type": "numeric",
+      "canonical_unit": "count",
+      "products": {
+        "aliyun/ecs": 706,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.network.ena_express_supported",
+      "domain": "compute",
+      "data_type": "boolean",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.network.packets_per_second",
+      "domain": "compute",
+      "data_type": "numeric",
+      "canonical_unit": "PPS",
+      "products": {
+        "aliyun/ecs": 960,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 37,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.storage.local_capacity_gib",
+      "domain": "compute",
+      "data_type": "numeric",
+      "canonical_unit": "GiB",
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.storage.local_disk_count",
+      "domain": "compute",
+      "data_type": "numeric",
+      "canonical_unit": "count",
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.storage.local_type",
+      "domain": "compute",
+      "data_type": "text",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.system.supported_os_family",
+      "domain": "compute",
+      "data_type": "text",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "compute.system.virtualization_type",
+      "domain": "compute",
+      "data_type": "text",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 37,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.billing.minimum_billable_object_size_kib",
+      "domain": "object_storage",
+      "data_type": "numeric",
+      "canonical_unit": "KiB",
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 5,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.billing.minimum_storage_duration_days",
+      "domain": "object_storage",
+      "data_type": "numeric",
+      "canonical_unit": "day",
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 5,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 4
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.capability.lifecycle_management_supported",
+      "domain": "object_storage",
+      "data_type": "boolean",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 1,
+        "aws/ec2": 0,
+        "aws/s3": 1,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 7
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.capability.multipart_upload_supported",
+      "domain": "object_storage",
+      "data_type": "boolean",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 1,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 1
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.capability.versioning_supported",
+      "domain": "object_storage",
+      "data_type": "boolean",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 1,
+        "aws/ec2": 0,
+        "aws/s3": 1,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 5
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.data_protection.cross_region_replication_supported",
+      "domain": "object_storage",
+      "data_type": "boolean",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 1,
+        "aws/ec2": 0,
+        "aws/s3": 1,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 4
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.data_protection.object_lock_supported",
+      "domain": "object_storage",
+      "data_type": "boolean",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 1,
+        "aws/ec2": 0,
+        "aws/s3": 1,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 1
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.endpoint.dual_stack_supported",
+      "domain": "object_storage",
+      "data_type": "boolean",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 1,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.integration.event_notification_supported",
+      "domain": "object_storage",
+      "data_type": "boolean",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 1,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 1
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.limits.max_object_size_gib",
+      "domain": "object_storage",
+      "data_type": "numeric",
+      "canonical_unit": "GiB",
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.limits.max_single_upload_size_gib",
+      "domain": "object_storage",
+      "data_type": "numeric",
+      "canonical_unit": "GiB",
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.performance.transfer_acceleration_supported",
+      "domain": "object_storage",
+      "data_type": "boolean",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 1,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.redundancy.type",
+      "domain": "object_storage",
+      "data_type": "text",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 7,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.reliability.availability_percentage",
+      "domain": "object_storage",
+      "data_type": "numeric",
+      "canonical_unit": "percent",
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 1,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 4
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.reliability.durability_percentage",
+      "domain": "object_storage",
+      "data_type": "numeric",
+      "canonical_unit": "percent",
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 8,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 5
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.retrieval.time_description",
+      "domain": "object_storage",
+      "data_type": "text",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 4,
+        "aws/ec2": 0,
+        "aws/s3": 0,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 2
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.security.customer_managed_key_supported",
+      "domain": "object_storage",
+      "data_type": "boolean",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 0,
+        "aws/ec2": 0,
+        "aws/s3": 1,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 0
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.security.server_side_encryption_supported",
+      "domain": "object_storage",
+      "data_type": "boolean",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 1,
+        "aws/ec2": 0,
+        "aws/s3": 1,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 7
+      }
+    },
+    {
+      "canonical_field_code": "object_storage.website.static_hosting_supported",
+      "domain": "object_storage",
+      "data_type": "boolean",
+      "canonical_unit": null,
+      "products": {
+        "aliyun/ecs": 0,
+        "aliyun/oss": 1,
+        "aws/ec2": 0,
+        "aws/s3": 1,
+        "huawei_cloud/ecs": 0,
+        "huawei_cloud/obs": 2
+      }
+    }
+  ]
+}

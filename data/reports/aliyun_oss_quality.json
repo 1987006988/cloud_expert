@@ -1,0 +1,26 @@
+{
+  "provider_code": "aliyun",
+  "product_code": "oss",
+  "product_records": 1,
+  "sku_records": 0,
+  "product_family_records": 0,
+  "service_tier_records": 5,
+  "region_records": 19,
+  "availability_records": 19,
+  "zone_records": 0,
+  "zone_availability_records": 0,
+  "sla_records": 1,
+  "parsing_runs": 15,
+  "evidence_records": 148,
+  "review_items": 12,
+  "missing_evidence_links": 0,
+  "partition_region_violations": 0,
+  "partition_zone_violations": 0,
+  "low_confidence_fields": 12,
+  "field_coverage": {
+    "expected_fields": 24,
+    "observed_fields": 20,
+    "coverage_ratio": 0.8333
+  },
+  "human_review_completed": false
+}

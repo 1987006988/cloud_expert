@@ -1,0 +1,52 @@
+source_id: synthetic_pdf_fixture
+provider_code: synthetic_provider
+market_mode: domestic
+product_code: synthetic_compute
+source_type: documentation
+title: Synthetic PDF Fixture
+description: Synthetic PDF source used only for local ingestion tests.
+url: https://example.invalid/synthetic/pdf
+language: en
+authority_level: unknown
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type:
+  - application/pdf
+expected_file_extension: .pdf
+domain_policy:
+  allowed_domains:
+    - example.invalid
+  allow_subdomains: false
+  allow_redirects: true
+  allowed_redirect_domains:
+    - example.invalid
+fetch_policy:
+  timeout_seconds: 10
+  connect_timeout_seconds: 5
+  read_timeout_seconds: 10
+  max_retries: 2
+  retry_backoff_seconds: 0
+  min_interval_seconds: 0
+  max_content_length_bytes: 1048576
+  user_agent_profile: test
+storage_policy:
+  keep_all_versions: true
+  deduplicate_identical_content: true
+  store_response_headers: true
+  store_request_headers: false
+  compression: none
+  retention_policy: keep_all
+schedule:
+  update_frequency: manual
+  priority: 10
+owner: test
+review_status: pending_review
+terms_review_status: unknown
+manual_only: false
+notes: Synthetic fixture only. Not an official provider source.
+fixture_response_path: responses/synthetic_document.pdf
+fixture_response_status: 200
+fixture_response_content_type: application/pdf
+

@@ -1,0 +1,58 @@
+source_id: aliyun_ecs_instance_naming
+provider_code: aliyun
+market_mode: domestic
+cloud_partition: aliyun_public_cn
+product_code: ecs
+source_type: documentation
+title: ECS instance specification naming and classification
+description: Official ECS page for instance family and instance type naming.
+url: https://help.aliyun.com/zh/ecs/user-guide/instance-specification-naming-and-classification
+language: zh-CN
+authority_level: official_primary
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type:
+  - text/html
+expected_file_extension: .html
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains:
+    - help.aliyun.com
+  allow_subdomains: false
+  allow_redirects: true
+  allowed_redirect_domains:
+    - help.aliyun.com
+fetch_policy:
+  timeout_seconds: 45
+  connect_timeout_seconds: 10
+  read_timeout_seconds: 30
+  max_retries: 3
+  retry_backoff_seconds: 1
+  min_interval_seconds: 5
+  max_content_length_bytes: 15728640
+  user_agent_profile: cloud_expert_bot
+storage_policy:
+  keep_all_versions: true
+  deduplicate_identical_content: true
+  store_response_headers: true
+  store_request_headers: false
+  compression: none
+  retention_policy: keep_all
+schedule:
+  update_frequency: monthly
+  priority: 30
+owner: cloud_expert_data_engineering
+review_status: human_reviewed
+reviewed_at: 2026-07-22T00:00:00Z
+robots_checked_at: 2026-07-22T00:00:00Z
+robots_allowed: true
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
+compliance_notes: >
+  Public help.aliyun.com official documentation page.
+notes: >
+  Used to support family-code interpretation and instance naming rules. Parser
+  inferences from naming still create review items when not backed by tables.

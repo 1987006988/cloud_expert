@@ -1,0 +1,23 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.13, pytest-9.1.1, pluggy-1.6.0
+rootdir: D:\cloud_expert
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.14.2, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 62 items
+
+tests\migrations\test_alembic_migration.py .                             [  1%]
+tests\unit\test_additional_schemas_and_config.py ........                [ 14%]
+tests\unit\test_aliyun_parsing_pipeline.py ...                           [ 19%]
+tests\unit\test_aws_parsing_pipeline.py ...                              [ 24%]
+tests\unit\test_canonical_normalization.py ...                           [ 29%]
+tests\unit\test_huawei_parsing_pipeline.py .....                         [ 37%]
+tests\unit\test_ingestion_cli_and_content.py ...                         [ 41%]
+tests\unit\test_ingestion_fetcher_storage.py .......                     [ 53%]
+tests\unit\test_ingestion_registry_security.py ......                    [ 62%]
+tests\unit\test_model_constraints.py ...........                         [ 80%]
+tests\unit\test_pydantic_schemas.py .......                              [ 91%]
+tests\unit\test_repositories.py .....                                    [100%]
+
+============================= 62 passed in 6.76s ==============================

@@ -1,0 +1,6 @@
+﻿0005_week05_aliyun_zone_availability -> 0006_week06_canonical_normalization (head), Add week 6 canonical normalization models.
+0004_week04_aws_partition_availability -> 0005_week05_aliyun_zone_availability, Add week 5 Aliyun zone availability models.
+0003_week03_parsing_models -> 0004_week04_aws_partition_availability, Add week 4 cloud partitions and availability target scope.
+0002_ingestion_snapshots -> 0003_week03_parsing_models, Add week 3 parsing, review, SLA, and family models.
+0001_initial_product_data_model -> 0002_ingestion_snapshots, Add ingestion run and snapshot records.
+<base> -> 0001_initial_product_data_model, Initial product data model.

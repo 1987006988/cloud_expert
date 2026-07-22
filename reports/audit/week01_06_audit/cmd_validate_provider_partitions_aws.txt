@@ -1,0 +1,6 @@
+﻿{
+  "provider": "aws",
+  "partition": "aws",
+  "partition_region_violations": 0,
+  "errors": 0
+}

@@ -1,0 +1,23 @@
+{
+  "provider_code": "aws",
+  "product_code": "s3",
+  "product_records": 1,
+  "sku_records": 0,
+  "product_family_records": 0,
+  "service_tier_records": 8,
+  "region_records": 34,
+  "availability_records": 34,
+  "sla_records": 1,
+  "parsing_runs": 13,
+  "evidence_records": 711,
+  "review_items": 1,
+  "missing_evidence_links": 0,
+  "partition_region_violations": 0,
+  "low_confidence_fields": 1,
+  "field_coverage": {
+    "expected_fields": 23,
+    "observed_fields": 17,
+    "coverage_ratio": 0.7391
+  },
+  "human_review_completed": false
+}

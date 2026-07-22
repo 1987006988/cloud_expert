@@ -1,0 +1,25 @@
+{
+  "canonical_field_definitions": 38,
+  "normalization_rules": 40,
+  "normalization_runs": 1,
+  "normalized_specifications": 10172,
+  "comparability_assessments": 116,
+  "normalized_review_status_counts": {
+    "machine_extracted": 9404,
+    "pending_review": 768
+  },
+  "comparability_status_counts": {
+    "comparable": 13,
+    "not_comparable": 37,
+    "partial": 66
+  },
+  "average_quality_score": "0.9781",
+  "product_normalized_specification_counts": {
+    "aliyun/ecs": 6281,
+    "aliyun/oss": 30,
+    "aws/ec2": 3616,
+    "aws/s3": 17,
+    "huawei_cloud/ecs": 185,
+    "huawei_cloud/obs": 43
+  }
+}

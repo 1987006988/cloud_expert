@@ -1,0 +1,58 @@
+source_id: aws_ec2_pricing_on_demand
+provider_code: aws
+market_mode: international
+cloud_partition: aws
+product_code: ec2
+source_type: pricing
+title: Amazon EC2 On-Demand pricing
+description: Official EC2 On-Demand pricing page, registered for future pricing scope.
+url: https://aws.amazon.com/ec2/pricing/on-demand/
+language: en-US
+authority_level: official_primary
+enabled: false
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: false
+expected_content_type:
+  - text/html
+expected_file_extension: .html
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains:
+    - aws.amazon.com
+  allow_subdomains: false
+  allow_redirects: true
+  allowed_redirect_domains:
+    - aws.amazon.com
+fetch_policy:
+  timeout_seconds: 45
+  connect_timeout_seconds: 10
+  read_timeout_seconds: 30
+  max_retries: 3
+  retry_backoff_seconds: 1
+  min_interval_seconds: 5
+  max_content_length_bytes: 15728640
+  user_agent_profile: cloud_expert_bot
+storage_policy:
+  keep_all_versions: true
+  deduplicate_identical_content: true
+  store_response_headers: true
+  store_request_headers: false
+  compression: none
+  retention_policy: keep_all
+schedule:
+  update_frequency: manual
+  priority: 500
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-07-22T00:00:00Z
+robots_checked_at: 2026-07-22T00:00:00Z
+robots_allowed: true
+terms_review_status: manual_review_required
+automated_fetch_allowed: false
+manual_only: true
+compliance_notes: >
+  Pricing page is registered but disabled for Week 4. Pricing/TCO parsing is
+  explicitly out of scope and requires separate policy review.
+notes: >
+  Do not fetch or parse in Week 4.

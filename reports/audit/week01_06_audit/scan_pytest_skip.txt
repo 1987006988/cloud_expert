@@ -1,0 +1,4 @@
+﻿src\cloud_expert\normalization\canonical_service.py:66:    def skip(self, reason: str) -> None:
+src\cloud_expert\normalization\canonical_service.py:180:            summary.skip("no_canonical_mapping")
+src\cloud_expert\normalization\canonical_service.py:194:            summary.skip("missing_seeded_registry_record")
+src\cloud_expert\normalization\canonical_service.py:207:            summary.skip("standardized_value_not_usable")
