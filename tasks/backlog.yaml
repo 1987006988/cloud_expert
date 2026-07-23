@@ -19,6 +19,18 @@ items:
     title: "Cross-provider canonical normalization and comparability readiness"
     status: complete
     notes: "Added 38 canonical fields, 40 normalization rules, 10172 normalized specifications, 116 field-level comparability-readiness assessments, validation scripts, and normalization reports."
+  - id: week_007_mapping_candidates
+    title: "Cross-provider product mapping candidates and review workflow"
+    status: complete
+    notes: "R008 was waived for internal engineering only; generated 414 mapping candidates, 592 field comparisons, 1420 evidence links, and 200-row review sample without auto-approving mappings."
+  - id: week_008_evidence_packages
+    title: "Evidence packages, references, freshness, and auditable comparison outputs"
+    status: complete
+    notes: "Generated 414 internal-only evidence packages, 710 package items, 306 stable evidence references, JSON/Markdown sample output, freshness checks, eligibility checks, and idempotency validation. No pricing/TCO or customer-eligible outputs were created."
+  - id: week_009_pricing_and_tco
+    title: "Official pricing data and TCO calculation engine"
+    status: blocked
+    notes: "WEEK9_GATE=NO-GO because pricing source readiness is incomplete: Huawei Cloud ECS/OBS pricing entries are absent, existing pricing entries are disabled/manual-only, and no pricing SourceDocument/Evidence/PriceSKU/PriceSnapshot rows exist."
   - id: future_service_tier_scope_keys
     title: "Persist service-tier keys for object-storage specifications"
     status: backlog
@@ -30,4 +42,4 @@ items:
   - id: future_pricing_ingestion
     title: "Pricing source ingestion"
     status: blocked
-    notes: "Out of scope until pricing-specific source policy, schema review, and acceptance criteria are approved."
+    notes: "Blocked by Week9 pricing source readiness: official Huawei Cloud ECS/OBS pricing entries are missing, existing AWS/Aliyun pricing entries are disabled/manual-only, and no immutable pricing snapshots have been captured."

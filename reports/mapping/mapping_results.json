@@ -1,0 +1,30 @@
+{
+  "rule_sets": 4,
+  "candidates": 414,
+  "by_level": {
+    "category": 0,
+    "product": 4,
+    "product_family": 94,
+    "sku": 296,
+    "service_tier": 20,
+    "feature": 0,
+    "region_candidate": 0,
+    "scenario_candidate": 0,
+    "scenario": 0
+  },
+  "by_status": {
+    "candidate": 247,
+    "pending_review": 0,
+    "approved": 0,
+    "corrected": 0,
+    "rejected": 0,
+    "superseded": 0,
+    "not_comparable": 167,
+    "insufficient_evidence": 0
+  },
+  "pending_review": 414,
+  "approved": 0,
+  "field_comparisons": 592,
+  "evidence_links": 1420,
+  "evidence_gap_candidates": 148
+}

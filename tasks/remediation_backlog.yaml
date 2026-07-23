@@ -54,10 +54,14 @@ items:
     stage2_result: Comparability assessment now evaluates pending review values, unit sets, qualifier sets, scope alignment, evidence coverage, and market scope before marking rows comparable.
   - id: R008_review_queue_policy
     severity: HIGH
-    status: pending_human_review
+    status: waived_by_owner
     title: Route or close open human review queues before customer-facing use
     rationale: At least 1441 open review items remain across Huawei, AWS, and Aliyun data.
     stage2_result: Open review queues and comparability blockers were exported to D:\审核文件 for human review. Database rows remain unclosed until reviewer decisions are applied.
+    waiver_result: Project owner instructed Codex on 2026-07-23 to waive this human-review gate for internal Week7-Week9 engineering execution. The waiver does not convert pending rows into customer-eligible facts.
+    waived_at: "2026-07-23T00:00:00+08:00"
+    waived_by: "taotao"
+    waiver_report: reports/remediation/r008_waiver/waiver_record.md
   - id: R009_raise_test_coverage
     severity: HIGH
     status: complete

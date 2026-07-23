@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-07-23T00:00:00+08:00",
+  "item_id": "R008_review_queue_policy",
+  "status": "waived_by_owner",
+  "waived_by": "taotao",
+  "instruction": "先把人工审核的豁免了，执行后续几周的任务",
+  "review_package": "D:\\审核文件",
+  "review_items_open_or_in_review": 1441,
+  "normalized_pending_review": 678,
+  "scope_mismatch_review": 0,
+  "comparability_blockers": 103,
+  "data_quality_issues_open_or_in_review": 0,
+  "allows_internal_engineering": true,
+  "converts_pending_facts_to_customer_eligible": false,
+  "allows_auto_approval": false
+}

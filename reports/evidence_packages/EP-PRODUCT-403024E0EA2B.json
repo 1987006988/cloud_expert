@@ -1,0 +1,32 @@
+{
+  "package_code": "EP-PRODUCT-403024E0EA2B",
+  "package_version": "2026.07.week08.v1",
+  "package_type": "product_comparison",
+  "rule_set_version": "2026.07.week07.v1",
+  "review_status": "pending_review",
+  "customer_eligible": false,
+  "limitations": [
+    "No pricing or TCO is included.",
+    "No performance benchmark or superiority claim is made.",
+    "Pending-review information must not be promised to customers.",
+    "Facts may vary by Region, scope, qualifier, and capture time."
+  ],
+  "items": [
+    {
+      "display_order": 1,
+      "canonical_field": null,
+      "source_raw_value": null,
+      "source_canonical_value": null,
+      "target_raw_value": null,
+      "target_canonical_value": null,
+      "unit": null,
+      "source_reference": "EV-HUAWEI_CLOUD-SPE-66-83BE0A74",
+      "target_reference": "EV-AWS-SPE-356-764FB054",
+      "comparison_status": "candidate",
+      "scope_status": "not_evaluated",
+      "qualifier_status": "not_evaluated",
+      "freshness_status": "unknown",
+      "blocking_reason": null
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "freshness_counts": {
+    "fresh": 306,
+    "due_soon": 0,
+    "stale": 0,
+    "unknown": 0,
+    "historical": 0
+  },
+  "valid": true
+}

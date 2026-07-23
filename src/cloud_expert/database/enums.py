@@ -113,9 +113,14 @@ class ComparabilityStatus(StableStrEnum):
 
 
 class MappingLevel(StableStrEnum):
+    CATEGORY = "category"
     PRODUCT = "product"
     PRODUCT_FAMILY = "product_family"
     SKU = "sku"
+    SERVICE_TIER = "service_tier"
+    FEATURE = "feature"
+    REGION_CANDIDATE = "region_candidate"
+    SCENARIO_CANDIDATE = "scenario_candidate"
     SCENARIO = "scenario"
 
 
@@ -125,6 +130,115 @@ class MappingStatus(StableStrEnum):
     PARTIAL = "partial"
     NONE = "none"
     PENDING_REVIEW = "pending_review"
+
+
+class MappingCandidateStatus(StableStrEnum):
+    CANDIDATE = "candidate"
+    PENDING_REVIEW = "pending_review"
+    APPROVED = "approved"
+    CORRECTED = "corrected"
+    REJECTED = "rejected"
+    SUPERSEDED = "superseded"
+    NOT_COMPARABLE = "not_comparable"
+    INSUFFICIENT_EVIDENCE = "insufficient_evidence"
+
+
+class MappingRelationshipType(StableStrEnum):
+    EQUIVALENT_CATEGORY = "equivalent_category"
+    SAME_SERVICE_CLASS = "same_service_class"
+    CLOSE_ALTERNATIVE = "close_alternative"
+    PARTIAL_OVERLAP = "partial_overlap"
+    MIGRATION_TARGET_CANDIDATE = "migration_target_candidate"
+    FEATURE_OVERLAP = "feature_overlap"
+    NO_DIRECT_EQUIVALENT = "no_direct_equivalent"
+    DEPRECATED_REPLACEMENT_CANDIDATE = "deprecated_replacement_candidate"
+    UNKNOWN = "unknown"
+
+
+class MappingEvidenceRole(StableStrEnum):
+    SOURCE_FIELD = "source_field"
+    TARGET_FIELD = "target_field"
+    CATEGORY_POSITIONING = "category_positioning"
+    AVAILABILITY = "availability"
+    EXCLUSION = "exclusion"
+    LIFECYCLE = "lifecycle"
+    SLA_CONTEXT = "sla_context"
+
+
+class FieldComparisonStatus(StableStrEnum):
+    MATCH = "match"
+    CLOSE = "close"
+    DIFFERENT = "different"
+    MISSING_SOURCE = "missing_source"
+    MISSING_TARGET = "missing_target"
+    QUALITATIVE_ONLY = "qualitative_only"
+    NOT_COMPARABLE = "not_comparable"
+    INSUFFICIENT_EVIDENCE = "insufficient_evidence"
+
+
+class RuleSetStatus(StableStrEnum):
+    ACTIVE = "active"
+    DEPRECATED = "deprecated"
+    DRAFT = "draft"
+
+
+class EvidenceReliabilityLevel(StableStrEnum):
+    OFFICIAL_STRUCTURED = "official_structured"
+    OFFICIAL_SPECIFICATION = "official_specification"
+    OFFICIAL_DOCUMENTATION = "official_documentation"
+    OFFICIAL_SLA = "official_sla"
+    OFFICIAL_PRODUCT_PAGE = "official_product_page"
+    OFFICIAL_FAQ = "official_faq"
+    OFFICIAL_RELEASE_NOTE = "official_release_note"
+    OFFICIAL_HISTORICAL = "official_historical"
+    MANUAL_IMPORT_OFFICIAL = "manual_import_official"
+    THIRD_PARTY = "third_party"
+    SYNTHETIC = "synthetic"
+    FIXTURE = "fixture"
+    UNKNOWN = "unknown"
+
+
+class EvidenceStatus(StableStrEnum):
+    ACTIVE = "active"
+    STALE = "stale"
+    SUPERSEDED = "superseded"
+    CONFLICTING = "conflicting"
+    UNAVAILABLE = "unavailable"
+    UNVERIFIABLE = "unverifiable"
+    PENDING_REVIEW = "pending_review"
+    REJECTED = "rejected"
+
+
+class FreshnessStatus(StableStrEnum):
+    FRESH = "fresh"
+    DUE_SOON = "due_soon"
+    STALE = "stale"
+    UNKNOWN = "unknown"
+    HISTORICAL = "historical"
+
+
+class EvidencePackageType(StableStrEnum):
+    PRODUCT_COMPARISON = "product_comparison"
+    PRODUCT_FAMILY_COMPARISON = "product_family_comparison"
+    SKU_COMPARISON = "sku_comparison"
+    SERVICE_TIER_COMPARISON = "service_tier_comparison"
+    FIELD_COMPARISON = "field_comparison"
+    MAPPING_REVIEW = "mapping_review"
+    SLA_CONTEXT = "sla_context"
+    AVAILABILITY_CONTEXT = "availability_context"
+
+
+class EvidenceOutputLevel(StableStrEnum):
+    INTERNAL_RAW = "internal_raw"
+    INTERNAL_REVIEWED = "internal_reviewed"
+    CUSTOMER_ELIGIBLE = "customer_eligible"
+    HISTORICAL = "historical"
+
+
+class EvidencePackageRunStatus(StableStrEnum):
+    SUCCEEDED = "succeeded"
+    PARTIAL = "partial"
+    FAILED = "failed"
 
 
 class BillingMode(StableStrEnum):

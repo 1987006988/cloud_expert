@@ -1,0 +1,13 @@
+{
+  "rule_sets": 4,
+  "product_candidates": 4,
+  "family_candidates": 94,
+  "sku_candidates": 296,
+  "service_tier_candidates": 20,
+  "field_comparisons": 592,
+  "evidence_links": 1420,
+  "not_comparable": 167,
+  "pending_review": 414,
+  "total_candidates": 414,
+  "errors": []
+}

@@ -10,8 +10,21 @@ from cloud_expert.database.models.canonical import (
 from cloud_expert.database.models.cloud_partition import CloudPartition
 from cloud_expert.database.models.competition import CompetitiveClaim
 from cloud_expert.database.models.evaluation import EvaluationCase, SalesScenario
+from cloud_expert.database.models.evidence_package import (
+    EvidencePackage,
+    EvidencePackageItem,
+    EvidencePackageRun,
+    EvidenceReference,
+)
 from cloud_expert.database.models.ingestion import IngestionRun
-from cloud_expert.database.models.mapping import ProductMapping
+from cloud_expert.database.models.mapping import (
+    MappingCandidate,
+    MappingCandidateEvidence,
+    MappingFieldComparison,
+    MappingReview,
+    MappingRuleSet,
+    ProductMapping,
+)
 from cloud_expert.database.models.parsing import ParsedFieldCandidate, ParsingRun
 from cloud_expert.database.models.pricing import PriceSKU, PriceSnapshot
 from cloud_expert.database.models.product import (
@@ -45,8 +58,17 @@ __all__ = [
     "CompetitiveClaim",
     "EvaluationCase",
     "Evidence",
+    "EvidencePackage",
+    "EvidencePackageItem",
+    "EvidencePackageRun",
+    "EvidenceReference",
     "IngestionRun",
     "DataQualityIssue",
+    "MappingCandidate",
+    "MappingCandidateEvidence",
+    "MappingFieldComparison",
+    "MappingReview",
+    "MappingRuleSet",
     "NormalizationRule",
     "NormalizationRun",
     "NormalizedSpecification",

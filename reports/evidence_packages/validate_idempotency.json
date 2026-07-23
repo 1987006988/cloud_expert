@@ -1,0 +1,14 @@
+{
+  "before": {
+    "packages": 414,
+    "items": 710,
+    "references": 306
+  },
+  "after": {
+    "packages": 414,
+    "items": 710,
+    "references": 306
+  },
+  "errors": [],
+  "valid": true
+}

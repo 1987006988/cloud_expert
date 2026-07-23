@@ -1,0 +1,18 @@
+{
+  "before": {
+    "rule_sets": 4,
+    "candidates": 414,
+    "product_candidates": 4,
+    "field_comparisons": 592,
+    "evidence_links": 1420
+  },
+  "after": {
+    "rule_sets": 4,
+    "candidates": 414,
+    "product_candidates": 4,
+    "field_comparisons": 592,
+    "evidence_links": 1420
+  },
+  "errors": [],
+  "valid": true
+}

@@ -1,154 +1,16 @@
 {
-  "generated_at": "2026-07-22T23:41:11+08:00",
+  "generated_at": "2026-07-23T09:59:04+08:00",
   "gate": "WEEK7_GATE",
-  "verdict": "NO-GO",
-  "baseline": {
-    "branch": "main",
-    "head_commit": "e655bd0",
-    "remote": "origin/main",
-    "worktree_clean_before_reports": true,
-    "baseline_tags_present": [
-      "audit-week01-06-baseline",
-      "audit-week06-baseline"
-    ]
-  },
-  "blocking_items": [
-    {
-      "id": "R008_review_queue_policy",
-      "status": "pending_human_review",
-      "blocks_week7": true,
-      "reason": "Human review package exists, but reviewer decisions have not been applied to the database or explicitly waived."
-    }
+  "verdict": "GO",
+  "unresolved": [],
+  "r008_waiver_present": true,
+  "allowed_statuses": [
+    "complete",
+    "waived_by_owner"
   ],
-  "review_package": {
-    "path": "D:\\审核文件",
-    "exists": true,
-    "review_items_open_or_in_review": 1441,
-    "normalized_pending_review": 678,
-    "scope_mismatch_review": 0,
-    "comparability_blockers": 103,
-    "data_quality_issues_open_or_in_review": 0,
-    "files_present": [
-      "REVIEW_INSTRUCTIONS.md",
-      "review_manifest.json",
-      "review_items_open.csv",
-      "review_items_open.json",
-      "normalized_pending_review.csv",
-      "normalized_pending_review.json",
-      "comparability_blockers.csv",
-      "comparability_blockers.json",
-      "scope_mismatch_review.csv",
-      "scope_mismatch_review.json",
-      "data_quality_issues_open.csv",
-      "data_quality_issues_open.json"
-    ]
-  },
-  "checks": {
-    "git_status": {
-      "command": "git status --short --branch",
-      "exit_code": 0,
-      "result": "clean on main tracking origin/main"
-    },
-    "ruff_format": {
-      "command": ".venv312\\Scripts\\python.exe -m ruff format --check .",
-      "exit_code": 0,
-      "result": "203 files already formatted"
-    },
-    "ruff_check": {
-      "command": ".venv312\\Scripts\\python.exe -m ruff check .",
-      "exit_code": 0,
-      "result": "All checks passed"
-    },
-    "mypy": {
-      "command": ".venv312\\Scripts\\python.exe -m mypy src",
-      "exit_code": 0,
-      "result": "Success: no issues found in 138 source files"
-    },
-    "pytest_not_network": {
-      "command": ".venv312\\Scripts\\python.exe -m pytest -m \"not network\" -ra",
-      "exit_code": 0,
-      "result": "83 passed, 6 skipped"
-    },
-    "coverage": {
-      "source": "reports/remediation/stage2/coverage.json",
-      "percent_covered": 85.2552253661311,
-      "threshold": 85.0,
-      "passed": true
-    },
-    "alembic_default_database": {
-      "heads": "0006_week06_canonical_normalization (head)",
-      "current": "0006_week06_canonical_normalization (head)",
-      "passed": true
-    },
-    "default_database_validation": {
-      "command": ".venv312\\Scripts\\python.exe scripts\\validate_default_database.py",
-      "exit_code": 0,
-      "result": "valid=true; no missing tables; no stale revisions"
-    },
-    "postgres_docker": {
-      "command": "docker compose ps; docker compose exec -T postgres pg_isready -U cloud_expert",
-      "exit_code": 0,
-      "result": "container healthy; PostgreSQL accepting connections on port 54329"
-    },
-    "postgres_alembic_current": {
-      "database": "cloud_expert_r011_week7_gate",
-      "command": ".venv312\\Scripts\\python.exe -m alembic -x database_url=postgresql+psycopg://... current",
-      "exit_code": 0,
-      "result": "0006_week06_canonical_normalization (head)"
-    },
-    "postgres_integration_tests": {
-      "command": "POSTGRES_TEST_DATABASE_URL=postgresql+psycopg://... pytest tests\\integration -m \"not network\" -ra -q",
-      "exit_code": 0,
-      "result": "6 passed"
-    },
-    "evidence_links": {
-      "command": ".venv312\\Scripts\\python.exe scripts\\validate_evidence_links.py",
-      "exit_code": 0,
-      "missing_evidence_links": 0,
-      "errors": 0
-    },
-    "canonical_definitions": {
-      "command": ".venv312\\Scripts\\python.exe scripts\\validate_canonical_definitions.py",
-      "exit_code": 0,
-      "canonical_fields": 38,
-      "normalization_mappings": 40,
-      "errors": 0
-    },
-    "week6_projection": {
-      "database_url": "sqlite:///D:/cloud_expert/test_outputs/week6_combined_projection.sqlite",
-      "validate_week06_projection": "valid=true",
-      "normalized_specifications": 10172,
-      "missing_normalized_evidence_links": 0,
-      "raw_hash_mismatches": 0
-    },
-    "canonical_units": {
-      "checked": 10172,
-      "errors": 0
-    },
-    "value_qualifiers": {
-      "unknown_qualifiers": 0,
-      "qualifier_counts": {
-        "baseline": 680,
-        "designed": 18,
-        "exact": 5524,
-        "maximum": 3891,
-        "minimum": 14,
-        "supported": 45
-      }
-    },
-    "specification_scopes": {
-      "unknown_scopes": 0,
-      "scope_mismatch_warning_count": 0,
-      "scope_counts": {
-        "service_tier": 90,
-        "sku": 10082
-      }
-    }
-  },
-  "week7_work_started": false,
-  "mapping_business_code_modified": false,
-  "mapping_candidates_created": false,
-  "sku_matches_created": false,
+  "notes": "R008 waiver allows internal engineering only; pending review facts are not customer eligible.",
+  "mapping_candidates": 414,
+  "mapping_field_comparisons": 592,
   "approved_mappings_created": false,
-  "remote_pushed": false
+  "customer_eligible_outputs_created": false
 }

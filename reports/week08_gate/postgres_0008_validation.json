@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-07-23T09:58:42+08:00",
+  "database": "cloud_expert_r011_week08_tests",
+  "postgres_container": "cloud_expert-postgres-1",
+  "postgres_image": "postgres:16",
+  "alembic_head": "0008_week08_evidence_packages",
+  "fresh_upgrade_head": true,
+  "downgrade_minus_one": true,
+  "reupgrade_head": true,
+  "pytest_postgres": {
+    "selected": 6,
+    "passed": 6,
+    "deselected": 83
+  },
+  "notes": [
+    "The first pytest attempt used a non-R011 database name and was rejected by the test guard.",
+    "The second pytest attempt used an R011 database name before the database was created and failed with database-not-found.",
+    "After creating the isolated database and running Alembic upgrade head, PostgreSQL tests passed."
+  ],
+  "valid": true
+}

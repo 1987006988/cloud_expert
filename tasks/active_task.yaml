@@ -1,35 +1,29 @@
-id: week_006_canonical_normalization_readiness
-title: "Week 6: Cross-provider canonical normalization and comparability readiness"
-status: complete
+id: week_009_pricing_and_tco_gate
+title: "Week 9: Official pricing source readiness and TCO gate"
+status: blocked
 scope:
   include:
-    - canonical field definitions
-    - legacy parser field to canonical field mappings
-    - unit normalization rules
-    - value qualifier normalization
-    - specification scope preparation
-    - derived normalized specifications
-    - field-level comparability-readiness assessments
-    - combined acceptance projection from Week 3, Week 4, and Week 5 databases
-    - canonical validation scripts
-    - normalization quality reports
-    - compute and object-storage field matrices
-    - Alembic migration 0006
-    - tests
-    - state and handoff documentation
+    - Week9 gate validation
+    - pricing source registry readiness checks
+    - PriceSKU and PriceSnapshot absence checks
+    - price evidence readiness checks
+    - missing-price guardrails
+    - Week9 blocker reports
   exclude:
-    - new providers
-    - new cloud product families
-    - new source fetching
-    - pricing ingestion
-    - pricing parsing
-    - TCO
-    - embeddings or vector database
-    - LLM calls
-    - RAG
-    - frontend UI
-    - sales script generation
-    - competitive scoring
-    - automatic product mapping
-    - final product equivalence claims
-    - real customer data
+    - price scraping
+    - price parsing
+    - TCO calculation
+    - customer quotes
+    - customer discounts
+    - final sales conclusions
+blockers:
+  - id: W9-B007-pricing-source-readiness
+    status: open
+    reason: >
+      Required official pricing readiness is incomplete: Huawei Cloud ECS/OBS
+      pricing registry entries are missing, existing AWS and Aliyun pricing
+      sources are disabled/manual-only, and the database has no pricing
+      SourceDocument, Evidence, PriceSKU, or PriceSnapshot rows.
+references:
+  - reports/week09_gate/validation_results.json
+  - reports/week09_gate/gate_summary.md

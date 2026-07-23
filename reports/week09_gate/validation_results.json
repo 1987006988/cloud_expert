@@ -1,161 +1,109 @@
 {
-  "generated_at": "2026-07-22T23:46:13+08:00",
+  "generated_at": "2026-07-23T09:59:04+08:00",
   "gate": "WEEK9_GATE",
   "verdict": "NO-GO",
-  "work_started": false,
-  "pricing_business_code_modified": false,
-  "tco_business_code_modified": false,
-  "pricing_sources_ingested": false,
-  "price_snapshots_created": false,
-  "pricing_scenarios_created": false,
-  "cost_calculations_run": false,
-  "tco_reports_created": false,
-  "baseline": {
-    "branch": "main",
-    "head_commit": "d44ac83",
-    "origin_status": "ahead 1",
-    "worktree_clean_before_reports": true
+  "week7_gate": {
+    "gate": "WEEK7_GATE",
+    "verdict": "GO",
+    "unresolved": [],
+    "r008_waiver_present": true,
+    "allowed_statuses": [
+      "complete",
+      "waived_by_owner"
+    ],
+    "notes": "R008 waiver allows internal engineering only; pending review facts are not customer eligible."
   },
-  "preconditions": {
-    "week7_gate": "NO-GO",
-    "week8_gate": "NO-GO",
-    "r008_review_queue_policy": "pending_human_review",
-    "evidence_package_generation_available": false,
-    "evidence_references_available": false,
-    "customer_output_eligibility_available": false,
-    "source_freshness_available": false,
-    "week8_postgres_tests_available": false,
-    "week8_coverage_gate_available": false
+  "week8_gate": {
+    "gate": "WEEK8_GATE",
+    "week7_gate": "GO",
+    "mapping_rule_sets": 4,
+    "mapping_candidates": 414,
+    "mapping_field_comparisons": 592,
+    "mapping_evidence_links": 1420,
+    "mapping_evidence": {
+      "candidate_count": 414,
+      "candidates_with_evidence": 414,
+      "missing_evidence": 0,
+      "auto_approved_candidates": 0,
+      "valid": true
+    },
+    "verdict": "GO"
   },
-  "existing_pricing_state": {
-    "price_sku_model_exists": true,
-    "price_snapshot_model_exists": true,
-    "price_sku_rows": 0,
-    "price_snapshot_rows": 0,
-    "pricing_scenario_table": false,
-    "cost_calculation_run_table": false,
-    "cost_line_item_table": false,
-    "tco_result_table": false
+  "evidence_packages": 414,
+  "evidence_references": 306,
+  "customer_output_eligibility": {
+    "packages": 414,
+    "customer_eligible": 0,
+    "internal_only": 414,
+    "pending_review": 414,
+    "valid": true
   },
-  "mapping_and_evidence_package_state": {
-    "product_mapping_rows": 0,
-    "mapping_candidate_table": false,
-    "mapping_rule_set_table": false,
-    "mapping_field_comparison_table": false,
-    "evidence_package_table": false,
-    "evidence_package_item_table": false,
-    "evidence_reference_table": false,
-    "evidence_package_run_table": false
+  "coverage": {
+    "coverage_json": "D:\\cloud_expert\\reports\\remediation\\stage2\\coverage.json",
+    "percent_covered": 85.2552253661311,
+    "threshold": 85.0,
+    "passed": true
   },
-  "review_package": {
-    "path": "D:\\审核文件",
-    "review_items_open_or_in_review": 1441,
-    "normalized_pending_review": 678,
-    "scope_mismatch_review": 0,
-    "comparability_blockers": 103,
-    "data_quality_issues_open_or_in_review": 0
+  "postgres": {
+    "validation_report": "D:\\cloud_expert\\reports\\remediation\\r011\\runs\\run_02\\validation_results.json",
+    "r011_status": "COMPLETED",
+    "postgres_version": "PostgreSQL 16.14 (Debian 16.14-1.pgdg13+1)",
+    "pytest_postgres_passed": 6,
+    "pytest_integration_passed": 6,
+    "passed": true
   },
-  "checks": {
-    "git_status": {
-      "command": "git status --short --branch",
-      "exit_code": 0,
-      "result": "main ahead 1 before new reports"
+  "pricing_sources": {
+    "required_provider_products": [
+      "aliyun/ecs",
+      "aliyun/oss",
+      "aws/ec2",
+      "aws/s3",
+      "huawei_cloud/ecs",
+      "huawei_cloud/obs"
+    ],
+    "registered_pricing_sources": 4,
+    "registered_by_provider": {
+      "aliyun": 2,
+      "aws": 2
     },
-    "git_branch": {
-      "command": "git branch --show-current",
-      "exit_code": 0,
-      "result": "main"
-    },
-    "git_log": {
-      "command": "git log --oneline --decorate --graph -25",
-      "exit_code": 0,
-      "head": "d44ac83 chore(gate): record week seven no-go"
-    },
-    "git_tags": {
-      "command": "git tag --list",
-      "exit_code": 0,
-      "result": [
-        "audit-week01-06-baseline",
-        "audit-week06-baseline"
-      ]
-    },
-    "ruff_format_check": {
-      "command": ".venv312\\Scripts\\python.exe -m ruff format --check .",
-      "exit_code": 0,
-      "result": "203 files already formatted"
-    },
-    "ruff_check": {
-      "command": ".venv312\\Scripts\\python.exe -m ruff check .",
-      "exit_code": 0,
-      "result": "All checks passed"
-    },
-    "mypy_src_scripts": {
-      "command": ".venv312\\Scripts\\python.exe -m mypy src scripts",
-      "exit_code": 0,
-      "result": "Success: no issues found in 173 source files"
-    },
-    "pytest_not_network": {
-      "command": ".venv312\\Scripts\\python.exe -m pytest -m \"not network\" -ra",
-      "exit_code": 0,
-      "result": "83 passed, 6 skipped"
-    },
-    "pytest_postgres": {
-      "command": "POSTGRES_TEST_DATABASE_URL=postgresql+psycopg://... pytest -m postgres -ra",
-      "exit_code": 0,
-      "result": "6 passed, 83 deselected"
-    },
-    "docker_postgres": {
-      "command": "docker compose ps; docker compose exec -T postgres pg_isready -U cloud_expert",
-      "exit_code": 0,
-      "result": "PostgreSQL container healthy and accepting connections"
-    },
-    "validate_default_database": {
-      "command": ".venv312\\Scripts\\python.exe scripts\\validate_default_database.py",
-      "exit_code": 0,
-      "valid": true,
-      "head": "0006_week06_canonical_normalization"
-    },
-    "validate_evidence_links": {
-      "command": ".venv312\\Scripts\\python.exe scripts\\validate_evidence_links.py",
-      "exit_code": 0,
-      "missing_evidence_links": 0,
-      "errors": 0
-    },
-    "validate_normalized_evidence": {
-      "database_url": "sqlite:///D:/cloud_expert/test_outputs/week6_combined_projection.sqlite",
-      "exit_code": 0,
-      "normalized_specifications": 10172,
-      "missing_evidence_links": 0,
-      "hash_mismatch": 0
-    },
-    "validate_week06_projection": {
-      "database_url": "sqlite:///D:/cloud_expert/test_outputs/week6_combined_projection.sqlite",
-      "exit_code": 0,
-      "valid": true,
-      "normalized_specifications": 10172,
-      "evidence": 14113,
-      "snapshot_record": 67
-    }
+    "missing_required": [
+      "huawei_cloud/ecs",
+      "huawei_cloud/obs"
+    ],
+    "disabled_sources": [
+      "aliyun_ecs_pricing",
+      "aliyun_oss_pricing",
+      "aws_ec2_pricing_on_demand",
+      "aws_s3_pricing"
+    ],
+    "manual_only_sources": [
+      "aliyun_ecs_pricing",
+      "aliyun_oss_pricing",
+      "aws_ec2_pricing_on_demand",
+      "aws_s3_pricing"
+    ],
+    "automated_fetchable_sources": [],
+    "terms_not_approved": [
+      "aliyun_ecs_pricing",
+      "aliyun_oss_pricing",
+      "aws_ec2_pricing_on_demand",
+      "aws_s3_pricing"
+    ],
+    "pricing_source_documents": 0,
+    "pricing_evidence": 0,
+    "errors": [
+      "missing required provider/product pricing registry entries",
+      "no pricing SourceDocument rows are present",
+      "no pricing Evidence rows are present",
+      "no enabled automated pricing source is available"
+    ],
+    "valid": false
   },
-  "missing_scripts": [
-    "scripts/check_week08_gate.py",
-    "scripts/validate_evidence_references.py",
-    "scripts/check_source_freshness.py",
-    "scripts/validate_evidence_package_idempotency.py",
-    "scripts/check_week09_gate.py",
-    "scripts/validate_pricing_sources.py",
-    "scripts/validate_price_skus.py",
-    "scripts/check_price_freshness.py",
-    "scripts/validate_price_evidence.py",
-    "scripts/validate_cost_calculation_idempotency.py"
-  ],
   "blocking_items": [
-    "W9-B001-week7-gate",
-    "W9-B002-r008-human-review",
-    "W9-B003-week8-gate",
-    "W9-B004-evidence-package",
-    "W9-B005-week8-postgres-and-coverage-evidence",
-    "W9-B006-pricing-source-gate",
-    "W9-B007-tco-foundation"
+    "W9-B007-pricing-source-readiness"
+  ],
+  "notes": [
+    "Pricing/TCO business code must not run while pricing source readiness is false.",
+    "Missing prices must remain missing; they must not be treated as zero."
   ]
 }
