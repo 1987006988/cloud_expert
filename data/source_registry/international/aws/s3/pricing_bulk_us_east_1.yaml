@@ -1,0 +1,61 @@
+source_id: aws_s3_pricing_bulk_us_east_1
+provider_code: aws
+market_mode: international
+cloud_partition: aws
+product_code: s3
+source_type: pricing
+title: AWS Price List Bulk API Amazon S3 us-east-1
+description: Official AWS Price List Bulk API regional offer file for Amazon S3 in us-east-1.
+url: https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonS3/current/us-east-1/index.json
+language: en-US
+authority_level: official_primary
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type:
+  - application/json
+  - application/octet-stream
+expected_file_extension: .json
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains:
+    - pricing.us-east-1.amazonaws.com
+  allow_subdomains: false
+  allow_redirects: true
+  allowed_redirect_domains:
+    - pricing.us-east-1.amazonaws.com
+fetch_policy:
+  timeout_seconds: 90
+  connect_timeout_seconds: 10
+  read_timeout_seconds: 90
+  max_retries: 3
+  retry_backoff_seconds: 1
+  min_interval_seconds: 5
+  max_content_length_bytes: 52428800
+  user_agent_profile: cloud_expert_bot
+storage_policy:
+  keep_all_versions: true
+  deduplicate_identical_content: true
+  store_response_headers: true
+  store_request_headers: false
+  compression: none
+  retention_policy: keep_all
+schedule:
+  update_frequency: weekly
+  priority: 40
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-07-23T00:00:00Z
+robots_checked_at: 2026-07-23T00:00:00Z
+robots_allowed: true
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
+compliance_notes: >
+  Public unauthenticated official AWS Price List Bulk API offer file. Automated
+  JSON snapshot is approved. Values extracted from this source may be treated
+  as list prices only when linked to the immutable SourceDocument and Evidence.
+notes: >
+  Initial structured extraction targets Amazon S3 Standard storage in
+  us-east-1. Other S3 dimensions remain missing until explicit rules are added.

@@ -143,13 +143,16 @@ Gate verdict: **WEEK9_GATE={payload["verdict"]}**
 | Missing required pricing sources | {missing} |
 | Pricing SourceDocuments | {payload["pricing_sources"]["pricing_source_documents"]} |
 | Pricing Evidence | {payload["pricing_sources"]["pricing_evidence"]} |
+| PriceSKU rows | {payload["price_skus"]["price_skus"]} |
+| PriceSnapshot rows | {payload["price_skus"]["price_snapshots"]} |
+| TCO line items | {payload["tco_validation"]["cost_line_items"]} |
+| TCO results | {payload["tco_validation"]["tco_results"]} |
 
 ## Decision
 
-Week 9 remains blocked because official pricing source readiness is incomplete.
-No Pricing/TCO business code should run until official pricing sources are
-registered, approved for the intended collection mode, captured as immutable
-snapshots, and linked to Evidence.
+Week 9 is open for internal pricing/TCO engineering only when this gate is GO.
+Missing prices remain excluded from totals and must stay visible in TCO detail
+rows until additional official price snapshots are captured.
 """
 
 
@@ -165,6 +168,15 @@ def _render_blockers(payload: dict[str, Any]) -> str:
 
 def _render_next_actions(payload: dict[str, Any]) -> str:
     if payload["gate"] == "WEEK9_GATE":
+        if not payload.get("blocking_items"):
+            return """# Recommended Next Actions
+
+1. Keep Week 9 outputs internal until missing provider/product prices are filled.
+2. Add approved official snapshots for Huawei Cloud ECS/OBS concrete price tables.
+3. Add approved official snapshots for AWS EC2 compute and Aliyun ECS/OSS concrete price tables.
+4. Re-run the Week 9 pricing pipeline after each new price source is added.
+5. Keep missing prices out of totals; do not treat them as zero.
+"""
         return """# Recommended Next Actions
 
 1. Register missing Huawei Cloud ECS and OBS official pricing sources.

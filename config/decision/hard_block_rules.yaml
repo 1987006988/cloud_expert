@@ -1,0 +1,20 @@
+schema_version: "1.0"
+rules:
+  - code: market_mode_mismatch
+    severity: critical
+    remediation: "Use a candidate from the same market mode or create a scoped exception."
+  - code: region_or_data_residency_missing
+    severity: critical
+    remediation: "Collect region and data residency evidence before customer use."
+  - code: cpu_architecture_conflict
+    severity: critical
+    remediation: "Select a candidate with the required CPU architecture."
+  - code: sla_below_required_threshold
+    severity: critical
+    remediation: "Collect SLA evidence or block the candidate."
+  - code: mandatory_cost_missing
+    severity: high
+    remediation: "Complete TCO inputs; do not treat missing price as zero."
+  - code: customer_output_eligibility_failed
+    severity: high
+    remediation: "Complete human review and customer eligibility checks."

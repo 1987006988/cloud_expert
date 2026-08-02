@@ -1,0 +1,51 @@
+schema_version: "1.0"
+code: high_availability_compute_v1
+version: "v1"
+name: "High Availability Compute Internal Scenario"
+description: "Compute comparison where multi-zone and SLA evidence are mandatory."
+scenario_type: business_critical_compute
+market_mode: international
+industry: regulated_standard
+country_code: US
+preferred_regions: [us-east-1]
+workload_profile:
+  category: compute
+  multi_zone_required: true
+  minimum_sla: 0.999
+  cost_required: true
+technical_requirements:
+  cpu_architecture: x86
+availability_requirements:
+  multi_zone: true
+  minimum_sla: 0.999
+compliance_requirements:
+  customer_output_required: false
+data_residency_requirements:
+  country_code: US
+operational_requirements:
+  public_evidence_only: true
+migration_requirements:
+  replacement_candidate: true
+budget_preferences:
+  currency: USD
+scoring_policy_code: high_availability_compute
+scoring_policy_version: "v1"
+effective_from: "2026-08-02T00:00:00+00:00"
+status: active
+requirements:
+  - code: multi_zone_required
+    requirement_type: availability
+    operator: supports
+    required_value: {multi_zone: true}
+    priority: mandatory
+    is_mandatory: true
+    missing_data_policy: block
+    evidence_requirement: {official_evidence_required: true}
+  - code: sla_threshold
+    requirement_type: reliability
+    operator: greater_than_or_equal
+    required_value: {minimum_sla: 0.999}
+    priority: critical
+    is_mandatory: true
+    missing_data_policy: block
+    evidence_requirement: {official_sla_required: true}

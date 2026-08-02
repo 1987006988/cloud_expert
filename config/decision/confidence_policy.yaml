@@ -1,0 +1,15 @@
+schema_version: "1.0"
+inputs:
+  - evidence_completeness
+  - evidence_reliability
+  - freshness
+  - review_status
+  - data_coverage
+  - comparability_status
+  - price_completeness
+  - conflict_count
+levels:
+  high: ">=0.8500"
+  medium: ">=0.6500"
+  low: ">=0.4000"
+  insufficient: "<0.4000"

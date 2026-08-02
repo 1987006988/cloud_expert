@@ -1,0 +1,48 @@
+schema_version: "1.0"
+code: frequent_object_storage
+version: "v1"
+scenario_type: object_storage_frequent_access
+description: "Frequent-access object storage internal decision policy."
+effective_from: "2026-08-02T00:00:00+00:00"
+status: active
+dimensions: [technical_fit, availability_fit, regional_fit, compliance_fit, reliability_fit, operability_fit, migration_fit, cost_fit, evidence_quality, data_freshness, review_readiness]
+weights:
+  technical_fit: 0.1200
+  availability_fit: 0.1200
+  regional_fit: 0.1000
+  compliance_fit: 0.0700
+  reliability_fit: 0.1300
+  operability_fit: 0.0600
+  migration_fit: 0.0500
+  cost_fit: 0.2600
+  evidence_quality: 0.0400
+  data_freshness: 0.0300
+  review_readiness: 0.0200
+hard_blocks: [market_mode_mismatch, region_or_data_residency_missing, mandatory_cost_missing]
+missing_data_policy:
+  mandatory: requires_review
+  optional: exclude_dimension
+  price: incomplete_cost
+confidence_policy:
+  minimum_for_ranking: 0.6500
+  pending_review_penalty: 0.4000
+thresholds:
+  minimum_business_fit: 0.6500
+  minimum_confidence: 0.6500
+review_requirement:
+  default_review_status: machine_generated
+  customer_approval_allowed: false
+rules:
+  - code: storage_tco_complete
+    version: "v1"
+    dimension: cost_fit
+    operator: equals
+    expected_value: {completeness_status: complete}
+    minimum_score: 0.0000
+    maximum_score: 1.0000
+    score_function: exact_match
+    conditions: {source: week9_tco_result}
+    evidence_requirement: {price_snapshot_required: true}
+    missing_data_policy: requires_review
+    priority: mandatory
+    status: active

@@ -2,23 +2,27 @@
 
 ## Summary
 
-Remediation Stage 1 core recovery, R011 live PostgreSQL validation, and Stage 2
-engineering remediation are now complete after the Week 1-6 independent audit.
-The repository has a Git delivery baseline, a rebuilt default SQLite database
-at Alembic head, restored Week 6 evidence provenance, PostgreSQL validation
-reports, expanded canonical governance metadata, blocker-aware comparability
-assessment, regenerated field matrices, and 85% coverage. The stable recovery
-checkpoint is commit `fa75ded`; R011 live validation is recorded under
-`reports/remediation/r011/runs/run_02/`.
+The local workspace now includes Week 10 internal scenario decision engine
+delivery on top of the completed Week 1-9 remediation, mapping, evidence
+package, pricing, and TCO work.
 
-`WEEK7_GATE=NO-GO`
+Gate status in the local projection database:
 
-The remaining gate is human review: R008 is routed to `D:\审核文件` and is not
-closed until reviewer decisions are applied.
+```text
+WEEK7_GATE=GO
+WEEK8_GATE=GO
+WEEK9_GATE=GO
+WEEK10_GATE=GO
+```
 
-No new cloud providers, pricing ingestion, TCO, RAG, embeddings, LLM logic,
-frontend, sales scripts, competitive scoring, customer data, console/session
-data, credentials, or final product mapping were added.
+Week 10 added Alembic revision `0010_week10_decision_engine`, 5 standard
+decision scenarios, 5 versioned scoring policies, 5 decision runs, and 1,230
+machine-generated internal candidate results. All results remain
+`internal_only`; customer-eligible decision candidates remain 0.
+
+No sales scripts, opponent attack material, customer commitments, RAG,
+embeddings, frontend, customer data, console/session data, credentials,
+discounts, or final bid recommendations were added.
 
 ## Key Files
 
@@ -56,13 +60,26 @@ data, credentials, or final product mapping were added.
 - `docs/WEEK06_EVIDENCE_RELINK.md`
 - `docs/WEEK06_PROJECTION_CONTRACT.md`
 - `reports/remediation/stage1/`
+- `alembic/versions/0010_week10_decision_engine.py`
+- `src/cloud_expert/database/models/decision.py`
+- `src/cloud_expert/decision/`
+- `config/decision/`
+- `scripts/check_week10_gate.py`
+- `scripts/run_decision_engine.py`
+- `scripts/validate_decision_evidence.py`
+- `scripts/validate_decision_idempotency.py`
+- `reports/week10_gate/`
+- `reports/decision/`
+- `reports/review_samples/week10_decision_review.csv`
 
 ## Migration Version
 
-- Revision: `0006_week06_canonical_normalization`
-- New app tables: `canonical_field_definition`, `normalization_rule`,
-  `normalization_run`, `normalized_specification`, `comparability_assessment`
-- Total application tables: 34
+- Revision: `0010_week10_decision_engine`
+- New Week 10 app tables: `decision_scenario`, `scenario_requirement`,
+  `scoring_policy`, `scoring_rule`, `decision_run`,
+  `candidate_decision_result`, `dimension_score`, `rule_evaluation`,
+  `decision_review`, `decision_sensitivity_result`
+- Total application tables: 52
 
 ## Verification Results
 

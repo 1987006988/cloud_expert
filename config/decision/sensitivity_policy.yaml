@@ -1,0 +1,14 @@
+schema_version: "1.0"
+weight_delta_percent: 10
+usage_deltas:
+  instance_count: [0.5, 1.0, 2.0]
+  storage_gb: [0.5, 1.0, 2.0]
+  outbound_gb: [0.5, 1.0, 2.0]
+price_assumptions:
+  public_price_only: true
+  customer_discount_allowed: false
+statuses:
+  - stable
+  - moderately_sensitive
+  - highly_sensitive
+  - indeterminate

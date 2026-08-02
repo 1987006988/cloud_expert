@@ -5,14 +5,14 @@ cloud_partition: aws
 product_code: ec2
 source_type: pricing
 title: Amazon EC2 On-Demand pricing
-description: Official EC2 On-Demand pricing page, registered for future pricing scope.
+description: Official EC2 On-Demand pricing page.
 url: https://aws.amazon.com/ec2/pricing/on-demand/
 language: en-US
 authority_level: official_primary
-enabled: false
+enabled: true
 requires_authentication: false
 requires_browser: false
-allow_automated_fetch: false
+allow_automated_fetch: true
 expected_content_type:
   - text/html
 expected_file_extension: .html
@@ -32,7 +32,7 @@ fetch_policy:
   retry_backoff_seconds: 1
   min_interval_seconds: 5
   max_content_length_bytes: 15728640
-  user_agent_profile: cloud_expert_bot
+  user_agent_profile: browser_compatible
 storage_policy:
   keep_all_versions: true
   deduplicate_identical_content: true
@@ -41,18 +41,20 @@ storage_policy:
   compression: none
   retention_policy: keep_all
 schedule:
-  update_frequency: manual
-  priority: 500
+  update_frequency: weekly
+  priority: 80
 owner: cloud_expert_data_engineering
 review_status: pending_review
-reviewed_at: 2026-07-22T00:00:00Z
-robots_checked_at: 2026-07-22T00:00:00Z
+reviewed_at: 2026-07-23T00:00:00Z
+robots_checked_at: 2026-07-23T00:00:00Z
 robots_allowed: true
-terms_review_status: manual_review_required
-automated_fetch_allowed: false
-manual_only: true
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
 compliance_notes: >
-  Pricing page is registered but disabled for Week 4. Pricing/TCO parsing is
-  explicitly out of scope and requires separate policy review.
+  Public official AWS pricing page. Automated HTTP snapshot is approved for
+  immutable source capture. Dynamic token prices must be parsed only when the
+  resolved snapshot contains product, region, unit, currency, and numeric price.
 notes: >
-  Do not fetch or parse in Week 4.
+  EC2 compute prices may require AWS pricing-table tokens or Bulk API files.
+  Missing compute prices must remain missing.

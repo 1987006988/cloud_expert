@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-23T09:59:04+08:00",
+  "generated_at": "2026-07-23T21:24:26+08:00",
   "gate": "WEEK9_GATE",
-  "verdict": "NO-GO",
+  "verdict": "GO",
   "week7_gate": {
     "gate": "WEEK7_GATE",
     "verdict": "GO",
@@ -61,47 +61,77 @@
       "huawei_cloud/ecs",
       "huawei_cloud/obs"
     ],
-    "registered_pricing_sources": 4,
+    "registered_pricing_sources": 10,
     "registered_by_provider": {
-      "aliyun": 2,
-      "aws": 2
+      "aliyun": 4,
+      "aws": 3,
+      "huawei_cloud": 3
     },
-    "missing_required": [
-      "huawei_cloud/ecs",
-      "huawei_cloud/obs"
-    ],
+    "missing_required": [],
     "disabled_sources": [
       "aliyun_ecs_pricing",
-      "aliyun_oss_pricing",
-      "aws_ec2_pricing_on_demand",
-      "aws_s3_pricing"
+      "aliyun_oss_pricing"
     ],
     "manual_only_sources": [
       "aliyun_ecs_pricing",
-      "aliyun_oss_pricing",
-      "aws_ec2_pricing_on_demand",
-      "aws_s3_pricing"
+      "aliyun_oss_pricing"
     ],
-    "automated_fetchable_sources": [],
-    "terms_not_approved": [
+    "manual_or_browser_sources": [
       "aliyun_ecs_pricing",
-      "aliyun_oss_pricing",
+      "aliyun_oss_pricing"
+    ],
+    "automated_fetchable_sources": [
+      "aliyun_oss_billing_overview_pricing",
+      "aliyun_oss_storage_fees_pricing",
+      "huawei_cloud_ecs_pricing",
+      "huawei_cloud_ecs_on_demand_example",
+      "huawei_cloud_obs_pricing",
       "aws_ec2_pricing_on_demand",
-      "aws_s3_pricing"
+      "aws_s3_pricing",
+      "aws_s3_pricing_bulk_us_east_1"
     ],
-    "pricing_source_documents": 0,
-    "pricing_evidence": 0,
-    "errors": [
-      "missing required provider/product pricing registry entries",
-      "no pricing SourceDocument rows are present",
-      "no pricing Evidence rows are present",
-      "no enabled automated pricing source is available"
-    ],
-    "valid": false
+    "terms_not_approved": [],
+    "collection_mode_not_reviewed": [],
+    "pricing_source_documents": 12,
+    "pricing_evidence": 13,
+    "errors": [],
+    "valid": true
   },
-  "blocking_items": [
-    "W9-B007-pricing-source-readiness"
-  ],
+  "price_skus": {
+    "price_skus": 1,
+    "price_snapshots": 1,
+    "sku_without_snapshots": 0,
+    "errors": [],
+    "valid": true
+  },
+  "price_evidence": {
+    "price_snapshots": 1,
+    "linked_to_evidence": 1,
+    "linked_to_pricing_source": 1,
+    "missing_snapshot_record": 0,
+    "price_evidence_completeness": 1.0,
+    "errors": [],
+    "valid": true
+  },
+  "tco_validation": {
+    "expected_tables": [
+      "cost_calculation_run",
+      "cost_line_item",
+      "pricing_scenario",
+      "tco_result"
+    ],
+    "missing_tables": [],
+    "calculation_runs_checked": 1,
+    "cost_line_items": 6,
+    "tco_results": 6,
+    "duplicate_run_codes": [],
+    "missing_without_reason": 0,
+    "priced_without_snapshot": 0,
+    "missing_treated_as_zero": 0,
+    "errors": [],
+    "valid": true
+  },
+  "blocking_items": [],
   "notes": [
     "Pricing/TCO business code must not run while pricing source readiness is false.",
     "Missing prices must remain missing; they must not be treated as zero."

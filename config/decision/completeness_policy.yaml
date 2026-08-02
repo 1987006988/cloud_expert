@@ -1,0 +1,6 @@
+schema_version: "1.0"
+rules:
+  missing_mandatory: requires_review
+  missing_optional: exclude_dimension
+  missing_price: incomplete_cost
+  missing_compliance_dataset: insufficient_evidence

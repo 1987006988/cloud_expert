@@ -7,6 +7,9 @@ from _bootstrap import ROOT
 from check_week07_gate import check_week07_gate
 from check_week08_gate import check_week08_gate
 from sqlalchemy import func, select
+from validate_cost_calculation_idempotency import validate_cost_calculation_idempotency
+from validate_price_evidence import validate_price_evidence
+from validate_price_skus import validate_price_skus
 from validate_pricing_sources import validate_pricing_sources
 
 from cloud_expert.database.models.evidence_package import EvidencePackage, EvidenceReference
@@ -53,6 +56,9 @@ def check_week09_gate() -> dict[str, Any]:
     week7 = check_week07_gate()
     week8 = check_week08_gate()
     pricing_sources = validate_pricing_sources()
+    price_skus = validate_price_skus()
+    price_evidence = validate_price_evidence()
+    tco_validation = validate_cost_calculation_idempotency()
     coverage = _coverage_gate()
     postgres = _postgres_gate()
     with SessionLocal() as session:
@@ -75,6 +81,12 @@ def check_week09_gate() -> dict[str, Any]:
         blockers.append("W9-B006-postgresql")
     if not pricing_sources["valid"]:
         blockers.append("W9-B007-pricing-source-readiness")
+    if not price_skus["valid"]:
+        blockers.append("W9-B008-price-sku-snapshot")
+    if not price_evidence["valid"]:
+        blockers.append("W9-B009-price-evidence-chain")
+    if not tco_validation["valid"]:
+        blockers.append("W9-B010-tco-idempotency")
 
     return {
         "gate": "WEEK9_GATE",
@@ -87,6 +99,9 @@ def check_week09_gate() -> dict[str, Any]:
         "coverage": coverage,
         "postgres": postgres,
         "pricing_sources": pricing_sources,
+        "price_skus": price_skus,
+        "price_evidence": price_evidence,
+        "tco_validation": tco_validation,
         "blocking_items": blockers,
         "notes": [
             "Pricing/TCO business code must not run while pricing source readiness is false.",

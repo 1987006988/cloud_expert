@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-07-23T21:15:45+08:00",
+  "required_provider_products": [
+    "aliyun/ecs",
+    "aliyun/oss",
+    "aws/ec2",
+    "aws/s3",
+    "huawei_cloud/ecs",
+    "huawei_cloud/obs"
+  ],
+  "registered_pricing_sources": 10,
+  "missing_required": [],
+  "automated_sources": [
+    "aliyun_oss_billing_overview_pricing",
+    "aliyun_oss_storage_fees_pricing",
+    "huawei_cloud_ecs_pricing",
+    "huawei_cloud_ecs_on_demand_example",
+    "huawei_cloud_obs_pricing",
+    "aws_ec2_pricing_on_demand",
+    "aws_s3_pricing",
+    "aws_s3_pricing_bulk_us_east_1"
+  ],
+  "manual_sources": [
+    "aliyun_ecs_pricing",
+    "aliyun_oss_pricing"
+  ],
+  "sources": [
+    {
+      "source_id": "aliyun_ecs_pricing",
+      "provider": "aliyun",
+      "product": "ecs",
+      "url": "https://www.aliyun.com/price/product#/ecs/detail",
+      "enabled": false,
+      "allow_automated_fetch": false,
+      "manual_only": true,
+      "terms_review_status": "approved",
+      "collection_mode": "manual_or_browser_snapshot_required",
+      "user_agent_profile": "cloud_expert_bot"
+    },
+    {
+      "source_id": "aliyun_oss_billing_overview_pricing",
+      "provider": "aliyun",
+      "product": "oss",
+      "url": "https://help.aliyun.com/zh/oss/billing-overview/",
+      "enabled": true,
+      "allow_automated_fetch": true,
+      "manual_only": false,
+      "terms_review_status": "approved",
+      "collection_mode": "automated_http_snapshot",
+      "user_agent_profile": "browser_compatible"
+    },
+    {
+      "source_id": "aliyun_oss_pricing",
+      "provider": "aliyun",
+      "product": "oss",
+      "url": "https://www.aliyun.com/price/product#/oss/detail",
+      "enabled": false,
+      "allow_automated_fetch": false,
+      "manual_only": true,
+      "terms_review_status": "approved",
+      "collection_mode": "manual_or_browser_snapshot_required",
+      "user_agent_profile": "cloud_expert_bot"
+    },
+    {
+      "source_id": "aliyun_oss_storage_fees_pricing",
+      "provider": "aliyun",
+      "product": "oss",
+      "url": "https://help.aliyun.com/zh/oss/storage-fees",
+      "enabled": true,
+      "allow_automated_fetch": true,
+      "manual_only": false,
+      "terms_review_status": "approved",
+      "collection_mode": "automated_http_snapshot",
+      "user_agent_profile": "browser_compatible"
+    },
+    {
+      "source_id": "huawei_cloud_ecs_pricing",
+      "provider": "huawei_cloud",
+      "product": "ecs",
+      "url": "https://www.huaweicloud.com/product/ecs/pricing.html",
+      "enabled": true,
+      "allow_automated_fetch": true,
+      "manual_only": false,
+      "terms_review_status": "approved",
+      "collection_mode": "automated_http_snapshot",
+      "user_agent_profile": "browser_compatible"
+    },
+    {
+      "source_id": "huawei_cloud_ecs_on_demand_example",
+      "provider": "huawei_cloud",
+      "product": "ecs",
+      "url": "https://support.huaweicloud.com/usermanual-ecs/ecs_03_0103.html",
+      "enabled": true,
+      "allow_automated_fetch": true,
+      "manual_only": false,
+      "terms_review_status": "approved",
+      "collection_mode": "automated_http_snapshot",
+      "user_agent_profile": "browser_compatible"
+    },
+    {
+      "source_id": "huawei_cloud_obs_pricing",
+      "provider": "huawei_cloud",
+      "product": "obs",
+      "url": "https://www.huaweicloud.com/product/obs/price.html",
+      "enabled": true,
+      "allow_automated_fetch": true,
+      "manual_only": false,
+      "terms_review_status": "approved",
+      "collection_mode": "automated_http_snapshot",
+      "user_agent_profile": "browser_compatible"
+    },
+    {
+      "source_id": "aws_ec2_pricing_on_demand",
+      "provider": "aws",
+      "product": "ec2",
+      "url": "https://aws.amazon.com/ec2/pricing/on-demand/",
+      "enabled": true,
+      "allow_automated_fetch": true,
+      "manual_only": false,
+      "terms_review_status": "approved",
+      "collection_mode": "automated_http_snapshot",
+      "user_agent_profile": "browser_compatible"
+    },
+    {
+      "source_id": "aws_s3_pricing",
+      "provider": "aws",
+      "product": "s3",
+      "url": "https://aws.amazon.com/s3/pricing/",
+      "enabled": true,
+      "allow_automated_fetch": true,
+      "manual_only": false,
+      "terms_review_status": "approved",
+      "collection_mode": "automated_http_snapshot",
+      "user_agent_profile": "browser_compatible"
+    },
+    {
+      "source_id": "aws_s3_pricing_bulk_us_east_1",
+      "provider": "aws",
+      "product": "s3",
+      "url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonS3/current/us-east-1/index.json",
+      "enabled": true,
+      "allow_automated_fetch": true,
+      "manual_only": false,
+      "terms_review_status": "approved",
+      "collection_mode": "automated_http_snapshot",
+      "user_agent_profile": "cloud_expert_bot"
+    }
+  ],
+  "errors": [],
+  "valid": true
+}

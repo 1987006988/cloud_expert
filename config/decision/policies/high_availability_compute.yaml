@@ -1,0 +1,48 @@
+schema_version: "1.0"
+code: high_availability_compute
+version: "v1"
+scenario_type: business_critical_compute
+description: "High availability compute internal decision policy."
+effective_from: "2026-08-02T00:00:00+00:00"
+status: active
+dimensions: [technical_fit, availability_fit, regional_fit, compliance_fit, reliability_fit, operability_fit, migration_fit, cost_fit, evidence_quality, data_freshness, review_readiness]
+weights:
+  technical_fit: 0.1600
+  availability_fit: 0.2000
+  regional_fit: 0.1000
+  compliance_fit: 0.0900
+  reliability_fit: 0.1700
+  operability_fit: 0.0800
+  migration_fit: 0.0600
+  cost_fit: 0.0800
+  evidence_quality: 0.0300
+  data_freshness: 0.0200
+  review_readiness: 0.0100
+hard_blocks: [market_mode_mismatch, sla_below_required_threshold, region_or_data_residency_missing]
+missing_data_policy:
+  mandatory: block
+  optional: exclude_dimension
+  price: requires_review
+confidence_policy:
+  minimum_for_ranking: 0.7000
+  pending_review_penalty: 0.4000
+thresholds:
+  minimum_business_fit: 0.7000
+  minimum_confidence: 0.7000
+review_requirement:
+  default_review_status: machine_generated
+  customer_approval_allowed: false
+rules:
+  - code: availability_evidence_required
+    version: "v1"
+    dimension: availability_fit
+    operator: evidence_at_least
+    expected_value: {minimum: 0.8500}
+    minimum_score: 0.0000
+    maximum_score: 1.0000
+    score_function: evidence_fit
+    conditions: {source: week8_evidence_package}
+    evidence_requirement: {evidence_package_required: true}
+    missing_data_policy: block
+    priority: mandatory
+    status: active

@@ -9,6 +9,18 @@ from cloud_expert.database.models.canonical import (
 )
 from cloud_expert.database.models.cloud_partition import CloudPartition
 from cloud_expert.database.models.competition import CompetitiveClaim
+from cloud_expert.database.models.decision import (
+    CandidateDecisionResult,
+    DecisionReview,
+    DecisionRun,
+    DecisionScenario,
+    DecisionSensitivityResult,
+    DimensionScore,
+    RuleEvaluation,
+    ScenarioRequirement,
+    ScoringPolicy,
+    ScoringRule,
+)
 from cloud_expert.database.models.evaluation import EvaluationCase, SalesScenario
 from cloud_expert.database.models.evidence_package import (
     EvidencePackage,
@@ -48,14 +60,28 @@ from cloud_expert.database.models.specification import (
     ProductSpecification,
     SpecificationDefinition,
 )
+from cloud_expert.database.models.tco import (
+    CostCalculationRun,
+    CostLineItem,
+    PricingScenario,
+    TCOResult,
+)
 
 __all__ = [
     "Availability",
     "AvailabilityZone",
     "CanonicalFieldDefinition",
+    "CandidateDecisionResult",
     "CloudPartition",
     "ComparabilityAssessment",
     "CompetitiveClaim",
+    "CostCalculationRun",
+    "CostLineItem",
+    "DecisionReview",
+    "DecisionRun",
+    "DecisionScenario",
+    "DecisionSensitivityResult",
+    "DimensionScore",
     "EvaluationCase",
     "Evidence",
     "EvidencePackage",
@@ -75,6 +101,7 @@ __all__ = [
     "ParsedFieldCandidate",
     "PriceSKU",
     "PriceSnapshot",
+    "PricingScenario",
     "Product",
     "ProductAlias",
     "ProductCategory",
@@ -86,11 +113,16 @@ __all__ = [
     "ParsingRun",
     "Region",
     "ReviewItem",
+    "RuleEvaluation",
     "SKU",
     "SalesScenario",
+    "ScenarioRequirement",
+    "ScoringPolicy",
+    "ScoringRule",
     "ServiceTier",
     "SnapshotRecord",
     "SourceDocument",
     "SpecificationDefinition",
+    "TCOResult",
     "ZoneAvailability",
 ]

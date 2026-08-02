@@ -232,3 +232,100 @@ The combined Week 6 projection is acceptable only when normalized rows can be
 traced through product specification, evidence, source document, snapshot
 record, raw bytes, and manifest hash. A projection that carries normalized rows
 without snapshot-backed evidence is incomplete even if row counts look correct.
+
+## 36. Week 9 Pricing Sources Are Reviewed By Collection Mode
+
+Pricing sources may be approved as automated HTTP snapshots or as
+manual/browser-only snapshots. Dynamic pricing pages that require client-side
+rendering remain registered and reviewed, but they must not be fetched by the
+HTTP fetcher unless a separate approved capture mechanism stores immutable
+snapshot bytes.
+
+## 37. Browser-Compatible HTTP Is An Explicit Fetch Policy
+
+Some public official pricing pages reject the default project user agent while
+serving the same public content to ordinary browsers. Week 9 adds a
+`browser_compatible` user-agent profile so this collection method is visible in
+source registry YAML and can be audited instead of hidden in ad hoc commands.
+
+## 38. PriceSnapshot Requires Concrete Price Scope
+
+A `PriceSnapshot` may be created only when the immutable official snapshot
+contains enough scope to identify provider, product, region, unit, currency, and
+numeric price. Official examples without region or list-price scope are kept as
+pricing evidence but are not promoted to structured price rows.
+
+## 39. Missing Prices Are Not Zero In TCO
+
+Week 9 TCO line items with no official `PriceSnapshot` keep `amount=NULL` and a
+`missing_reason`. They are excluded from totals and must remain visible in
+reports until an approved official price snapshot is added.
+
+## 40. Hard Rules Precede Scoring
+
+Hard blockers are evaluated before Business Fit because scoring must not hide
+market, region, data residency, architecture, SLA, evidence, review, or cost
+conflicts.
+
+## 41. Match Score Is Not Business Fit
+
+Week 7 Match Score remains a technical similarity input. It does not represent
+scenario suitability, cost position, compliance readiness, or recommendation
+quality.
+
+## 42. Business Fit Is Not Confidence
+
+Business Fit measures scenario fit. Confidence measures trust in that judgment.
+They are stored separately so high fit with weak evidence cannot look more
+reliable than it is.
+
+## 43. Missing Values Are Not Zero
+
+Missing data is not treated as zero and not treated as full score. Mandatory
+missing inputs require review or block; optional missing inputs can be excluded
+from reference scoring while reducing completeness or confidence.
+
+## 44. Blocked Candidates Are Not Ranked
+
+Blocked candidates never receive formal rank. Reference dimension scores may be
+stored for diagnosis, but rank is reserved for eligible or conditionally
+eligible candidates without hard blockers.
+
+## 45. Weights Are Scenario-Specific
+
+Weights are scenario-specific, versioned, and validated to sum to 1.0000. This
+prevents a generic score from being reused across incompatible workloads.
+
+## 46. Provider Default Bias Is Prohibited
+
+Scoring policy rejects provider default bonus or penalty keys. Provider
+preference can only appear as explicit scenario input and must be tracked as an
+assumption.
+
+## 47. Lower TCO Is Not Overall Best
+
+Lower TCO is not a complete recommendation. Cost Fit is one dimension and must
+not override hard blockers, evidence gaps, compliance issues, or operational
+constraints.
+
+## 48. Sensitivity Is Required
+
+Sensitivity status is stored with decision runs so unstable or indeterminate
+results cannot be presented as deterministic recommendations.
+
+## 49. Automatic Output Is A Candidate
+
+Automatic scoring creates decision candidates only. It must not create sales
+scripts, customer commitments, approved recommendations, or customer-approved
+decisions.
+
+## 50. Week 10 Defaults To Internal Only
+
+Decision results default to `internal_only` because current evidence packages
+and mapping candidates remain pending review. Customer eligibility is a
+separate gate.
+
+## 51. Review History Is Separate
+
+Human review records are stored separately from machine-generated results. New
+rules or reruns must preserve historical results and review history.

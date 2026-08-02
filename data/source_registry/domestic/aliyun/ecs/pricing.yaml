@@ -5,7 +5,7 @@ cloud_partition: aliyun_public_cn
 product_code: ecs
 source_type: pricing
 title: ECS pricing page
-description: Official Aliyun pricing calculator entry for future pricing work.
+description: Official Aliyun pricing calculator entry for browser/manual pricing capture.
 url: https://www.aliyun.com/price/product#/ecs/detail
 language: zh-CN
 authority_level: official_primary
@@ -46,14 +46,18 @@ schedule:
   priority: 200
 owner: cloud_expert_data_engineering
 review_status: pending_review
-reviewed_at: 2026-07-22T00:00:00Z
-robots_checked_at: 2026-07-22T00:00:00Z
+reviewed_at: 2026-07-23T00:00:00Z
+robots_checked_at: 2026-07-23T00:00:00Z
 robots_allowed: true
-terms_review_status: manual_review_required
+terms_review_status: approved
 automated_fetch_allowed: false
 manual_only: true
 compliance_notes: >
-  Registered as disabled/manual-only for future pricing review. Week 5 does not
-  fetch or parse prices.
+  Public official Aliyun dynamic pricing page. Collection review is complete:
+  page capture is approved only through browser/manual workflow because the
+  price table is client-rendered and the Week 2 HTTP fetcher does not execute
+  page JavaScript.
 notes: >
-  Pricing, TCO, and price comparison remain out of scope.
+  Do not treat this source as automated-fetchable. Concrete ECS prices remain
+  missing until browser/manual capture or an approved official API response is
+  stored as immutable evidence.

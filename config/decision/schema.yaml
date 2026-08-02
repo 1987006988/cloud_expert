@@ -1,0 +1,15 @@
+schema_version: "1.0"
+description: "Decision configuration schema marker for Week 10."
+required_keys:
+  - schema_version
+  - code
+  - version
+  - effective_from
+  - status
+  - dimensions
+  - weights
+  - hard_blocks
+  - missing_data_policy
+  - confidence_policy
+  - thresholds
+  - review_requirement

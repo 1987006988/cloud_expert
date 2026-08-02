@@ -1,0 +1,13 @@
+schema_version: "1.0"
+dimensions:
+  - technical_fit
+  - availability_fit
+  - regional_fit
+  - compliance_fit
+  - reliability_fit
+  - operability_fit
+  - migration_fit
+  - cost_fit
+  - evidence_quality
+  - data_freshness
+  - review_readiness

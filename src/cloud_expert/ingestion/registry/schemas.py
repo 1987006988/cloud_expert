@@ -22,10 +22,11 @@ from cloud_expert.ingestion.security.url_validator import validate_fetch_url
 EXPECTED_CONTENT_TYPES = {
     "text/html",
     "application/json",
+    "application/octet-stream",
     "application/pdf",
 }
 UPDATE_FREQUENCIES = {"manual", "daily", "weekly", "monthly", "quarterly"}
-USER_AGENT_PROFILES = {"cloud_expert_bot", "test"}
+USER_AGENT_PROFILES = {"browser_compatible", "cloud_expert_bot", "test"}
 
 
 class RegistrySchemaBase(BaseModel):

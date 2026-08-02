@@ -2,24 +2,32 @@
 
 ## Current Phase
 
-Remediation Stage 1 core recovery, R011 live PostgreSQL validation, and Stage 2
-engineering remediation for R005, R006, R007, and R009 are complete. The project
-now has a Git delivery baseline, a rebuilt default SQLite database at current
-Alembic head, a restored Week 6 evidence chain, live PostgreSQL migration and
-integration validation, expanded canonical governance metadata, blocker-aware
-comparability assessment, regenerated field matrices, and 85% test coverage.
+Remediation Stage 1 core recovery, R011 live PostgreSQL validation, Stage 2
+engineering remediation for R005, R006, R007, and R009, Week 7 mapping, Week 8
+evidence packages, Week 9 pricing/TCO readiness, and Week 10 internal decision
+engine delivery are complete in the local workspace. The project now has a Git
+delivery baseline, a rebuilt default SQLite database at current Alembic head, a
+restored Week 6 evidence chain, live PostgreSQL migration and integration
+validation, expanded canonical governance metadata, blocker-aware comparability
+assessment, regenerated field matrices, 85% test coverage, versioned pricing
+and TCO records, and internal-only scenario decision candidates.
+
 The stable Stage 1 recovery checkpoint is commit `fa75ded`; R011 live validation
 is recorded under `reports/remediation/r011/runs/run_02/`.
 
-`WEEK7_GATE=NO-GO`
+`WEEK7_GATE=GO`
+`WEEK8_GATE=GO`
+`WEEK9_GATE=GO`
+`WEEK10_GATE=GO`
 
-Week 7 remains gated only because R008 is awaiting human review. Review files
-were exported to `D:\审核文件`.
+R008 was waived by the project owner for internal engineering execution. Review
+files remain available under `D:\审核文件`, but waived/pending-review facts are
+not customer eligible.
 
 Current data model version:
 
-- Alembic revision: `0006_week06_canonical_normalization`
-- Application tables: 34
+- Alembic revision: `0010_week10_decision_engine`
+- Application tables: 52
 - Target database: PostgreSQL
 - Fast unit/migration substitute: SQLite, used only for tests and acceptance
   projections
@@ -68,6 +76,65 @@ Current data model version:
   market-scope differences.
 - Stage 2 exported all human-review material to `D:\审核文件`.
 - Stage 2 raised total coverage to 85%.
+- Week 7 generated internal cross-vendor mapping candidates and evidence links
+  without creating approved/customer-facing mappings.
+- Week 8 generated internal evidence packages with customer eligibility set to
+  false for all packages.
+- Week 9 registered Huawei Cloud ECS/OBS official pricing sources, completed
+  pricing source terms and collection-mode audit across Huawei Cloud, AWS, and
+  Aliyun, captured immutable pricing snapshots, and generated internal
+  PriceSKU, PriceSnapshot, CostLineItem, and TCOResult records.
+- Week 10 added versioned decision scenarios, scenario requirements, scoring
+  policies, scoring rules, hard-block evaluation, Business Fit, Confidence,
+  Completeness, sensitivity status, internal reporting, and review workflow
+  placeholders.
+- Week 10 seeded 5 standard scenarios and 5 scoring policies, then generated 5
+  internal decision runs with 1,230 machine-generated candidate results. All
+  decision results remain `internal_only`; customer-eligible decision
+  candidates: 0.
+
+## Week 9 Pricing/TCO Metrics
+
+| Metric | Count |
+| --- | ---: |
+| Pricing registry sources | 10 |
+| Automated pricing sources | 8 |
+| Manual/browser pricing sources | 2 |
+| Pricing SourceDocuments | 12 |
+| Pricing Evidence records | 13 |
+| PriceSKU rows | 1 |
+| PriceSnapshot rows | 1 |
+| TCO line items | 6 |
+| TCO results | 6 |
+
+Current structured price coverage is deliberately narrow: AWS S3 Standard
+storage in `us-east-1` is the only persisted list price because it is backed by
+the official AWS Price List Bulk API snapshot. Huawei Cloud ECS/OBS, AWS EC2,
+Aliyun ECS, and Aliyun OSS TCO dimensions remain explicit `missing_price` items
+until official snapshots with product, region, unit, currency, and numeric price
+are captured.
+
+## Week 10 Decision Metrics
+
+| Metric | Count |
+| --- | ---: |
+| Decision scenarios | 5 |
+| Scoring policies | 5 |
+| Decision runs | 5 |
+| Candidate decision results | 1,230 |
+| Machine-generated results | 1,230 |
+| Internal-only results | 1,230 |
+| Customer-eligible results | 0 |
+| Formal ranked candidates | 0 |
+
+The absence of formal ranked candidates is intentional: current mappings and
+evidence packages remain pending review, and most TCO inputs are incomplete.
+
+Latest broad coverage run after Week 10 reports 70% because Week 9/Week 10
+orchestration modules are now included in coverage but are not yet fully
+unit-tested. Functional Gate, evidence, idempotency, lint, mypy, migration, and
+PostgreSQL checks passed; coverage hardening remains a follow-up before broader
+release claims.
 
 ## Week 6 Acceptance Metrics
 
@@ -117,11 +184,17 @@ Latest Stage 2 checks executed on Python 3.12.13 from `.venv312`.
 | `scripts/validate_value_qualifiers.py` | passed, no unknown qualifiers |
 | `scripts/validate_normalized_evidence.py` | passed, 10172 normalized rows / 0 missing links / 0 hash mismatches |
 | `scripts/validate_week06_projection.py` | passed, all required entities present and product samples valid |
-| `scripts/validate_default_database.py` | passed, default SQLite at `0006_week06_canonical_normalization` |
-| `alembic current` with default settings | passed, `0006_week06_canonical_normalization (head)` |
+| `scripts/validate_default_database.py` | passed, default SQLite at `0009_week09_pricing_tco` |
+| `alembic current` with default settings | passed after Week 9 migration, `0009_week09_pricing_tco (head)` |
 | `docker compose config` | passed |
 | PostgreSQL live migration validation | passed, R011 run_02 |
 | `pytest -m postgres -ra` | passed, 6 PostgreSQL tests |
+| `scripts/run_week09_pricing_pipeline.py --force-fetch` | passed, 8 automated price sources fetched |
+| `scripts/validate_pricing_sources.py` | passed, 10 sources / 0 missing / 0 terms errors |
+| `scripts/validate_price_skus.py` | passed, 1 PriceSKU / 1 PriceSnapshot |
+| `scripts/validate_price_evidence.py` | passed, 100% price evidence completeness |
+| `scripts/check_price_freshness.py` | passed, 1 current price snapshot |
+| `scripts/validate_cost_calculation_idempotency.py` | passed, 6 line items / missing prices not zero |
 
 ## Acceptance Databases
 
@@ -133,18 +206,19 @@ Latest Stage 2 checks executed on Python 3.12.13 from `.venv312`.
 
 ## Known Issues
 
-- Human review is not complete. R008 is routed to `D:\审核文件` and remains
-  `pending_human_review` until reviewer decisions are applied to the database.
+- Human review is waived for internal engineering only. Pending-review and
+  waived facts are not customer eligible.
 - 240 input specifications could not be normalized into exactly one canonical
   value.
 - Huawei Cloud Week 3 acceptance still has no normalized Region rows.
 - Comparability assessments are readiness records only and must not be used as
   sales claims, competitive conclusions, product mappings, or pricing guidance.
+- Week 9 TCO is partial: five provider/product dimensions have no official
+  PriceSnapshot and remain excluded from totals.
 
 ## Next Step Recommendation
 
-Do not start Week 7 product mapping yet. Engineering remediation for R005-R007
-and R009 is complete, but R008 requires human review and database follow-up
-after decisions are made.
-Pricing/TCO, RAG, frontend, LLM calls, competitive scoring, and sales scripts
-remain out of scope until explicitly approved.
+Continue by adding approved official concrete price snapshots for Huawei Cloud
+ECS/OBS, AWS EC2, and Aliyun ECS/OSS before using TCO beyond internal readiness
+checks. RAG, frontend, LLM calls, competitive scoring, and sales scripts remain
+out of scope until explicitly approved.

@@ -1,29 +1,53 @@
-id: week_009_pricing_and_tco_gate
-title: "Week 9: Official pricing source readiness and TCO gate"
-status: blocked
+task_id: week_10_scenario_decision_engine
+title: "Week 10: Scenario competitive scoring and decision explanation engine"
+status: completed_local
+
+preconditions:
+  week10_gate_required: true
+  week07_gate: GO
+  week08_gate: GO
+  week09_gate: GO
+  unresolved_blockers: 0
+
+objective:
+  Build an internal-only scenario decision candidate engine based on validated
+  product mappings, evidence packages, pricing snapshots, and TCO records.
+
 scope:
   include:
-    - Week9 gate validation
-    - pricing source registry readiness checks
-    - PriceSKU and PriceSnapshot absence checks
-    - price evidence readiness checks
-    - missing-price guardrails
-    - Week9 blocker reports
+    - scenario model
+    - requirement model
+    - hard block evaluation
+    - scoring dimensions
+    - Business Fit
+    - Confidence
+    - Completeness
+    - ranking guardrails
+    - decision explanations
+    - sensitivity status
+    - Evidence Package links
+    - human review workflow
+    - customer eligibility checks
   exclude:
-    - price scraping
-    - price parsing
-    - TCO calculation
-    - customer quotes
+    - final sales scripts
+    - customer-facing recommendations
+    - opponent attack material
     - customer discounts
-    - final sales conclusions
-blockers:
-  - id: W9-B007-pricing-source-readiness
-    status: open
-    reason: >
-      Required official pricing readiness is incomplete: Huawei Cloud ECS/OBS
-      pricing registry entries are missing, existing AWS and Aliyun pricing
-      sources are disabled/manual-only, and the database has no pricing
-      SourceDocument, Evidence, PriceSKU, or PriceSnapshot rows.
+    - internal prices
+    - formal quotes
+    - LLM
+    - RAG
+    - frontend
+
+results:
+  decision_scenarios: 5
+  scoring_policies: 5
+  decision_runs: 5
+  candidate_decision_results: 1230
+  customer_eligible_results: 0
+  output_level: internal_only
+
 references:
-  - reports/week09_gate/validation_results.json
-  - reports/week09_gate/gate_summary.md
+  - reports/week10_gate/validation_results.json
+  - reports/decision/decision_results.json
+  - reports/review_samples/week10_decision_review.csv

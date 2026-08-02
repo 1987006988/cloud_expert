@@ -1,0 +1,7 @@
+provider,product,dimension,usage_quantity,usage_unit,unit_price,currency,amount,price_snapshot_id,evidence_id,missing_reason,warning
+aliyun,ecs,linux_general_purpose_instance_hour,730.00000000,instance-hour,,,,,,No PriceSnapshot with official evidence is available for this aliyun/ecs dimension.,
+aliyun,oss,standard_storage_gb_month,1024.00000000,GB-month,,,,,,No PriceSnapshot with official evidence is available for this aliyun/oss dimension.,
+aws,ec2,linux_general_purpose_instance_hour,730.00000000,instance-hour,,,,,,No PriceSnapshot with official evidence is available for this aws/ec2 dimension.,
+aws,s3,standard_storage_gb_month,1024.00000000,GB-month,0.02300000,USD,23.55200000,1,14122,,
+huawei_cloud,ecs,linux_general_purpose_instance_hour,730.00000000,instance-hour,,,,,,No PriceSnapshot with official evidence is available for this huawei_cloud/ecs dimension.,
+huawei_cloud,obs,standard_storage_gb_month,1024.00000000,GB-month,,,,,,No PriceSnapshot with official evidence is available for this huawei_cloud/obs dimension.,

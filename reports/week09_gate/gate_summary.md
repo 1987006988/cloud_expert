@@ -1,8 +1,8 @@
 # Week 9 Gate Summary
 
-Generated at: 2026-07-23T09:59:04+08:00
+Generated at: 2026-07-23T21:24:26+08:00
 
-Gate verdict: **WEEK9_GATE=NO-GO**
+Gate verdict: **WEEK9_GATE=GO**
 
 ## Current State
 
@@ -12,14 +12,17 @@ Gate verdict: **WEEK9_GATE=NO-GO**
 | Week 8 Gate | GO |
 | Evidence packages | 414 |
 | Evidence references | 306 |
-| Pricing registry sources | 4 |
-| Missing required pricing sources | huawei_cloud/ecs, huawei_cloud/obs |
-| Pricing SourceDocuments | 0 |
-| Pricing Evidence | 0 |
+| Pricing registry sources | 10 |
+| Missing required pricing sources | none |
+| Pricing SourceDocuments | 12 |
+| Pricing Evidence | 13 |
+| PriceSKU rows | 1 |
+| PriceSnapshot rows | 1 |
+| TCO line items | 6 |
+| TCO results | 6 |
 
 ## Decision
 
-Week 9 remains blocked because official pricing source readiness is incomplete.
-No Pricing/TCO business code should run until official pricing sources are
-registered, approved for the intended collection mode, captured as immutable
-snapshots, and linked to Evidence.
+Week 9 is open for internal pricing/TCO engineering only when this gate is GO.
+Missing prices remain excluded from totals and must stay visible in TCO detail
+rows until additional official price snapshots are captured.

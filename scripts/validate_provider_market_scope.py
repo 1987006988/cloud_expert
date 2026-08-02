@@ -84,10 +84,11 @@ def _validate_aliyun_registry(entries: list[SourceRegistryEntry]) -> list[str]:
             errors.append(f"{source_id}: international Alibaba Cloud host is out of scope.")
         if not _is_allowed_aliyun_host(host):
             errors.append(f"{source_id}: host {host} is not an approved Aliyun official host.")
-        if entry.source_type == "pricing" and (
-            entry.enabled or entry.allow_automated_fetch or not entry.manual_only
-        ):
-            errors.append(f"{source_id}: pricing sources must be disabled manual-only records.")
+        if entry.source_type == "pricing" and not _is_allowed_aliyun_pricing_mode(entry, host):
+            errors.append(
+                f"{source_id}: pricing source must be approved help-page automation "
+                "or disabled manual-only record."
+            )
     return errors
 
 
@@ -164,6 +165,18 @@ def _validate_aliyun_zones(session: Session) -> tuple[list[str], int]:
 
 def _is_allowed_aliyun_host(host: str) -> bool:
     return host in {"www.aliyun.com", "cn.aliyun.com", "help.aliyun.com", "terms.aliyun.com"}
+
+
+def _is_allowed_aliyun_pricing_mode(entry: SourceRegistryEntry, host: str) -> bool:
+    if (
+        host == "help.aliyun.com"
+        and entry.enabled
+        and entry.allow_automated_fetch
+        and not entry.manual_only
+        and entry.terms_review_status == "approved"
+    ):
+        return True
+    return not entry.enabled and not entry.allow_automated_fetch and entry.manual_only
 
 
 def _region_code_for_zone(zone_code: str) -> str:

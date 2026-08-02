@@ -39,8 +39,21 @@ def validate_pricing_sources() -> dict[str, Any]:
     automated_fetchable = [
         entry.source_id for entry in entries if entry.enabled and entry.allow_automated_fetch
     ]
+    manual_or_browser = [
+        entry.source_id
+        for entry in entries
+        if entry.manual_only and not entry.enabled and not entry.allow_automated_fetch
+    ]
     terms_not_approved = [
         entry.source_id for entry in entries if entry.terms_review_status != "approved"
+    ]
+    collection_mode_not_reviewed = [
+        entry.source_id
+        for entry in entries
+        if not (
+            (entry.enabled and entry.allow_automated_fetch and not entry.manual_only)
+            or (entry.manual_only and not entry.enabled and not entry.allow_automated_fetch)
+        )
     ]
 
     with SessionLocal() as session:
@@ -71,6 +84,10 @@ def validate_pricing_sources() -> dict[str, Any]:
         errors.append("no pricing Evidence rows are present")
     if not automated_fetchable:
         errors.append("no enabled automated pricing source is available")
+    if terms_not_approved:
+        errors.append("one or more pricing sources have not passed terms review")
+    if collection_mode_not_reviewed:
+        errors.append("one or more pricing sources do not have an approved collection mode")
 
     return {
         "required_provider_products": sorted(
@@ -81,8 +98,10 @@ def validate_pricing_sources() -> dict[str, Any]:
         "missing_required": missing_required,
         "disabled_sources": disabled,
         "manual_only_sources": manual_only,
+        "manual_or_browser_sources": manual_or_browser,
         "automated_fetchable_sources": automated_fetchable,
         "terms_not_approved": terms_not_approved,
+        "collection_mode_not_reviewed": collection_mode_not_reviewed,
         "pricing_source_documents": source_documents,
         "pricing_evidence": evidence,
         "errors": errors,

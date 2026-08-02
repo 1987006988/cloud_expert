@@ -1,0 +1,61 @@
+source_id: huawei_cloud_ecs_on_demand_example
+provider_code: huawei_cloud
+market_mode: domestic
+cloud_partition: huawei_cn
+product_code: ecs
+source_type: pricing
+title: Huawei Cloud ECS on-demand billing example
+description: Official Huawei Cloud ECS on-demand billing example and billing-unit explanation.
+url: https://support.huaweicloud.com/usermanual-ecs/ecs_03_0103.html
+language: zh-CN
+authority_level: official_secondary
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type:
+  - text/html
+expected_file_extension: .html
+expected_encoding: utf-8
+content_selector: main
+domain_policy:
+  allowed_domains:
+    - support.huaweicloud.com
+  allow_subdomains: false
+  allow_redirects: true
+  allowed_redirect_domains:
+    - support.huaweicloud.com
+fetch_policy:
+  timeout_seconds: 60
+  connect_timeout_seconds: 10
+  read_timeout_seconds: 45
+  max_retries: 3
+  retry_backoff_seconds: 1
+  min_interval_seconds: 5
+  max_content_length_bytes: 2097152
+  user_agent_profile: browser_compatible
+storage_policy:
+  keep_all_versions: true
+  deduplicate_identical_content: true
+  store_response_headers: true
+  store_request_headers: false
+  compression: none
+  retention_policy: keep_all
+schedule:
+  update_frequency: weekly
+  priority: 80
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-07-23T00:00:00Z
+robots_checked_at: 2026-07-23T00:00:00Z
+robots_allowed: true
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
+compliance_notes: >
+  Public official Huawei Cloud help-center page. Automated snapshot is approved
+  for billing-method evidence. Example prices must be classified as estimated
+  and not as current list prices.
+notes: >
+  This source explains on-demand per-second billing and contains an official
+  example. Do not use sample prices as customer-facing list prices.

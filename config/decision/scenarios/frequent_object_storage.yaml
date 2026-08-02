@@ -1,0 +1,51 @@
+schema_version: "1.0"
+code: frequent_object_storage_v1
+version: "v1"
+name: "Frequent Object Storage Internal Scenario"
+description: "Frequent-access object storage comparison with capacity, region, and public price assumptions."
+scenario_type: object_storage_frequent_access
+market_mode: international
+industry: standard
+country_code: US
+preferred_regions: [us-east-1]
+workload_profile:
+  category: object_storage
+  storage_gb_month: 1024
+  requests_per_month: 100000
+  outbound_gb: 100
+  cost_required: true
+technical_requirements:
+  storage_class: standard
+availability_requirements:
+  service_status: ga
+compliance_requirements:
+  customer_output_required: false
+data_residency_requirements:
+  country_code: US
+operational_requirements:
+  public_evidence_only: true
+migration_requirements:
+  replacement_candidate: true
+budget_preferences:
+  currency: USD
+scoring_policy_code: frequent_object_storage
+scoring_policy_version: "v1"
+effective_from: "2026-08-02T00:00:00+00:00"
+status: active
+requirements:
+  - code: standard_storage_class
+    requirement_type: technical
+    operator: equals
+    required_value: {storage_class: standard}
+    priority: mandatory
+    is_mandatory: true
+    missing_data_policy: requires_review
+    evidence_requirement: {official_evidence_required: true}
+  - code: complete_storage_tco
+    requirement_type: cost
+    operator: equals
+    required_value: {completeness_status: complete}
+    priority: critical
+    is_mandatory: true
+    missing_data_policy: requires_review
+    evidence_requirement: {price_snapshot_required: true}

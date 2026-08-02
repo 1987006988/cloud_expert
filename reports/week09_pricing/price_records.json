@@ -1,0 +1,21 @@
+{
+  "extracted_records": 1,
+  "created_price_skus": 0,
+  "created_price_snapshots": 0,
+  "skipped_records": [],
+  "records": [
+    {
+      "provider": "aws",
+      "product": "s3",
+      "region": "us-east-1",
+      "provider_price_code": "aws_s3_us_east_1_standard_storage_first_tier_gb_month",
+      "billing_unit": "GB-month",
+      "currency": "USD",
+      "unit_price": "0.0230000000",
+      "discount_type": "list",
+      "source_document_id": 75,
+      "snapshot_record_id": 75,
+      "evidence_locator": "json:products.WP9ANXZGBYYSGJEA;terms.OnDemand.WP9ANXZGBYYSGJEA.WP9ANXZGBYYSGJEA.JRTCKXETXF.priceDimensions.WP9ANXZGBYYSGJEA.JRTCKXETXF.PGHJ3S3EYE"
+    }
+  ]
+}

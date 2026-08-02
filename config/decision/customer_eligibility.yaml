@@ -1,0 +1,11 @@
+schema_version: "1.0"
+required:
+  - human_reviewed_mapping
+  - customer_eligible_evidence_package
+  - complete_price_and_tco
+  - no_critical_conflict
+  - fresh_data
+  - approved_scoring_policy
+  - reviewed_decision_result
+  - complete_disclaimer
+default_output_level: internal_only

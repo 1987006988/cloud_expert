@@ -1,3 +1,3 @@
 # Unresolved Blockers
 
-- W9-B007-pricing-source-readiness
+No unresolved blockers for this gate.

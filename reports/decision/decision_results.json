@@ -1,0 +1,38 @@
+{
+  "decision_runs": 5,
+  "run_code": "archive_object_storage_v1_v1_v1_c439d3d7e904",
+  "scenario_code": "archive_object_storage_v1",
+  "scenario_version": "v1",
+  "policy_version": "v1",
+  "candidate_results": 24,
+  "status_counts": {
+    "incomplete_cost": 21,
+    "blocked": 2,
+    "requires_review": 1
+  },
+  "confidence_counts": {
+    "medium": 4,
+    "low": 20
+  },
+  "output_counts": {
+    "internal_only": 24
+  },
+  "review_counts": {
+    "machine_generated": 24
+  },
+  "dimension_status_counts": {
+    "scored": 97,
+    "insufficient_evidence": 143,
+    "requires_review": 24
+  },
+  "eligible": 0,
+  "blocked": 2,
+  "requires_review": 1,
+  "warnings": 22,
+  "customer_eligible": 0,
+  "internal_only": 24,
+  "machine_generated": 24,
+  "sensitivity_status": "indeterminate",
+  "valid": true,
+  "errors": []
+}

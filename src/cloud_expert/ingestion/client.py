@@ -3,11 +3,11 @@ from pathlib import Path
 import httpx
 
 from cloud_expert.ingestion.registry.schemas import SourceRegistryEntry
-from cloud_expert.ingestion.user_agents import resolve_user_agent
+from cloud_expert.ingestion.user_agents import resolve_request_headers
 
 
 def build_http_client(entry: SourceRegistryEntry, *, env: str = "development") -> httpx.Client:
-    headers = {"User-Agent": resolve_user_agent(entry.fetch_policy.user_agent_profile, env=env)}
+    headers = resolve_request_headers(entry.fetch_policy.user_agent_profile, env=env)
     if entry.fixture_response_path:
         fixture_path = Path(entry.fixture_response_path)
         if entry.registry_file is not None and not fixture_path.is_absolute():

@@ -1,0 +1,42 @@
+schema_version: "1.0"
+code: cost_sensitive_compute_v1
+version: "v1"
+name: "Cost Sensitive Compute Internal Scenario"
+description: "Compute comparison with higher cost-fit weight but no cost-only recommendation."
+scenario_type: cost_sensitive_workload
+market_mode: international
+industry: standard
+country_code: US
+preferred_regions: [us-east-1]
+workload_profile:
+  category: compute
+  monthly_hours: 730
+  cost_required: true
+technical_requirements:
+  cpu_architecture: x86
+availability_requirements:
+  service_status: ga
+compliance_requirements:
+  customer_output_required: false
+data_residency_requirements:
+  country_code: US
+operational_requirements:
+  public_evidence_only: true
+migration_requirements:
+  replacement_candidate: true
+budget_preferences:
+  currency: USD
+  preference: minimize_public_directory_tco
+scoring_policy_code: cost_sensitive_compute
+scoring_policy_version: "v1"
+effective_from: "2026-08-02T00:00:00+00:00"
+status: active
+requirements:
+  - code: complete_public_tco
+    requirement_type: cost
+    operator: equals
+    required_value: {completeness_status: complete}
+    priority: mandatory
+    is_mandatory: true
+    missing_data_policy: requires_review
+    evidence_requirement: {price_snapshot_required: true}

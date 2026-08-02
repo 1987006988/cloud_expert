@@ -220,11 +220,13 @@ def test_huawei_obs_pipeline_creates_review_items_quality_report_and_sla(
 
 def test_registered_huawei_sources_are_domestic_official_and_non_intl() -> None:
     entries = load_registry_entries(Path("data/source_registry/domestic/huawei_cloud"))
-    assert len(entries) == 21
+    assert len(entries) == 24
     assert {entry.product_code for entry in entries} == {"ecs", "obs"}
     assert all(entry.provider_code == "huawei_cloud" for entry in entries)
     assert all(str(entry.market_mode) == "domestic" for entry in entries)
-    assert all(entry.authority_level == "official_primary" for entry in entries)
+    assert all(
+        entry.authority_level in {"official_primary", "official_secondary"} for entry in entries
+    )
     assert all("/intl/" not in entry.url for entry in entries)
     assert all(entry.requires_authentication is False for entry in entries)
     assert all(entry.allow_automated_fetch is True for entry in entries)

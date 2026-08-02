@@ -604,3 +604,25 @@ Week 6 enum additions:
 | `NormalizationRuleType` | `field_mapping`, `unit_conversion`, `qualifier_inference`, `scope_inference`, `quality_scoring` |
 | `NormalizationRunStatus` | `succeeded`, `partial`, `failed` |
 | `ComparabilityStatus` | `comparable`, `partial`, `not_comparable`, `needs_review` |
+
+## Week 10 Decision Engine Tables
+
+Week 10 adds internal-only scenario decision tables. They do not overwrite
+mapping, evidence, price, or TCO records.
+
+| Table | Purpose | Key fields |
+| --- | --- | --- |
+| `decision_scenario` | Versioned business scenario | `scenario_code`, `scenario_version`, `scenario_type`, `market_mode`, `workload_profile`, `scoring_policy_id` |
+| `scenario_requirement` | Typed scenario requirement | `scenario_id`, `requirement_code`, `requirement_type`, `operator`, `priority`, `missing_data_policy` |
+| `scoring_policy` | Versioned scenario scoring policy | `policy_code`, `policy_version`, `scenario_type`, `dimension_weights`, `thresholds` |
+| `scoring_rule` | Versioned dimension rule | `policy_id`, `rule_code`, `dimension`, `operator`, `score_function`, `missing_data_policy` |
+| `decision_run` | One reproducible decision run | `run_code`, `scenario_id`, `policy_id`, `mapping_cutoff`, `evidence_cutoff`, `price_cutoff`, `content_hash` |
+| `candidate_decision_result` | Machine-generated internal candidate result | `decision_run_id`, `mapping_candidate_id`, `decision_status`, `business_fit_score`, `confidence_score`, `completeness_score`, `review_status`, `output_level` |
+| `dimension_score` | Per-dimension fit result | `candidate_result_id`, `dimension`, `normalized_score`, `weight`, `status`, `evidence_package_id` |
+| `rule_evaluation` | Hard block or rule evaluation record | `candidate_result_id`, `scoring_rule_id`, `requirement_id`, `result_status`, `hard_block`, `blocking_reason` |
+| `decision_review` | Human review history | `candidate_result_id`, `reviewer`, `reviewed_at`, `decision`, `notes`, `approved_scope` |
+| `decision_sensitivity_result` | Run-level sensitivity summary | `decision_run_id`, `analysis_code`, `ranking_stability`, `sensitivity_status` |
+
+Week 10 enum additions include scenario type/status, requirement type/priority,
+missing-data policy, scoring dimension, decision status, confidence level,
+review status, output level, and sensitivity status.

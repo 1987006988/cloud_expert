@@ -271,6 +271,206 @@ class DiscountType(StableStrEnum):
     UNKNOWN = "unknown"
 
 
+class PricingScenarioStatus(StableStrEnum):
+    DRAFT = "draft"
+    ACTIVE = "active"
+    ARCHIVED = "archived"
+
+
+class CostCalculationRunStatus(StableStrEnum):
+    SUCCEEDED = "succeeded"
+    PARTIAL = "partial"
+    FAILED = "failed"
+
+
+class TaxStatus(StableStrEnum):
+    TAX_INCLUDED = "tax_included"
+    TAX_EXCLUDED = "tax_excluded"
+    TAX_UNKNOWN = "tax_unknown"
+    REGION_DEPENDENT = "region_dependent"
+    CUSTOMER_DEPENDENT = "customer_dependent"
+
+
+class TCOCompletenessStatus(StableStrEnum):
+    COMPLETE = "complete"
+    PARTIAL = "partial"
+    MISSING_PRICE = "missing_price"
+    ESTIMATED_ONLY = "estimated_only"
+    INSUFFICIENT_EVIDENCE = "insufficient_evidence"
+    REQUIRES_REVIEW = "requires_review"
+
+
+class DecisionScenarioStatus(StableStrEnum):
+    DRAFT = "draft"
+    ACTIVE = "active"
+    ARCHIVED = "archived"
+
+
+class DecisionScenarioType(StableStrEnum):
+    COMPUTE_GENERAL = "compute_general"
+    COMPUTE_HIGH_PERFORMANCE = "compute_high_performance"
+    MEMORY_INTENSIVE = "memory_intensive"
+    GPU_TRAINING = "gpu_training"
+    GPU_INFERENCE = "gpu_inference"
+    BUSINESS_CRITICAL_COMPUTE = "business_critical_compute"
+    OBJECT_STORAGE_FREQUENT_ACCESS = "object_storage_frequent_access"
+    OBJECT_STORAGE_INFREQUENT_ACCESS = "object_storage_infrequent_access"
+    OBJECT_STORAGE_ARCHIVE = "object_storage_archive"
+    GLOBAL_APPLICATION = "global_application"
+    CHINA_DOMESTIC_APPLICATION = "china_domestic_application"
+    REGULATED_WORKLOAD = "regulated_workload"
+    COST_SENSITIVE_WORKLOAD = "cost_sensitive_workload"
+    MIGRATION_REPLACEMENT = "migration_replacement"
+    CUSTOM = "custom"
+
+
+class ScenarioRequirementType(StableStrEnum):
+    TECHNICAL = "technical"
+    AVAILABILITY = "availability"
+    REGIONAL = "regional"
+    COMPLIANCE = "compliance"
+    RELIABILITY = "reliability"
+    OPERATIONS = "operations"
+    MIGRATION = "migration"
+    COST = "cost"
+    EVIDENCE = "evidence"
+    REVIEW = "review"
+
+
+class ScenarioRequirementPriority(StableStrEnum):
+    MANDATORY = "mandatory"
+    CRITICAL = "critical"
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+    INFORMATIONAL = "informational"
+
+
+class ScenarioRequirementOperator(StableStrEnum):
+    EQUALS = "equals"
+    NOT_EQUALS = "not_equals"
+    GREATER_THAN = "greater_than"
+    GREATER_THAN_OR_EQUAL = "greater_than_or_equal"
+    LESS_THAN = "less_than"
+    LESS_THAN_OR_EQUAL = "less_than_or_equal"
+    BETWEEN = "between"
+    IN = "in"
+    NOT_IN = "not_in"
+    CONTAINS = "contains"
+    SUPPORTS = "supports"
+    DOES_NOT_SUPPORT = "does_not_support"
+    SAME_COUNTRY = "same_country"
+    SAME_GEOGRAPHY = "same_geography"
+    CUSTOMER_ELIGIBLE = "customer_eligible"
+    EVIDENCE_AT_LEAST = "evidence_at_least"
+    FRESHNESS_AT_LEAST = "freshness_at_least"
+
+
+class MissingDataPolicy(StableStrEnum):
+    BLOCK = "block"
+    REQUIRES_REVIEW = "requires_review"
+    EXCLUDE_DIMENSION = "exclude_dimension"
+    PENALIZE_CONFIDENCE = "penalize_confidence"
+    USE_CONSERVATIVE_BOUND = "use_conservative_bound"
+    INFORMATIONAL_ONLY = "informational_only"
+
+
+class ScoringPolicyStatus(StableStrEnum):
+    DRAFT = "draft"
+    ACTIVE = "active"
+    DEPRECATED = "deprecated"
+
+
+class ScoringDimension(StableStrEnum):
+    TECHNICAL_FIT = "technical_fit"
+    AVAILABILITY_FIT = "availability_fit"
+    REGIONAL_FIT = "regional_fit"
+    COMPLIANCE_FIT = "compliance_fit"
+    RELIABILITY_FIT = "reliability_fit"
+    OPERABILITY_FIT = "operability_fit"
+    MIGRATION_FIT = "migration_fit"
+    COST_FIT = "cost_fit"
+    EVIDENCE_QUALITY = "evidence_quality"
+    DATA_FRESHNESS = "data_freshness"
+    REVIEW_READINESS = "review_readiness"
+
+
+class ScoreFunction(StableStrEnum):
+    EXACT_MATCH = "exact_match"
+    BOOLEAN_MATCH = "boolean_match"
+    RANGE_FIT = "range_fit"
+    RATIO_FIT = "ratio_fit"
+    THRESHOLD_FIT = "threshold_fit"
+    CATEGORICAL_FIT = "categorical_fit"
+    TIERED_FIT = "tiered_fit"
+    COMPLETENESS_FIT = "completeness_fit"
+    FRESHNESS_FIT = "freshness_fit"
+    EVIDENCE_FIT = "evidence_fit"
+    CUSTOM_REGISTERED = "custom_registered"
+
+
+class DecisionRunStatus(StableStrEnum):
+    SUCCEEDED = "succeeded"
+    PARTIAL = "partial"
+    FAILED = "failed"
+    DRY_RUN = "dry_run"
+
+
+class DecisionStatus(StableStrEnum):
+    ELIGIBLE = "eligible"
+    CONDITIONALLY_ELIGIBLE = "conditionally_eligible"
+    BLOCKED = "blocked"
+    INSUFFICIENT_EVIDENCE = "insufficient_evidence"
+    INCOMPLETE_COST = "incomplete_cost"
+    REQUIRES_REVIEW = "requires_review"
+    STALE_DATA = "stale_data"
+    INVALID_MAPPING = "invalid_mapping"
+    SUPERSEDED = "superseded"
+
+
+class ConfidenceLevel(StableStrEnum):
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+    INSUFFICIENT = "insufficient"
+
+
+class DimensionScoreStatus(StableStrEnum):
+    SCORED = "scored"
+    EXCLUDED = "excluded"
+    INSUFFICIENT_EVIDENCE = "insufficient_evidence"
+    BLOCKED = "blocked"
+    REQUIRES_REVIEW = "requires_review"
+
+
+class RuleEvaluationStatus(StableStrEnum):
+    PASS = "pass"
+    FAIL = "fail"
+    MISSING_DATA = "missing_data"
+    NOT_APPLICABLE = "not_applicable"
+    REQUIRES_REVIEW = "requires_review"
+
+
+class DecisionReviewStatus(StableStrEnum):
+    MACHINE_GENERATED = "machine_generated"
+    INTERNALLY_APPROVED = "internally_approved"
+    REJECTED = "rejected"
+    CORRECTED = "corrected"
+    CUSTOMER_APPROVED = "customer_approved"
+
+
+class DecisionOutputLevel(StableStrEnum):
+    INTERNAL_ONLY = "internal_only"
+    CUSTOMER_ELIGIBLE_CANDIDATE = "customer_eligible_candidate"
+
+
+class SensitivityStatus(StableStrEnum):
+    STABLE = "stable"
+    MODERATELY_SENSITIVE = "moderately_sensitive"
+    HIGHLY_SENSITIVE = "highly_sensitive"
+    INDETERMINATE = "indeterminate"
+
+
 class ClaimType(StableStrEnum):
     STRENGTH = "strength"
     LIMITATION = "limitation"

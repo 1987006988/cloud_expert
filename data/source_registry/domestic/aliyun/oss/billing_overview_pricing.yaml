@@ -1,0 +1,60 @@
+source_id: aliyun_oss_billing_overview_pricing
+provider_code: aliyun
+market_mode: domestic
+cloud_partition: aliyun_public_cn
+product_code: oss
+source_type: pricing
+title: Aliyun OSS billing overview
+description: Official Aliyun OSS billing overview with billing-cycle and unit-price example.
+url: https://help.aliyun.com/zh/oss/billing-overview/
+language: zh-CN
+authority_level: official_secondary
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type:
+  - text/html
+expected_file_extension: .html
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains:
+    - help.aliyun.com
+  allow_subdomains: false
+  allow_redirects: true
+  allowed_redirect_domains:
+    - help.aliyun.com
+fetch_policy:
+  timeout_seconds: 60
+  connect_timeout_seconds: 10
+  read_timeout_seconds: 45
+  max_retries: 3
+  retry_backoff_seconds: 1
+  min_interval_seconds: 5
+  max_content_length_bytes: 2097152
+  user_agent_profile: browser_compatible
+storage_policy:
+  keep_all_versions: true
+  deduplicate_identical_content: true
+  store_response_headers: true
+  store_request_headers: false
+  compression: none
+  retention_policy: keep_all
+schedule:
+  update_frequency: weekly
+  priority: 80
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-07-23T00:00:00Z
+robots_checked_at: 2026-07-23T00:00:00Z
+robots_allowed: true
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
+compliance_notes: >
+  Public official Aliyun help-center page. Automated HTTP snapshot is approved
+  for billing and price-evidence extraction when the snapshot contains an exact
+  price, unit, and currency.
+notes: >
+  Prices in examples are classified according to the source wording. Missing
+  region-specific values must remain missing.
