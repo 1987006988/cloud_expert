@@ -24,7 +24,12 @@ from cloud_expert.database.models.product import Product
 from cloud_expert.database.models.product_extension import ProductSLA
 from cloud_expert.database.models.provider import Provider
 from cloud_expert.database.models.region import AvailabilityZone
-from cloud_expert.database.models.review import HumanReviewDecision, HumanReviewImportBatch
+from cloud_expert.database.models.review import (
+    HumanReviewDecision,
+    HumanReviewImportBatch,
+    ModelReviewFinding,
+    ModelReviewRun,
+)
 from cloud_expert.database.models.tco import TCOResult
 from cloud_expert.database.session import SessionLocal
 
@@ -78,13 +83,18 @@ def _readiness() -> dict[str, Any]:
         review_decisions = (
             session.scalar(select(func.count()).select_from(HumanReviewDecision)) or 0
         )
-        decision_counts = dict(
-            session.execute(
+        model_review_runs = session.scalar(select(func.count()).select_from(ModelReviewRun)) or 0
+        model_review_findings = (
+            session.scalar(select(func.count()).select_from(ModelReviewFinding)) or 0
+        )
+        decision_counts: dict[str, int] = {
+            str(status): int(count)
+            for status, count in session.execute(
                 select(HumanReviewDecision.reviewer_decision, func.count())
                 .select_from(HumanReviewDecision)
                 .group_by(HumanReviewDecision.reviewer_decision)
-            ).all()
-        )
+            ).tuples()
+        }
         mapping_candidates = session.scalar(select(func.count()).select_from(MappingCandidate)) or 0
         human_reviewed_mappings = (
             session.scalar(
@@ -157,6 +167,8 @@ def _readiness() -> dict[str, Any]:
     return {
         "review_batches": review_batches,
         "review_decisions": review_decisions,
+        "model_review_runs": model_review_runs,
+        "model_review_findings": model_review_findings,
         "review_decision_counts": decision_counts,
         "mapping_candidates": mapping_candidates,
         "human_reviewed_mappings": human_reviewed_mappings,
@@ -255,6 +267,8 @@ def write_gate_reports(result: dict[str, Any]) -> None:
                 "review_batches": readiness["review_batches"],
                 "review_decisions": readiness["review_decisions"],
                 "review_decision_counts": readiness["review_decision_counts"],
+                "model_review_runs": readiness["model_review_runs"],
+                "model_review_findings": readiness["model_review_findings"],
             },
             ensure_ascii=False,
             indent=2,

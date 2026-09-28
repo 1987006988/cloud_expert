@@ -16,6 +16,7 @@ from cloud_expert.database.enums import (
     EvidencePackageRunStatus,
     EvidencePackageType,
     FreshnessStatus,
+    MappingCandidateStatus,
     MappingLevel,
     ReviewStatus,
 )
@@ -121,6 +122,15 @@ def build_evidence_packages(
     )
 
 
+def _customer_eligible_mapping(candidate: MappingCandidate) -> bool:
+    return (
+        candidate.review_status == ReviewStatus.HUMAN_REVIEWED.value
+        and candidate.rule_set.market_mode != "cross_market"
+        and candidate.candidate_status == MappingCandidateStatus.APPROVED.value
+        and not candidate.blocking_reasons
+    )
+
+
 def _ensure_package(
     session: Session, candidate: MappingCandidate, now: datetime
 ) -> EvidencePackage:
@@ -133,7 +143,7 @@ def _ensure_package(
     )
     content_hash = _content_hash(candidate)
     package_type = _package_type(candidate.mapping_level)
-    eligible = candidate.review_status == ReviewStatus.HUMAN_REVIEWED.value
+    eligible = _customer_eligible_mapping(candidate)
     values: dict[str, Any] = {
         "package_type": package_type,
         "market_mode": candidate.rule_set.market_mode,

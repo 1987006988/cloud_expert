@@ -1,0 +1,21 @@
+{
+  "run_code": "model_review_7e7423b8c19a920e",
+  "policy_version": "week11_model_review_v1",
+  "reviewer_model": "codex_agent_evidence_rules",
+  "input_fingerprint": "7e7423b8c19a920e841b61f82b464f20516dcba9adad9cb9c94e3a0ac8df9e4e",
+  "findings": 5154,
+  "by_subject_and_verdict": {
+    "candidate_decision_result/insufficient_data": 1428,
+    "candidate_decision_result/internal_research_only": 10,
+    "candidate_decision_result/reject": 1022,
+    "comparability_assessment/accept_internal_limitation": 89,
+    "comparability_assessment/requires_source_verification": 20,
+    "mapping_candidate/internal_research_only": 247,
+    "mapping_candidate/reject": 167,
+    "review_item/reparse_required": 1411,
+    "review_item/requires_source_verification": 760
+  },
+  "human_review_equivalent": false,
+  "customer_eligibility_granted": false,
+  "already_recorded": true
+}

@@ -1,0 +1,151 @@
+{
+  "gate": "WEEK12_GATE",
+  "verdict": "NO-GO",
+  "generated_at": "2026-09-28T23:43:25+08:00",
+  "revalidated_at": "2026-09-29T00:04:29+08:00",
+  "git": {
+    "branch": "main",
+    "commit": "2f7b2c8",
+    "remote": "git@github.com:1987006988/cloud_expert.git"
+  },
+  "dependencies": {
+    "week9_gate": "GO",
+    "week10_gate": "GO",
+    "week11_gate": "NO-GO",
+    "model_review_runs": 1,
+    "model_review_findings": 5154,
+    "model_review_human_equivalent": false,
+    "week11_blockers": [
+      "W11-B007-human-reviewed-mapping",
+      "W11-B008-customer-evidence",
+      "W11-B010-decision-review",
+      "W11-B011-customer-decision-output"
+    ]
+  },
+  "market_inventory": {
+    "providers": 3,
+    "provider_partitions": 2,
+    "market_mode_values": {
+      "domestic": 24,
+      "international": 43,
+      "cross_market": 4
+    },
+    "countries": 27,
+    "regions": 53,
+    "regions_with_null_country": 0,
+    "regions_with_unresolved_zz_country": 2,
+    "sources": {
+      "total": 80,
+      "domestic": 55,
+      "international": 25,
+      "market_mode_missing": 0,
+      "partition_missing": 24,
+      "country_scope_missing": 80,
+      "region_scope_missing": 80,
+      "effective_scope_missing": 80
+    },
+    "source_documents": {
+      "total": 79,
+      "partition_missing": 21
+    }
+  },
+  "layer_readiness": {
+    "mapping": {
+      "cross_market": 414,
+      "human_reviewed": 0
+    },
+    "evidence_packages": {
+      "cross_market": 414,
+      "customer_eligible": 0
+    },
+    "pricing": {
+      "price_skus": 1,
+      "price_snapshots": 1,
+      "market": "international",
+      "provider_product_region": "aws/s3/us-east-1",
+      "currency": "USD"
+    },
+    "tco": {
+      "market": "international",
+      "complete": 1,
+      "missing_price": 5
+    },
+    "decision": {
+      "total": 2460,
+      "market": "international",
+      "blocked": 20,
+      "incomplete_cost": 1428,
+      "invalid_mapping": 1002,
+      "requires_review": 10,
+      "market_mismatch_hard_blocks": 20,
+      "decision_reviews": 0,
+      "customer_eligible": 0
+    },
+    "sales": {
+      "sales_artifact_table_present": false,
+      "customer_eligible_domestic": 0,
+      "customer_eligible_international": 0
+    }
+  },
+  "quality": {
+    "ruff_format": "passed",
+    "ruff_check": "passed",
+    "mypy": {
+      "status": "passed",
+      "errors": 0
+    },
+    "pytest_not_network": {
+      "passed": 102,
+      "failed": 0,
+      "skipped": 0
+    },
+    "coverage_percent": 72,
+    "coverage_target_percent": 85,
+    "pytest_postgres": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "database": "cloud_expert_r011_week11_audit",
+      "migration_round_trip": "passed"
+    },
+    "source_registry": {
+      "valid_sources": 80,
+      "configuration_errors": 0
+    }
+  },
+  "missing_required_documents": [
+    "docs/EVIDENCE_REFERENCE_POLICY.md",
+    "docs/SOURCE_FRESHNESS_POLICY.md",
+    "docs/PRICE_SOURCE_POLICY.md",
+    "docs/SALES_OUTPUT_ARCHITECTURE.md",
+    "docs/SALES_OUTPUT_ELIGIBILITY.md"
+  ],
+  "missing_required_scripts": [
+    "scripts/check_week12_gate.py",
+    "scripts/validate_market_partitions.py",
+    "scripts/validate_market_scopes.py",
+    "scripts/detect_cross_market_contamination.py",
+    "scripts/validate_regions.py"
+  ],
+  "blocking_items": [
+    "W12-B001-week11-gate",
+    "W12-B002-human-reviewed-mapping",
+    "W12-B003-customer-evidence",
+    "W12-B004-decision-review",
+    "W12-B005-customer-decision-output",
+    "W12-B006-sales-artifact-readiness",
+    "W12-B007-partition-coverage",
+    "W12-B008-source-scope",
+    "W12-B009-historical-scope",
+    "W12-B010-market-mode-contract",
+    "W12-B011-cross-market-review",
+    "W12-B012-scope-resolution",
+    "W12-B013-validation-tools",
+    "W12-B014-required-documents",
+    "W12-B015-coverage"
+  ],
+  "implementation_started": false,
+  "database_migration_created": false,
+  "market_business_logic_modified": false,
+  "customer_artifacts_generated": false
+}

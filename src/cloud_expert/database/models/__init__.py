@@ -57,6 +57,8 @@ from cloud_expert.database.models.review import (
     DataQualityIssue,
     HumanReviewDecision,
     HumanReviewImportBatch,
+    ModelReviewFinding,
+    ModelReviewRun,
     ReviewItem,
 )
 from cloud_expert.database.models.snapshot import SnapshotRecord
@@ -95,6 +97,8 @@ __all__ = [
     "EvidenceReference",
     "HumanReviewDecision",
     "HumanReviewImportBatch",
+    "ModelReviewFinding",
+    "ModelReviewRun",
     "IngestionRun",
     "DataQualityIssue",
     "MappingCandidate",

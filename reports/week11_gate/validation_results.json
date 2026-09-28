@@ -6,6 +6,8 @@
   "readiness": {
     "review_batches": 1,
     "review_decisions": 2222,
+    "model_review_runs": 1,
+    "model_review_findings": 5154,
     "review_decision_counts": {
       "accept": 23,
       "accept_with_conditions": 105,

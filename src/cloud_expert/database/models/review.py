@@ -164,3 +164,35 @@ class HumanReviewDecision(IDMixin, TableNameMixin, ReprMixin, Base):
     )
 
     batch: Mapped[HumanReviewImportBatch] = relationship()
+
+
+class ModelReviewRun(IDMixin, TableNameMixin, ReprMixin, Base):
+    __table_args__ = (UniqueConstraint("run_code", name="uq_model_review_run_code"),)
+
+    run_code: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    policy_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    reviewer_model: Mapped[str] = mapped_column(String(128), nullable=False)
+    input_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    reviewed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    summary_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
+
+
+class ModelReviewFinding(IDMixin, TableNameMixin, ReprMixin, Base):
+    __table_args__ = (
+        UniqueConstraint(
+            "run_id", "subject_type", "subject_id", name="uq_model_review_finding_subject"
+        ),
+    )
+
+    run_id: Mapped[int] = mapped_column(
+        ForeignKey("model_review_run.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    subject_type: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    subject_id: Mapped[int] = mapped_column(nullable=False, index=True)
+    verdict: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    reason_code: Mapped[str] = mapped_column(String(128), nullable=False)
+    rationale: Mapped[str] = mapped_column(Text, nullable=False)
+    evidence_ids: Mapped[list[int]] = mapped_column(JSON, nullable=False)
+    input_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+
+    run: Mapped[ModelReviewRun] = relationship()
