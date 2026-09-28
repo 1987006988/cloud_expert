@@ -604,7 +604,7 @@ def _zone_records_from_tables(
                 continue
             if not is_mainland_region_code(_region_from_zone(zone_code)):
                 continue
-            zone_name = _cell(row, header_map.get("zone_name")) or zone_code
+            zone_name = _zone_name_from_row(row, zone_code, header_map) or zone_code
             excerpt = " | ".join(row)
             locator = f"{table.locator}:row[{row_index}]"
             if current_region_code not in seen_regions:
@@ -1019,6 +1019,25 @@ def _first_instance_type(value: str) -> str | None:
 def _first_zone_code(value: str) -> str | None:
     match = ZONE_CODE_PATTERN.search(value)
     return match.group(1) if match else None
+
+
+def _zone_name_from_row(
+    row: list[str],
+    zone_code: str,
+    header_map: dict[str, int],
+) -> str | None:
+    named_cell = _cell(row, header_map.get("zone_name"))
+    if named_cell and named_cell != zone_code and not ZONE_CODE_PATTERN.fullmatch(named_cell):
+        return named_cell
+    for cell in row:
+        value = " ".join(cell.split())
+        if not value or value == zone_code:
+            continue
+        if ZONE_CODE_PATTERN.fullmatch(value):
+            continue
+        if "可用区" in value or "Zone" in value or "zone" in value.lower():
+            return value
+    return None
 
 
 def _aliyun_family_code(instance_type: str) -> str:

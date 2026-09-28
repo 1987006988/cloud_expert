@@ -1,37 +1,38 @@
 {
-  "decision_runs": 5,
-  "run_code": "archive_object_storage_v1_v1_v1_c439d3d7e904",
-  "scenario_code": "archive_object_storage_v1",
+  "decision_runs": 10,
+  "run_code": "high_availability_compute_v1_v1_v1_fd7604bf9b7d",
+  "scenario_code": "high_availability_compute_v1",
   "scenario_version": "v1",
   "policy_version": "v1",
-  "candidate_results": 24,
+  "candidate_results": 394,
   "status_counts": {
-    "incomplete_cost": 21,
+    "incomplete_cost": 224,
     "blocked": 2,
-    "requires_review": 1
+    "requires_review": 1,
+    "invalid_mapping": 167
   },
   "confidence_counts": {
-    "medium": 4,
-    "low": 20
+    "medium": 152,
+    "low": 242
   },
   "output_counts": {
-    "internal_only": 24
+    "internal_only": 394
   },
   "review_counts": {
-    "machine_generated": 24
+    "machine_generated": 394
   },
   "dimension_status_counts": {
-    "scored": 97,
-    "insufficient_evidence": 143,
-    "requires_review": 24
+    "scored": 2465,
+    "insufficient_evidence": 1475,
+    "requires_review": 394
   },
   "eligible": 0,
-  "blocked": 2,
+  "blocked": 169,
   "requires_review": 1,
-  "warnings": 22,
+  "warnings": 225,
   "customer_eligible": 0,
-  "internal_only": 24,
-  "machine_generated": 24,
+  "internal_only": 394,
+  "machine_generated": 394,
   "sensitivity_status": "indeterminate",
   "valid": true,
   "errors": []

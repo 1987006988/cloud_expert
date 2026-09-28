@@ -504,6 +504,8 @@ def _sla_records(
         if location is None:
             continue
         locator, excerpt = location
+        if "Service Credit Percentage" in excerpt:
+            continue
         percent = _percentage_from_text(excerpt)
         if percent is None:
             continue
@@ -511,9 +513,10 @@ def _sla_records(
     if not candidates:
         percent = _percentage_from_text(document.text)
         if percent:
-            candidates.append(
-                ("html:text:s3:sla", _excerpt_around(document.text, percent), percent)
-            )
+            fallback_excerpt = _excerpt_around(document.text, percent)
+            if "Service Credit Percentage" in fallback_excerpt:
+                return []
+            candidates.append(("html:text:s3:sla", fallback_excerpt, percent))
     if not candidates:
         return []
     locator, excerpt, percent = candidates[0]

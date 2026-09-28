@@ -1,6 +1,7 @@
 import uuid
 from pathlib import Path
 
+from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
 
 from cloud_expert.database.models.cloud_partition import CloudPartition
@@ -13,11 +14,20 @@ from cloud_expert.ingestion.providers.aws.ec2.parser import parse_ec2_document
 from cloud_expert.ingestion.providers.aws.s3.parser import parse_s3_document
 from cloud_expert.ingestion.registry.schemas import SourceRegistryEntry
 from cloud_expert.ingestion.storage.snapshot_store import SnapshotStore
-from cloud_expert.parsing.html_adapter import load_html_document
+from cloud_expert.parsing.html_adapter import HtmlDocument, load_html_document
 from cloud_expert.parsing.pipeline import parse_source_entry
 from cloud_expert.quality.partitions import count_partition_region_violations
 
 FIXTURE_DIR = Path("tests/fixtures")
+
+
+def _html_doc(html: str) -> HtmlDocument:
+    soup = BeautifulSoup(html, "html.parser")
+    return HtmlDocument(
+        title=soup.title.get_text(" ", strip=True) if soup.title else "inline",
+        text=" ".join(soup.get_text(" ", strip=True).split()),
+        soup=soup,
+    )
 
 
 def _raw_dir(name: str) -> Path:
@@ -107,6 +117,31 @@ def test_aws_ec2_parser_extracts_sku_specs_and_filters_partition_regions() -> No
     assert [record.target_identity for record in region_records] == ["us-east-1"]
 
 
+def test_aws_ec2_parser_handles_memory_processor_vcpu_table_shape() -> None:
+    records = parse_ec2_document(
+        _html_doc(
+            """
+            <html><body><table>
+              <tr><th>Instance type</th><th>Memory (GiB)</th><th>Processor</th>
+                  <th>vCPUs</th><th>Network</th><th>EBS</th><th>ENA Express</th></tr>
+              <tr><td>c5.large</td><td>4.00</td><td>Intel Xeon Platinum 8124M</td>
+                  <td>2</td><td>Up to 10</td><td>Up to 4.75</td><td>✗ No</td></tr>
+            </table></body></html>
+            """
+        ),
+        source_id="aws_ec2_compute_optimized_specs",
+        snapshot_id="snapshot-review",
+    )
+    sku = next(record for record in records if record.record_type == "ec2_sku")
+    fields = {field.field_code: field for field in sku.fields}
+
+    assert fields["compute.memory_gib"].raw_value == "4.00"
+    assert fields["compute.memory_gib"].normalized_value == 4
+    assert fields["compute.processor_model"].raw_value == "Intel Xeon Platinum 8124M"
+    assert fields["compute.cpu_architecture"].raw_value == "x86_64"
+    assert fields["compute.cpu_architecture"].normalized_value == "x86_64"
+
+
 def test_aws_s3_parser_extracts_storage_classes_capabilities_and_regions() -> None:
     storage = parse_s3_document(
         load_html_document(FIXTURE_DIR / "aws_s3_storage_fixture.html"),
@@ -131,6 +166,23 @@ def test_aws_s3_parser_extracts_storage_classes_capabilities_and_regions() -> No
     )
     region_records = [record for record in regions if record.record_type == "region_availability"]
     assert [record.target_identity for record in region_records] == ["us-east-1"]
+
+
+def test_aws_s3_sla_credit_threshold_table_is_not_commitment() -> None:
+    records = parse_s3_document(
+        _html_doc(
+            """
+            <html><body>
+            <p>Monthly Uptime Percentage Service Credit Percentage Less than
+            99.9% but greater than or equal to 99.0% 10%</p>
+            </body></html>
+            """
+        ),
+        source_id="aws_s3_sla",
+        snapshot_id="snapshot-review",
+    )
+
+    assert [record for record in records if record.record_type == "product_sla"] == []
 
 
 def test_aws_parse_pipeline_persists_partitioned_ec2_and_s3_data(session: Session) -> None:

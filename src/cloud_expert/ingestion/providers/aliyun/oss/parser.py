@@ -513,6 +513,8 @@ def _sla_records(
         return []
     raw_value = match.group(1)
     excerpt = document.text[max(match.start() - 120, 0) : match.end() + 360]
+    if "服务可用性=" in excerpt or "每5分钟错误率" in excerpt:
+        return []
     return [
         ParsedRecord(
             record_type="product_sla",
@@ -571,9 +573,13 @@ def _retrieval_text(text: str) -> str | None:
 
 
 def _redundancy(text: str) -> str | None:
-    if "同城冗余" in text:
+    zrs_present = "同城冗余" in text or "ZRS" in text
+    lrs_present = "本地冗余" in text or "单可用区" in text or "LRS" in text
+    if zrs_present and lrs_present:
+        return None
+    if zrs_present:
         return "ZRS"
-    if "本地冗余" in text or "单可用区" in text:
+    if lrs_present:
         return "LRS"
     return None
 

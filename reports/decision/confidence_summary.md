@@ -1,6 +1,6 @@
 # Confidence Summary
 
 {
-  "medium": 4,
-  "low": 20
+  "medium": 152,
+  "low": 242
 }

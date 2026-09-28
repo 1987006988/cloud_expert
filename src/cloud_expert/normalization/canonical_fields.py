@@ -397,7 +397,7 @@ CANONICAL_FIELD_SEEDS: tuple[CanonicalFieldSeed, ...] = (
         None,
         None,
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
         "Whether multipart upload is supported.",
     ),
     CanonicalFieldSeed(
@@ -408,7 +408,7 @@ CANONICAL_FIELD_SEEDS: tuple[CanonicalFieldSeed, ...] = (
         None,
         None,
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
         "Whether object versioning is supported.",
     ),
     CanonicalFieldSeed(
@@ -419,7 +419,7 @@ CANONICAL_FIELD_SEEDS: tuple[CanonicalFieldSeed, ...] = (
         None,
         None,
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
         "Whether lifecycle management rules are supported.",
     ),
     CanonicalFieldSeed(
@@ -430,7 +430,7 @@ CANONICAL_FIELD_SEEDS: tuple[CanonicalFieldSeed, ...] = (
         None,
         None,
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
         "Whether cross-region replication is supported.",
     ),
     CanonicalFieldSeed(
@@ -441,7 +441,7 @@ CANONICAL_FIELD_SEEDS: tuple[CanonicalFieldSeed, ...] = (
         None,
         None,
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
         "Whether provider-managed server-side encryption is supported.",
     ),
     CanonicalFieldSeed(
@@ -452,7 +452,7 @@ CANONICAL_FIELD_SEEDS: tuple[CanonicalFieldSeed, ...] = (
         None,
         None,
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
         "Whether customer-managed keys are supported for encryption.",
     ),
     CanonicalFieldSeed(
@@ -463,7 +463,7 @@ CANONICAL_FIELD_SEEDS: tuple[CanonicalFieldSeed, ...] = (
         None,
         None,
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
         "Whether static website hosting is supported.",
     ),
     CanonicalFieldSeed(
@@ -474,7 +474,7 @@ CANONICAL_FIELD_SEEDS: tuple[CanonicalFieldSeed, ...] = (
         None,
         None,
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
         "Whether event notification integration is supported.",
     ),
     CanonicalFieldSeed(
@@ -485,7 +485,7 @@ CANONICAL_FIELD_SEEDS: tuple[CanonicalFieldSeed, ...] = (
         None,
         None,
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
         "Whether immutable object lock or WORM-style capability is supported.",
     ),
     CanonicalFieldSeed(
@@ -496,7 +496,7 @@ CANONICAL_FIELD_SEEDS: tuple[CanonicalFieldSeed, ...] = (
         None,
         None,
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
         "Whether transfer acceleration is supported.",
     ),
     CanonicalFieldSeed(
@@ -507,7 +507,7 @@ CANONICAL_FIELD_SEEDS: tuple[CanonicalFieldSeed, ...] = (
         None,
         None,
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
         "Whether IPv4/IPv6 dual-stack endpoints are supported.",
     ),
 )
@@ -711,67 +711,67 @@ LEGACY_FIELD_MAPPINGS: tuple[LegacyFieldMapping, ...] = (
         "object_storage.multipart_upload_supported",
         "object_storage.capability.multipart_upload_supported",
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
     ),
     LegacyFieldMapping(
         "object_storage.versioning_supported",
         "object_storage.capability.versioning_supported",
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
     ),
     LegacyFieldMapping(
         "object_storage.lifecycle_management_supported",
         "object_storage.capability.lifecycle_management_supported",
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
     ),
     LegacyFieldMapping(
         "object_storage.cross_region_replication_supported",
         "object_storage.data_protection.cross_region_replication_supported",
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
     ),
     LegacyFieldMapping(
         "object_storage.server_side_encryption_supported",
         "object_storage.security.server_side_encryption_supported",
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
     ),
     LegacyFieldMapping(
         "object_storage.customer_managed_key_supported",
         "object_storage.security.customer_managed_key_supported",
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
     ),
     LegacyFieldMapping(
         "object_storage.static_website_hosting_supported",
         "object_storage.website.static_hosting_supported",
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
     ),
     LegacyFieldMapping(
         "object_storage.event_notification_supported",
         "object_storage.integration.event_notification_supported",
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
     ),
     LegacyFieldMapping(
         "object_storage.object_lock_supported",
         "object_storage.data_protection.object_lock_supported",
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
     ),
     LegacyFieldMapping(
         "object_storage.transfer_acceleration_supported",
         "object_storage.performance.transfer_acceleration_supported",
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
     ),
     LegacyFieldMapping(
         "object_storage.dual_stack_endpoint_supported",
         "object_storage.endpoint.dual_stack_supported",
         ValueQualifier.SUPPORTED.value,
-        SpecificationScopeType.SERVICE_TIER.value,
+        SpecificationScopeType.PRODUCT.value,
     ),
 )
 

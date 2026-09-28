@@ -1,6 +1,6 @@
 ALIYUN_PROVIDER_CODE = "aliyun"
 ALIYUN_PUBLIC_CN_PARTITION = "aliyun_public_cn"
-PARSER_VERSION = "2026.07.week05"
+PARSER_VERSION = "2026.08.week11_review_remediation_v1"
 
 ALIYUN_PROVIDER_PROFILE = {
     "code": ALIYUN_PROVIDER_CODE,

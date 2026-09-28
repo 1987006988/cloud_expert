@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-23T21:15:52+08:00",
+  "generated_at": "2026-09-28T23:31:49+08:00",
   "source_audit": {
-    "generated_at": "2026-07-23T21:15:45+08:00",
+    "generated_at": "2026-09-28T23:31:49+08:00",
     "required_provider_products": [
       "aliyun/ecs",
       "aliyun/oss",
@@ -151,104 +151,7 @@
     "errors": [],
     "valid": true
   },
-  "fetch_outcomes": [
-    {
-      "source_id": "aliyun_oss_billing_overview_pricing",
-      "status": "succeeded",
-      "http_status": 200,
-      "content_type": "text/html",
-      "bytes_downloaded": 63343,
-      "snapshot_record_id": 76,
-      "snapshot_id": "0cd43736ddd240a6a5614e6924d5d834",
-      "manifest_path": "D:\\cloud_expert\\data\\raw\\domestic\\aliyun\\oss\\aliyun_oss_billing_overview_pricing\\2026\\07\\20260723T131545Z_eb7d1e2f\\manifest.json",
-      "error_code": null,
-      "error_message": null
-    },
-    {
-      "source_id": "aliyun_oss_storage_fees_pricing",
-      "status": "succeeded",
-      "http_status": 200,
-      "content_type": "text/html",
-      "bytes_downloaded": 151700,
-      "snapshot_record_id": 77,
-      "snapshot_id": "9001709d8b954561b92383ee42ba0237",
-      "manifest_path": "D:\\cloud_expert\\data\\raw\\domestic\\aliyun\\oss\\aliyun_oss_storage_fees_pricing\\2026\\07\\20260723T131546Z_b588215e\\manifest.json",
-      "error_code": null,
-      "error_message": null
-    },
-    {
-      "source_id": "huawei_cloud_ecs_pricing",
-      "status": "unchanged",
-      "http_status": 200,
-      "content_type": "text/html",
-      "bytes_downloaded": 104156,
-      "snapshot_record_id": 70,
-      "snapshot_id": "5322d391daf64deda468aabbb33f5b2f",
-      "manifest_path": "D:\\cloud_expert\\data\\raw\\domestic\\huawei_cloud\\ecs\\huawei_cloud_ecs_pricing\\2026\\07\\20260723T131507Z_0cde76c9\\manifest.json",
-      "error_code": null,
-      "error_message": null
-    },
-    {
-      "source_id": "huawei_cloud_ecs_on_demand_example",
-      "status": "unchanged",
-      "http_status": 200,
-      "content_type": "text/html",
-      "bytes_downloaded": 79479,
-      "snapshot_record_id": 71,
-      "snapshot_id": "f7477c15aa4345f1929c65cdd48f036b",
-      "manifest_path": "D:\\cloud_expert\\data\\raw\\domestic\\huawei_cloud\\ecs\\huawei_cloud_ecs_on_demand_example\\2026\\07\\20260723T131507Z_1c99b577\\manifest.json",
-      "error_code": null,
-      "error_message": null
-    },
-    {
-      "source_id": "huawei_cloud_obs_pricing",
-      "status": "unchanged",
-      "http_status": 200,
-      "content_type": "text/html",
-      "bytes_downloaded": 106212,
-      "snapshot_record_id": 72,
-      "snapshot_id": "09739b55046a43a9b58146cb00a81139",
-      "manifest_path": "D:\\cloud_expert\\data\\raw\\domestic\\huawei_cloud\\obs\\huawei_cloud_obs_pricing\\2026\\07\\20260723T131507Z_e4077102\\manifest.json",
-      "error_code": null,
-      "error_message": null
-    },
-    {
-      "source_id": "aws_ec2_pricing_on_demand",
-      "status": "succeeded",
-      "http_status": 200,
-      "content_type": "text/html",
-      "bytes_downloaded": 218503,
-      "snapshot_record_id": 78,
-      "snapshot_id": "5dc07b239a1940c8884518384d290f5e",
-      "manifest_path": "D:\\cloud_expert\\data\\raw\\international\\aws\\ec2\\aws_ec2_pricing_on_demand\\2026\\07\\20260723T131549Z_4943b525\\manifest.json",
-      "error_code": null,
-      "error_message": null
-    },
-    {
-      "source_id": "aws_s3_pricing",
-      "status": "succeeded",
-      "http_status": 200,
-      "content_type": "text/html",
-      "bytes_downloaded": 392180,
-      "snapshot_record_id": 79,
-      "snapshot_id": "cfd25912d35b487495365fe842bf2552",
-      "manifest_path": "D:\\cloud_expert\\data\\raw\\international\\aws\\s3\\aws_s3_pricing\\2026\\07\\20260723T131550Z_cb4f050d\\manifest.json",
-      "error_code": null,
-      "error_message": null
-    },
-    {
-      "source_id": "aws_s3_pricing_bulk_us_east_1",
-      "status": "unchanged",
-      "http_status": 200,
-      "content_type": "application/octet-stream",
-      "bytes_downloaded": 470815,
-      "snapshot_record_id": 75,
-      "snapshot_id": "66369c0163e248488174297921fe478c",
-      "manifest_path": "D:\\cloud_expert\\data\\raw\\international\\aws\\s3\\aws_s3_pricing_bulk_us_east_1\\2026\\07\\20260723T131514Z_c17838ea\\manifest.json",
-      "error_code": null,
-      "error_message": null
-    }
-  ],
+  "fetch_outcomes": [],
   "price_records": {
     "extracted_records": 1,
     "created_price_skus": 0,
@@ -281,7 +184,7 @@
   },
   "database_counts": {
     "pricing_source_documents": 12,
-    "pricing_evidence": 13,
+    "pricing_evidence": 29,
     "price_skus": 1,
     "price_snapshots": 1,
     "cost_runs": 1,

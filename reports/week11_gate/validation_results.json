@@ -1,68 +1,38 @@
 {
   "gate": "WEEK11_GATE",
   "verdict": "NO-GO",
-  "generated_at": "2026-08-02T00:00:00+08:00",
   "week9_gate": "GO",
   "week10_gate": "GO",
-  "human_review_package": {
-    "path": "D:\\download\\human_review_completed.zip",
-    "exists": true,
-    "database_update_required": true,
-    "customer_facing_ready": false,
-    "decision_counts": {
-      "review_items": {
-        "accept": 23,
-        "accept_with_conditions": 4,
-        "reject_reparse": 1411,
-        "defer": 3
-      },
-      "normalized_pending": {
-        "accept": 0,
-        "accept_with_conditions": 0,
-        "reject_reparse": 678,
-        "defer": 0
-      },
-      "comparability_blockers": {
-        "accept": 0,
-        "accept_with_conditions": 101,
-        "reject_reparse": 0,
-        "defer": 2
-      }
+  "readiness": {
+    "review_batches": 1,
+    "review_decisions": 2222,
+    "review_decision_counts": {
+      "accept": 23,
+      "accept_with_conditions": 105,
+      "defer": 5,
+      "reject_reparse": 2089
     },
-    "total_accept": 23,
-    "total_accept_with_conditions": 105,
-    "total_reject_reparse": 2089,
-    "total_defer": 5
-  },
-  "database_readiness": {
     "mapping_candidates": 414,
     "human_reviewed_mappings": 0,
     "evidence_packages": 414,
     "customer_eligible_evidence_packages": 0,
-    "tco_results": 6,
     "complete_tco_results": 1,
-    "decision_runs": 5,
-    "candidate_decision_results": 1230,
     "decision_reviews": 0,
     "internally_approved_decision_results": 0,
     "customer_eligible_decision_results": 0,
-    "sales_output_ready_scenarios": 0
+    "sales_output_ready_scenarios": 0,
+    "active_bad_aws_memory_records": 0,
+    "aliyun_zone_name_equals_code": 0,
+    "rejected_sla_records": 2
   },
-  "missing_required_files": [
-    "docs/MAPPING_REVIEW_GUIDE.md",
-    "docs/COMPARISON_REPORT_POLICY.md"
-  ],
+  "missing_required_docs": [],
   "blocking_items": [
-    "W11-B001-review-import",
-    "W11-B002-reject-reparse",
-    "W11-B003-human-reviewed-mapping",
-    "W11-B004-customer-evidence",
-    "W11-B005-decision-review",
-    "W11-B006-customer-output-readiness",
-    "W11-B007-required-docs"
+    "W11-B007-human-reviewed-mapping",
+    "W11-B008-customer-evidence",
+    "W11-B010-decision-review",
+    "W11-B011-customer-decision-output"
   ],
   "sales_output_generated": false,
   "objection_handling_generated": false,
-  "poc_recommendations_generated": false,
-  "customer_material_generated": false
+  "poc_recommendations_generated": false
 }

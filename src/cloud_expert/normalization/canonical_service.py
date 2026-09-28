@@ -288,6 +288,8 @@ def normalize_specifications(
             )
             session.add(normalized)
             summary.records_created += 1
+        elif existing.review_status == ReviewStatus.REJECTED.value:
+            summary.skip("rejected_by_human_review")
         else:
             for key, normalized_value in values.items():
                 setattr(existing, key, normalized_value)
@@ -563,6 +565,7 @@ def _normalized_readiness(
                 NormalizedSpecification.product_id == product_id,
                 NormalizedSpecification.canonical_field_id == canonical_field_id,
                 NormalizedSpecification.value_qualifier == qualifier,
+                NormalizedSpecification.review_status != ReviewStatus.REJECTED.value,
             )
         ).all()
     )

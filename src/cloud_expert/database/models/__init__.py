@@ -53,7 +53,12 @@ from cloud_expert.database.models.region import (
     Region,
     ZoneAvailability,
 )
-from cloud_expert.database.models.review import DataQualityIssue, ReviewItem
+from cloud_expert.database.models.review import (
+    DataQualityIssue,
+    HumanReviewDecision,
+    HumanReviewImportBatch,
+    ReviewItem,
+)
 from cloud_expert.database.models.snapshot import SnapshotRecord
 from cloud_expert.database.models.source import Evidence, SourceDocument
 from cloud_expert.database.models.specification import (
@@ -88,6 +93,8 @@ __all__ = [
     "EvidencePackageItem",
     "EvidencePackageRun",
     "EvidenceReference",
+    "HumanReviewDecision",
+    "HumanReviewImportBatch",
     "IngestionRun",
     "DataQualityIssue",
     "MappingCandidate",

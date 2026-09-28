@@ -223,7 +223,7 @@ def _sku_fields(
         excerpt=excerpt,
         normalizer=parse_decimal,
     )
-    memory = _cell(row, header_map.get("memory"))
+    memory = _ec2_memory_cell(row, header_map)
     if memory:
         value, unit = normalize_memory_to_gib(memory)
         fields.append(
@@ -242,7 +242,7 @@ def _sku_fields(
                 section_title="EC2 instance table",
             )
         )
-    processor = _cell(row, header_map.get("processor"))
+    processor = _ec2_processor_cell(row, header_map)
     if processor:
         fields.append(
             _candidate(
@@ -283,7 +283,7 @@ def _sku_fields(
             fields.append(
                 _candidate(
                     field_code="compute.cpu_architecture",
-                    raw_value=processor,
+                    raw_value=architecture,
                     raw_unit=None,
                     normalized_value=architecture,
                     canonical_unit=None,
@@ -734,6 +734,53 @@ def _cell(row: list[str], index: int | None) -> str | None:
         return None
     value = " ".join(row[index].split())
     return value or None
+
+
+def _ec2_memory_cell(row: list[str], header_map: dict[str, int]) -> str | None:
+    memory = _cell(row, header_map.get("memory"))
+    if _looks_like_memory_value(memory):
+        return memory
+    if len(row) >= 3 and _looks_like_memory_value(row[1]) and _looks_like_processor_value(row[2]):
+        return _cell(row, 1)
+    return memory
+
+
+def _ec2_processor_cell(row: list[str], header_map: dict[str, int]) -> str | None:
+    processor = _cell(row, header_map.get("processor"))
+    if _looks_like_processor_value(processor):
+        return processor
+    if len(row) >= 3 and _looks_like_memory_value(row[1]) and _looks_like_processor_value(row[2]):
+        return _cell(row, 2)
+    return processor
+
+
+def _looks_like_memory_value(value: str | None) -> bool:
+    if not value:
+        return False
+    lowered = value.lower()
+    if any(token in lowered for token in ("yes", "no", "supported", "true", "false", "✓", "✗")):
+        return False
+    return parse_decimal(value) is not None or bool(
+        re.search(r"\d+(?:\.\d+)?\s*(?:gib|gb|mib|mb|tib|tb)", value, re.IGNORECASE)
+    )
+
+
+def _looks_like_processor_value(value: str | None) -> bool:
+    if not value:
+        return False
+    lowered = value.lower()
+    return any(
+        token in lowered
+        for token in (
+            "processor",
+            "intel",
+            "xeon",
+            "amd",
+            "epyc",
+            "graviton",
+            "neoverse",
+        )
+    )
 
 
 def _processor_vendor(value: str) -> str | None:

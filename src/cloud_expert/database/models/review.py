@@ -1,6 +1,16 @@
 from datetime import datetime
+from typing import Any
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String, Text, func
+from sqlalchemy import (
+    JSON,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from cloud_expert.database.base import Base, IDMixin, ReprMixin, TableNameMixin
@@ -97,3 +107,60 @@ class DataQualityIssue(IDMixin, TableNameMixin, ReprMixin, Base):
 
     parsing_run = relationship("ParsingRun")
     evidence = relationship("Evidence")
+
+
+class HumanReviewImportBatch(IDMixin, TableNameMixin, ReprMixin, Base):
+    __table_args__ = (UniqueConstraint("batch_code", name="uq_human_review_import_batch_code"),)
+
+    batch_code: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    package_path: Mapped[str] = mapped_column(String(1024), nullable=False)
+    package_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    imported_by: Mapped[str] = mapped_column(String(128), nullable=False)
+    imported_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    status: Mapped[str] = mapped_column(String(64), nullable=False)
+    total_rows: Mapped[int] = mapped_column(nullable=False, default=0)
+    applied_rows: Mapped[int] = mapped_column(nullable=False, default=0)
+    rejected_for_reparse_rows: Mapped[int] = mapped_column(nullable=False, default=0)
+    deferred_rows: Mapped[int] = mapped_column(nullable=False, default=0)
+    summary_json: Mapped[dict[str, Any] | None] = mapped_column(JSON)
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+
+class HumanReviewDecision(IDMixin, TableNameMixin, ReprMixin, Base):
+    __table_args__ = (
+        UniqueConstraint(
+            "batch_id",
+            "review_area",
+            "source_row_id",
+            name="uq_human_review_decision_source_row",
+        ),
+    )
+
+    batch_id: Mapped[int] = mapped_column(
+        ForeignKey("human_review_import_batch.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
+    review_area: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
+    source_row_id: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
+    target_table: Mapped[str] = mapped_column(String(128), nullable=False)
+    target_id: Mapped[int | None] = mapped_column(index=True)
+    reviewer_decision: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    reviewer: Mapped[str] = mapped_column(String(128), nullable=False)
+    reviewed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    reviewer_notes: Mapped[str | None] = mapped_column(Text)
+    before_json: Mapped[dict[str, Any] | None] = mapped_column(JSON)
+    after_json: Mapped[dict[str, Any] | None] = mapped_column(JSON)
+    action_status: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    batch: Mapped[HumanReviewImportBatch] = relationship()

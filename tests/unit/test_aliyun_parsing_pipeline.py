@@ -1,6 +1,7 @@
 import uuid
 from pathlib import Path
 
+from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
 
 from cloud_expert.database.models.cloud_partition import CloudPartition
@@ -18,7 +19,7 @@ from cloud_expert.ingestion.providers.aliyun.ecs.parser import parse_ecs_documen
 from cloud_expert.ingestion.providers.aliyun.oss.parser import parse_oss_document
 from cloud_expert.ingestion.registry.schemas import SourceRegistryEntry
 from cloud_expert.ingestion.storage.snapshot_store import SnapshotStore
-from cloud_expert.parsing.html_adapter import load_html_document
+from cloud_expert.parsing.html_adapter import HtmlDocument, load_html_document
 from cloud_expert.parsing.pipeline import parse_source_entry
 from cloud_expert.quality.evidence_checks import count_missing_evidence_links
 from cloud_expert.quality.partitions import (
@@ -28,6 +29,15 @@ from cloud_expert.quality.partitions import (
 from cloud_expert.quality.reports import build_quality_report
 
 FIXTURE_DIR = Path("tests/fixtures")
+
+
+def _html_doc(html: str) -> HtmlDocument:
+    soup = BeautifulSoup(html, "html.parser")
+    return HtmlDocument(
+        title=soup.title.get_text(" ", strip=True) if soup.title else "inline",
+        text=" ".join(soup.get_text(" ", strip=True).split()),
+        soup=soup,
+    )
 
 
 def _raw_dir(name: str) -> Path:
@@ -139,6 +149,33 @@ def test_aliyun_ecs_parser_extracts_skus_families_regions_zones_and_sla() -> Non
     ] == ["ecs_single_instance", "ecs_multi_zone"]
 
 
+def test_aliyun_ecs_zone_parser_keeps_zone_code_and_name_separate() -> None:
+    records = parse_ecs_document(
+        _html_doc(
+            """
+            <html><body><table>
+              <tr><th>地域名称</th><th>地域ID</th><th>可用区数量</th><th>可用区名称</th><th>可用区ID</th></tr>
+              <tr><td>华北 1（青岛）</td><td>cn-qingdao</td><td>2</td><td>青岛 可用区 B</td><td>cn-qingdao-b</td></tr>
+              <tr><td>青岛 可用区 C</td><td>cn-qingdao-c</td></tr>
+            </table></body></html>
+            """
+        ),
+        source_id="aliyun_ecs_regions_zones",
+        snapshot_id="snapshot-review",
+    )
+    zone_records = [record for record in records if record.record_type == "zone_availability"]
+    values_by_zone = {
+        record.target_identity: {
+            field.field_code: field.normalized_value for field in record.fields
+        }
+        for record in zone_records
+    }
+
+    assert values_by_zone["cn-qingdao-b"]["zone.name"] == "青岛 可用区 B"
+    assert values_by_zone["cn-qingdao-c"]["zone.name"] == "青岛 可用区 C"
+    assert values_by_zone["cn-qingdao-c"]["zone.code"] == "cn-qingdao-c"
+
+
 def test_aliyun_oss_parser_extracts_storage_classes_regions_and_sla() -> None:
     storage = parse_oss_document(
         load_html_document(FIXTURE_DIR / "aliyun_oss_storage_fixture.html"),
@@ -182,6 +219,21 @@ def test_aliyun_oss_parser_extracts_storage_classes_regions_and_sla() -> None:
     assert [
         record.target_identity for record in sla_records if record.record_type == "product_sla"
     ] == ["oss_service_commitment"]
+
+
+def test_aliyun_oss_parser_does_not_extract_formula_percent_as_sla() -> None:
+    records = parse_oss_document(
+        _html_doc(
+            """
+            <html><body><p>服务可用性=（1-服务周期内每5分钟错误率之和/
+            服务周期内5分钟总个数） × 100%</p></body></html>
+            """
+        ),
+        source_id="aliyun_oss_sla",
+        snapshot_id="snapshot-review",
+    )
+
+    assert [record for record in records if record.record_type == "product_sla"] == []
 
 
 def test_aliyun_pipeline_persists_domestic_ecs_oss_and_zone_data(session: Session) -> None:

@@ -1,0 +1,43 @@
+{
+  "valid": true,
+  "already_imported": false,
+  "batch_code": "human_review_323ce12eb68b",
+  "batch_id": 1,
+  "package_sha256": "323ce12eb68bf6650f9fa55b3652f479f18330bb07d7d989e1b152c9d4f37d0f",
+  "archived_package": "D:\\cloud_expert\\reports\\remediation\\week11_review_import\\human_review_323ce12eb68b\\human_review_completed.zip",
+  "total_rows": 2222,
+  "decision_counts": {
+    "accept": 23,
+    "applied": 128,
+    "reject_reparse": 2089,
+    "queued_reparse": 2089,
+    "defer": 5,
+    "deferred": 5,
+    "accept_with_conditions": 105
+  },
+  "area_counts": {
+    "review_items": {
+      "accept": 23,
+      "applied": 27,
+      "reject_reparse": 1411,
+      "queued_reparse": 1411,
+      "defer": 3,
+      "deferred": 3,
+      "accept_with_conditions": 4
+    },
+    "normalized_pending": {
+      "reject_reparse": 678,
+      "queued_reparse": 678
+    },
+    "scope_mismatch": {},
+    "comparability_blockers": {
+      "accept_with_conditions": 101,
+      "applied": 101,
+      "defer": 2,
+      "deferred": 2
+    },
+    "data_quality_issues": {}
+  },
+  "database_update_required_from_package": true,
+  "customer_facing_ready_from_package": false
+}

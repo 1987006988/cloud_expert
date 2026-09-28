@@ -1,3 +1,3 @@
 # Hard Block Summary
 
-Blocked or invalid results: 2
+Blocked or invalid results: 169

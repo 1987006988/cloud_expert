@@ -1,7 +1,7 @@
 # Dimension Score Distribution
 
 {
-  "scored": 97,
-  "insufficient_evidence": 143,
-  "requires_review": 24
+  "scored": 2465,
+  "insufficient_evidence": 1475,
+  "requires_review": 394
 }
