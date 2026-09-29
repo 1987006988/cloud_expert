@@ -18,7 +18,7 @@ class CloudPartition(IDMixin, TimestampMixin, TableNameMixin, ReprMixin, Base):
             name="uq_cloud_partition_provider_code",
         ),
         CheckConstraint(
-            f"market_mode IN ({sql_in_values(MarketMode.values())})",
+            f"market_mode IN ({sql_in_values(MarketMode.fact_values())})",
             name="cloud_partition_market_mode",
         ),
     )

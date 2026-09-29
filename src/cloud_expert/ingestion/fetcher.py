@@ -100,11 +100,17 @@ class SourceFetcher:
                 return outcome
 
             self._validate_response(entry, http_result)
-            _formatted_content, content_metadata = inspect_content(
-                http_result.content_type,
-                http_result.content,
-                http_result.encoding,
-            )
+            if http_result.content_length_bytes > 52_428_800:
+                content_metadata = {
+                    "inspection": "deferred_to_streaming_catalog_parser",
+                    "structured_content_validated": False,
+                }
+            else:
+                _formatted_content, content_metadata = inspect_content(
+                    http_result.content_type,
+                    http_result.content,
+                    http_result.encoding,
+                )
             stored = self.snapshot_store.store(
                 entry=entry,
                 requested_url=requested_url,
@@ -282,6 +288,14 @@ class SourceFetcher:
                     continue
                 chunks: list[bytes] = []
                 total = 0
+                declared_length = response.headers.get("Content-Length", "")
+                if (
+                    declared_length.isdecimal()
+                    and int(declared_length) > entry.fetch_policy.max_content_length_bytes
+                ):
+                    raise FileTooLargeError(
+                        "declared content length exceeds max_content_length_bytes"
+                    )
                 for chunk in response.iter_bytes():
                     total += len(chunk)
                     if total > entry.fetch_policy.max_content_length_bytes:
@@ -387,10 +401,6 @@ class SourceFetcher:
                 )
                 .order_by(SnapshotRecord.captured_at.desc())
             )
-            for current_record in session.scalars(
-                select(SnapshotRecord).where(SnapshotRecord.source_id == entry.source_id)
-            ):
-                current_record.is_current = False
             snapshot_record = SnapshotRecord(
                 source_document_id=source_document.id,
                 source_id=entry.source_id,
@@ -408,6 +418,28 @@ class SourceFetcher:
             )
             session.add(snapshot_record)
             session.flush()
+        affected_source_ids = {source_document.id}
+        for current_record in session.scalars(
+            select(SnapshotRecord).where(SnapshotRecord.source_id == entry.source_id)
+        ):
+            affected_source_ids.add(current_record.source_document_id)
+            current_record.is_current = current_record.id == snapshot_record.id
+        session.flush()
+        # A document may be shared by registry entries; retain it while any snapshot is current.
+        for document in session.scalars(
+            select(SourceDocument).where(SourceDocument.id.in_(affected_source_ids))
+        ):
+            document.is_current = (
+                session.scalar(
+                    select(SnapshotRecord.id)
+                    .where(
+                        SnapshotRecord.source_document_id == document.id,
+                        SnapshotRecord.is_current.is_(True),
+                    )
+                    .limit(1)
+                )
+                is not None
+            )
         session.commit()
         return snapshot_record.id
 

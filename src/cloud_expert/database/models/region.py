@@ -19,7 +19,7 @@ class Region(IDMixin, TimestampMixin, TableNameMixin, ReprMixin, Base):
         UniqueConstraint("provider_id", "code", name="uq_region_provider_code"),
         CheckConstraint("length(country_code) = 2", name="region_country_code_len"),
         CheckConstraint(
-            f"market_mode IN ({sql_in_values(MarketMode.values())})",
+            f"market_mode IN ({sql_in_values(MarketMode.fact_values())})",
             name="region_market_mode",
         ),
     )
@@ -50,7 +50,7 @@ class AvailabilityZone(IDMixin, TimestampMixin, TableNameMixin, ReprMixin, Base)
         UniqueConstraint("provider_id", "zone_code", name="uq_zone_provider_code"),
         UniqueConstraint("region_id", "zone_code", name="uq_zone_region_code"),
         CheckConstraint(
-            f"market_mode IN ({sql_in_values(MarketMode.values())})",
+            f"market_mode IN ({sql_in_values(MarketMode.fact_values())})",
             name="availability_zone_market_mode",
         ),
     )

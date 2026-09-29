@@ -18,6 +18,17 @@ from cloud_expert.parsing.models import FieldCandidate, ParsedRecord
 
 INSTANCE_TYPE_PATTERN = re.compile(r"^[a-z][a-z0-9-]*\.[a-z0-9.:-]+$", re.IGNORECASE)
 REGION_CODE_PATTERN = re.compile(r"^(?!cn-)(?!us-gov-)[a-z]{2}-[a-z-]+-\d+$")
+MEMORY_UNITS = r"GiB|MiB|TiB|GB|MB|TB"
+MEMORY_VALUE_PATTERN = re.compile(
+    rf"(?P<number>(?:[0-9]+|[1-9][0-9]{{0,2}}(?:,[0-9]{{3}})+)(?:\.[0-9]+)?|\.[0-9]+)"
+    rf"\s*(?P<unit>{MEMORY_UNITS})?"
+)
+MEMORY_HEADER_PATTERN = re.compile(
+    rf"(?i:memory(?:\s+(?:size|capacity))?)"
+    rf"(?:\s*\(\s*(?P<bracket_unit>{MEMORY_UNITS})\s*\)|\s+(?P<unit>{MEMORY_UNITS}))?"
+)
+PROCESSOR_HEADER_PATTERN = re.compile(r"(?:physical\s+)?processor(?:\s+model)?", re.IGNORECASE)
+MEMORY_BYTES = {"GiB": 2**30, "MiB": 2**20, "TiB": 2**40, "GB": 10**9, "MB": 10**6, "TB": 10**12}
 
 
 def parse_ec2_document(
@@ -134,6 +145,8 @@ def _instance_records(
         if instance_index is None:
             continue
         for row_index, row in enumerate(table.rows):
+            if len(row) != len(table.headers):
+                continue
             instance_type = _cell(row, instance_index)
             if not instance_type or not INSTANCE_TYPE_PATTERN.match(instance_type):
                 continue
@@ -152,7 +165,9 @@ def _instance_records(
                         parser_version=PARSER_VERSION,
                     )
                 )
-            sku_fields = _sku_fields(row, header_map, instance_type, locator, excerpt)
+            sku_fields = _sku_fields(
+                row, header_map, instance_type, locator, excerpt, table.headers
+            )
             if sku_fields:
                 records.append(
                     ParsedRecord(
@@ -192,6 +207,7 @@ def _sku_fields(
     instance_type: str,
     locator: str,
     excerpt: str,
+    headers: list[str],
 ) -> list[FieldCandidate]:
     fields = [
         _candidate(
@@ -225,20 +241,23 @@ def _sku_fields(
     )
     memory = _ec2_memory_cell(row, header_map)
     if memory:
-        value, unit = normalize_memory_to_gib(memory)
+        value, raw_unit = _ec2_memory_gib(memory, _cell(headers, header_map.get("memory")))
+    else:
+        value, raw_unit = None, None
+    if value is not None:
         fields.append(
             _candidate(
                 field_code="compute.memory_gib",
                 raw_value=memory,
-                raw_unit="GiB",
+                raw_unit=raw_unit,
                 normalized_value=value,
-                canonical_unit=unit,
+                canonical_unit="GiB",
                 locator=locator,
                 excerpt=excerpt,
                 parser_rule="aws.ec2.sku.memory",
                 target_table="sku",
                 target_identity=instance_type,
-                confidence=0.9 if value is not None else 0.62,
+                confidence=0.9,
                 section_title="EC2 instance table",
             )
         )
@@ -685,16 +704,17 @@ def _sla_records(
 
 def _header_map(table: HtmlTable) -> dict[str, int]:
     mapping: dict[str, int] = {}
+    bound_columns: dict[str, list[int]] = {"memory": [], "processor": []}
     for index, header in enumerate(table.headers):
         normalized = _normalize_header(header)
         if "instancetype" in normalized:
             mapping["instance"] = index
         elif "vcpu" in normalized:
             mapping["vcpu"] = index
-        elif "memory" in normalized:
-            mapping["memory"] = index
-        elif "processor" in normalized:
-            mapping["processor"] = index
+        elif MEMORY_HEADER_PATTERN.fullmatch(header.strip()):
+            bound_columns["memory"].append(index)
+        elif PROCESSOR_HEADER_PATTERN.fullmatch(header.strip()):
+            bound_columns["processor"].append(index)
         elif (
             "baseline" in normalized
             and "burst" in normalized
@@ -711,6 +731,9 @@ def _header_map(table: HtmlTable) -> dict[str, int]:
             mapping["storage"] = index
         elif "accelerator" in normalized or "gpu" in normalized:
             mapping["accelerator"] = index
+    for key, indices in bound_columns.items():
+        if len(indices) == 1:
+            mapping[key] = indices[0]
     return mapping
 
 
@@ -730,7 +753,7 @@ def _normalize_header(value: str) -> str:
 
 
 def _cell(row: list[str], index: int | None) -> str | None:
-    if index is None or index >= len(row):
+    if index is None or index < 0 or index >= len(row):
         return None
     value = " ".join(row[index].split())
     return value or None
@@ -738,69 +761,85 @@ def _cell(row: list[str], index: int | None) -> str | None:
 
 def _ec2_memory_cell(row: list[str], header_map: dict[str, int]) -> str | None:
     memory = _cell(row, header_map.get("memory"))
-    if _looks_like_memory_value(memory):
-        return memory
-    if len(row) >= 3 and _looks_like_memory_value(row[1]) and _looks_like_processor_value(row[2]):
-        return _cell(row, 1)
-    return memory
+    return memory if _looks_like_memory_value(memory) else None
 
 
 def _ec2_processor_cell(row: list[str], header_map: dict[str, int]) -> str | None:
     processor = _cell(row, header_map.get("processor"))
-    if _looks_like_processor_value(processor):
-        return processor
-    if len(row) >= 3 and _looks_like_memory_value(row[1]) and _looks_like_processor_value(row[2]):
-        return _cell(row, 2)
-    return processor
+    return processor if _looks_like_processor_value(processor) else None
 
 
 def _looks_like_memory_value(value: str | None) -> bool:
-    if not value:
-        return False
-    lowered = value.lower()
-    if any(token in lowered for token in ("yes", "no", "supported", "true", "false", "✓", "✗")):
-        return False
-    return parse_decimal(value) is not None or bool(
-        re.search(r"\d+(?:\.\d+)?\s*(?:gib|gb|mib|mb|tib|tb)", value, re.IGNORECASE)
-    )
+    return _memory_token(value) is not None
+
+
+def _memory_token(value: str | None) -> tuple[Decimal, str | None] | None:
+    if not isinstance(value, str):
+        return None
+    match = MEMORY_VALUE_PATTERN.fullmatch(value.strip())
+    if match is None:
+        return None
+    number = Decimal(match.group("number").replace(",", ""))
+    return (number, match.group("unit")) if number.is_finite() and number > 0 else None
+
+
+def _ec2_memory_gib(value: str, header: str | None) -> tuple[Decimal | None, str | None]:
+    token = _memory_token(value)
+    match = MEMORY_HEADER_PATTERN.fullmatch(header.strip()) if header else None
+    if token is None or match is None:
+        return None, None
+    number, cell_unit = token
+    header_unit = match.group("bracket_unit") or match.group("unit")
+    if cell_unit and header_unit and cell_unit != header_unit:
+        return None, None
+    unit = cell_unit or header_unit
+    if unit is None:
+        return None, None
+    # Byte units are case-sensitive: decimal GB must not be treated as binary GiB.
+    return number * Decimal(MEMORY_BYTES[unit]) / Decimal(2**30), unit
 
 
 def _looks_like_processor_value(value: str | None) -> bool:
     if not value:
         return False
-    lowered = value.lower()
-    return any(
-        token in lowered
-        for token in (
-            "processor",
-            "intel",
-            "xeon",
-            "amd",
-            "epyc",
-            "graviton",
-            "neoverse",
-        )
-    )
+    vendors, architectures = _processor_signals(value)
+    return bool(vendors or architectures)
+
+
+def _processor_signals(value: str) -> tuple[set[str], set[str]]:
+    vendors: set[str] = set()
+    architectures: set[str] = set()
+    for pattern, vendor, architecture in (
+        (r"\b(?:intel|xeon)\b", "Intel", "x86_64"),
+        (r"\b(?:amd|epyc)\b", "AMD", "x86_64"),
+        (r"\bgraviton(?:[1-9][0-9]*[a-z]?)?\b", "AWS Graviton", "arm64"),
+    ):
+        if re.search(pattern, value, re.IGNORECASE):
+            vendors.add(vendor)
+            architectures.add(architecture)
+    if re.search(r"\b(?:arm|arm64|aarch64|neoverse|armv[89])\b", value, re.IGNORECASE):
+        architectures.add("arm64")
+    if re.search(r"\b(?:x86[_-]64|amd64|x64)\b", value, re.IGNORECASE):
+        architectures.add("x86_64")
+    if re.search(r"\b(?:arm32|armv[4-7]|i[3-6]86|x86[_-]32|32[ -]bit)\b", value, re.IGNORECASE):
+        architectures.add("unsupported_32bit")
+    return vendors, architectures
 
 
 def _processor_vendor(value: str) -> str | None:
-    lowered = value.lower()
-    if "graviton" in lowered:
-        return "AWS Graviton"
-    if "intel" in lowered or "xeon" in lowered:
-        return "Intel"
-    if "amd" in lowered or "epyc" in lowered:
-        return "AMD"
-    return None
+    vendors, architectures = _processor_signals(value)
+    return (
+        next(iter(vendors))
+        if len(vendors) == len(architectures) == 1 and "unsupported_32bit" not in architectures
+        else None
+    )
 
 
 def _architecture_from_processor(value: str) -> str | None:
-    lowered = value.lower()
-    if "graviton" in lowered or "arm" in lowered:
-        return "arm64"
-    if any(token in lowered for token in ("intel", "xeon", "amd", "epyc")):
-        return "x86_64"
-    return None
+    vendors, architectures = _processor_signals(value)
+    if len(vendors) > 1 or len(architectures) != 1 or "unsupported_32bit" in architectures:
+        return None
+    return next(iter(architectures))
 
 
 def _parse_network_bandwidth(raw_value: str) -> tuple[Decimal | None, Decimal | None]:

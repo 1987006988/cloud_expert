@@ -1,0 +1,37 @@
+source_id: aliyun_basic_support_policy
+provider_code: aliyun
+market_mode: domestic
+cloud_partition: aliyun_public_cn
+product_code: ecs
+source_type: documentation
+title: Aliyun support plan pricing policy
+url: https://help.aliyun.com/en/document_detail/73692.html
+language: en-US
+authority_level: official_primary
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type: [text/html]
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains: [help.aliyun.com]
+  allow_subdomains: false
+  allow_redirects: false
+schedule:
+  update_frequency: monthly
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-29T16:04:13Z
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
+compliance_notes: >
+  Public official support documentation, query-free URL, following the existing
+  official support-document collection policy. No login, account data or secrets.
+  No permission is granted to scrape disabled dynamic price websites.
+notes: >
+  Only an explicitly evidenced basic plan may be treated as free; verify applicability and current page terms.
+  The original unqualified URL redirected to this official English China-site
+  page. Its support-plan table is denominated in CNY. The failed redirect run
+  remains in ingestion history; no redirect allowlist was broadened.

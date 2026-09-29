@@ -1,0 +1,3 @@
+# Preserve sealed audit receipts byte-for-byte across platforms.
+/reports/verification/closure_frozen_20260930_04/** -text
+/reports/remediation/closure_20260930/** -text

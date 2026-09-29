@@ -1,0 +1,12 @@
+{
+  "price_snapshots": 18,
+  "linked_to_evidence": 18,
+  "linked_to_pricing_source": 18,
+  "missing_snapshot_record": 0,
+  "invalid_bounded_prices": [],
+  "invalid_catalog_prices": [],
+  "invalid_aws_catalog_prices": [],
+  "price_evidence_completeness": 1.0,
+  "errors": [],
+  "valid": true
+}

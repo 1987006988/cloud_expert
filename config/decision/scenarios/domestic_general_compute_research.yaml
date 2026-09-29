@@ -1,0 +1,52 @@
+schema_version: "1.0"
+code: domestic_general_compute_research_v1
+version: "v1"
+name: "China Domestic Compute Internal Scope Check"
+description: "Internal market-routing and evidence-gap scenario; not a customer quote."
+scenario_type: compute_general
+market_mode: domestic
+industry: standard
+country_code: CN
+preferred_regions: []
+workload_profile:
+  category: compute
+  architecture: x86
+  vcpu: 4
+  memory_gb: 16
+  monthly_hours: 730
+  cost_required: true
+technical_requirements:
+  cpu_architecture: x86
+availability_requirements:
+  service_status: ga
+compliance_requirements:
+  customer_output_required: false
+data_residency_requirements:
+  country_code: CN
+operational_requirements:
+  public_evidence_only: true
+migration_requirements:
+  replacement_candidate: true
+budget_preferences:
+  currency: CNY
+scoring_policy_code: general_compute
+scoring_policy_version: "v1"
+effective_from: "2026-09-29T00:00:00+00:00"
+status: active
+requirements:
+  - code: cpu_architecture_x86
+    requirement_type: technical
+    operator: equals
+    required_value: {architecture: x86}
+    priority: mandatory
+    is_mandatory: true
+    missing_data_policy: requires_review
+    evidence_requirement: {official_evidence_required: true}
+  - code: complete_tco
+    requirement_type: cost
+    operator: equals
+    required_value: {completeness_status: complete}
+    priority: critical
+    is_mandatory: true
+    missing_data_policy: requires_review
+    evidence_requirement: {price_snapshot_required: true}

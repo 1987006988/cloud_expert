@@ -1,0 +1,36 @@
+source_id: aliyun_ecs_fixed_ipv4_billing_policy
+provider_code: aliyun
+market_mode: domestic
+cloud_partition: aliyun_public_cn
+product_code: ecs
+source_type: documentation
+title: Alibaba Cloud ECS fixed public IPv4 bandwidth billing scope
+url: https://help.aliyun.com/zh/ecs/public-bandwidth
+language: zh-CN
+authority_level: official_primary
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type: [text/html]
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains: [help.aliyun.com]
+  allow_subdomains: false
+  allow_redirects: false
+schedule:
+  update_frequency: monthly
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-29T17:28:29Z
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
+compliance_notes: >
+  Public official help documentation under the existing query-free official
+  support-document collection policy. No account data, login or dynamic pricing
+  endpoint. This does not authorize scraping disabled price websites.
+notes: >
+  Fixed instance-assigned public IPv4 only. EIP, IPv6 and NAT have separate
+  billing. Example tariff amounts are not current prices. CDT upgrades and
+  account-specific discounts are outside the bounded catalog scenario.

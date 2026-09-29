@@ -1,0 +1,21 @@
+{
+  "seed": {
+    "fields_created": 0,
+    "fields_updated": 38,
+    "rules_created": 0,
+    "rules_updated": 44
+  },
+  "normalization": {
+    "run_key": "closure_aws_ec2_column_safety_20260930_v2",
+    "records_examined": 8988,
+    "records_created": 3623,
+    "records_updated": 4280,
+    "records_skipped": 1085,
+    "review_items_created": 678,
+    "skipped_reasons": {
+      "rejected_by_human_review": 678,
+      "standardized_value_not_usable": 407
+    }
+  },
+  "comparability": null
+}

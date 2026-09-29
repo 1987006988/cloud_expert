@@ -1,0 +1,18 @@
+# C02: deterministic classification of trusted backend attestations, not a Gate bypass.
+# Removing per-record human review grants neither external sending nor production access.
+policy_version: c02.output_eligibility.v1
+review_authority: model_not_human
+required_model_id: gpt-6-astra
+required_dependencies:
+  - controlled_input
+  - precheck
+  - evidence_chain
+  - market
+  - mapping
+  - price
+  - tco
+  - decision
+internal_rc_alias_scope: internal_only
+customer_content_approval: controlled_independent_model_record
+owner_external_send_authorization: not_granted
+production_authorization: not_granted

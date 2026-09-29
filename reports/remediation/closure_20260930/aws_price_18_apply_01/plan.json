@@ -1,0 +1,189 @@
+{
+  "rule_version": "aws_price_policy_replacement_v1",
+  "old_price_id": 18,
+  "old_row_sha256": "6a3f7d90d2098331ffbc2e0bd42de411ecaeb0c9b4f3b81a065330e1c5c40333",
+  "document_plan": {
+    "rule_version": "aws_document_catalog_derivation_v2",
+    "config": {
+      "snapshot_id": 96,
+      "selections": [
+        {
+          "sku": "2UVH39HPDNC399X4",
+          "product_family": "Compute Instance",
+          "attributes": {
+            "servicecode": "AmazonEC2",
+            "regionCode": "us-east-1",
+            "locationType": "AWS Region",
+            "instanceType": "m6i.xlarge",
+            "operatingSystem": "Linux",
+            "tenancy": "Shared",
+            "preInstalledSw": "NA",
+            "capacitystatus": "Used",
+            "marketoption": "OnDemand",
+            "licenseModel": "No License required",
+            "usagetype": "BoxUsage:m6i.xlarge",
+            "operation": "RunInstances"
+          },
+          "unit": "Hrs",
+          "currency": "USD"
+        }
+      ],
+      "policy_references": [
+        {
+          "kind": "compute_running_lifecycle",
+          "evidence_id": 29344,
+          "content_hash": "d370af609dbb33bb68c0572080a9df0e6c4145a540482ba4adbd26bb7d902c92"
+        },
+        {
+          "kind": "general_compute_units",
+          "evidence_id": 29339,
+          "content_hash": "75e8a87d477f8f9dcbaae65091aafcffeae6ed09725dc5256e23a1f73aa967b1"
+        },
+        {
+          "kind": "general_tax_exclusion",
+          "evidence_id": 29338,
+          "content_hash": "c836c55563743485041472e0b8a292b7636954351910c79d10cb5fddc0751a03"
+        }
+      ],
+      "max_age_days": 7
+    },
+    "catalog": {
+      "snapshot_record_id": 96,
+      "source_document_id": 96,
+      "source_id": "aws_ec2_pricing_bulk_us_east_1",
+      "source_url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/us-east-1/index.json",
+      "raw_sha256": "a822b8b9ae885a3e6027860ea08d26c0a3c83db47fcede71db96b7b2b265a502",
+      "storage_path": "international\\aws\\ec2\\aws_ec2_pricing_bulk_us_east_1\\2026\\09\\20260929T174805Z_a822b8b9\\raw.bin",
+      "captured_at": "2026-09-29T17:48:05.637523+00:00",
+      "manifest_sha256": "ff3bbb20936c9c4c2dc29a11bcdfb3eaf2da968bae44107e2f6687f35b825876",
+      "registry_sha256": "392bc99909b90c4498289ad92eddb76d163cb842e05724ce9e5d076dd8ef6af3"
+    },
+    "context": {
+      "provider_id": 2,
+      "product_id": 3,
+      "region_id": 2,
+      "product_code": "ec2",
+      "region_code": "us-east-1",
+      "market_mode": "international",
+      "cloud_partition": "aws",
+      "country_code": "US",
+      "currency": "USD"
+    },
+    "policy_evidence_references": [
+      {
+        "kind": "compute_running_lifecycle",
+        "evidence_id": 29344,
+        "content_hash": "d370af609dbb33bb68c0572080a9df0e6c4145a540482ba4adbd26bb7d902c92",
+        "reference_type": "aws_document_policy_evidence",
+        "scope": "ec2_instance_usage_lifecycle_only",
+        "source_id": "aws_ec2_instance_lifecycle_billing",
+        "source_document_id": 108,
+        "snapshot_record_id": 108,
+        "raw_sha256": "dd5415c0ca8f9288c1e75eada606117d8c93e9d941b0fbd2e3ac30ae3af7b920",
+        "source_url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html",
+        "manifest_sha256": "07be777a50cbd3b9d86f6022af42aae1357f5f5625bdad5aa039771974399a4f",
+        "registry_sha256": "2675ff80f33e233857960173253045debf918f55108fc15576f47a34349ea9b5",
+        "locator": "css:#main-col-body > p:nth-of-type(6)",
+        "parser_rule": "aws_document_policy_v1"
+      },
+      {
+        "kind": "general_compute_units",
+        "evidence_id": 29339,
+        "content_hash": "75e8a87d477f8f9dcbaae65091aafcffeae6ed09725dc5256e23a1f73aa967b1",
+        "reference_type": "aws_document_policy_evidence",
+        "scope": "general_aws_pricing_principles_only",
+        "source_id": "aws_pricing_principles",
+        "source_document_id": 105,
+        "snapshot_record_id": 105,
+        "raw_sha256": "9fd7402b47a87a7f055f2775c6e69d80cf38d47a383a929f97f62751bed800a7",
+        "source_url": "https://docs.aws.amazon.com/whitepapers/latest/how-aws-pricing-works/key-principles.html",
+        "manifest_sha256": "efa904bb55b5d502b58e5851770ee4788377534420ae071fe73135db093884c3",
+        "registry_sha256": "08aec72ffe38134fe165db69a6c4682e1ab4fb9cace830a56fe7287def9c0c5f",
+        "locator": "css:#main-col-body > p:nth-of-type(3)",
+        "parser_rule": "aws_document_policy_v1"
+      },
+      {
+        "kind": "general_tax_exclusion",
+        "evidence_id": 29338,
+        "content_hash": "c836c55563743485041472e0b8a292b7636954351910c79d10cb5fddc0751a03",
+        "reference_type": "aws_document_policy_evidence",
+        "scope": "general_aws_pricing_principles_only",
+        "source_id": "aws_pricing_principles",
+        "source_document_id": 105,
+        "snapshot_record_id": 105,
+        "raw_sha256": "9fd7402b47a87a7f055f2775c6e69d80cf38d47a383a929f97f62751bed800a7",
+        "source_url": "https://docs.aws.amazon.com/whitepapers/latest/how-aws-pricing-works/key-principles.html",
+        "manifest_sha256": "efa904bb55b5d502b58e5851770ee4788377534420ae071fe73135db093884c3",
+        "registry_sha256": "08aec72ffe38134fe165db69a6c4682e1ab4fb9cace830a56fe7287def9c0c5f",
+        "locator": "css:#main-col-body > p:nth-of-type(4)",
+        "parser_rule": "aws_document_policy_v1"
+      }
+    ],
+    "tier_groups": [
+      {
+        "catalog_sku": "2UVH39HPDNC399X4",
+        "rate_codes": [
+          "2UVH39HPDNC399X4.JRTCKXETXF.6YS6EN2CT7"
+        ],
+        "complete_ondemand_records_sha256": "509cfbe1443c01a3d985d1694beaa260cd77c6eb42273a77181f4e7c7c48589c",
+        "requires_all_tiers": true,
+        "group_sha256": "ddef1fa2160db89d6614555bb5a429b4c5effa7e1030f5fe943f89a3bcbbedc6"
+      }
+    ],
+    "rows": [
+      {
+        "catalog_sku": "2UVH39HPDNC399X4",
+        "rate_code": "2UVH39HPDNC399X4.JRTCKXETXF.6YS6EN2CT7",
+        "sku": {
+          "provider_id": 2,
+          "product_id": 3,
+          "region_id": 2,
+          "sku_id": null,
+          "provider_price_code": "aws:us-east-1:2UVH39HPDNC399X4",
+          "charge_category": "compute",
+          "billing_mode": "on_demand",
+          "billing_unit": "instance-hour",
+          "currency": "USD",
+          "tax_included": false
+        },
+        "price": {
+          "unit_price": "0.1920000000",
+          "minimum_quantity": "0",
+          "maximum_quantity": null,
+          "billing_period": "hourly",
+          "discount_type": "list",
+          "captured_at": "2026-09-29T17:48:05.637523+00:00",
+          "effective_from": "2026-09-01T00:00:00+00:00",
+          "effective_to": null,
+          "source_payload_path": "international\\aws\\ec2\\aws_ec2_pricing_bulk_us_east_1\\2026\\09\\20260929T174805Z_a822b8b9\\raw.bin"
+        },
+        "evidence": {
+          "snapshot_record_id": 96,
+          "source_document_id": 96,
+          "source_id": "aws_ec2_pricing_bulk_us_east_1",
+          "source_url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/us-east-1/index.json",
+          "raw_sha256": "a822b8b9ae885a3e6027860ea08d26c0a3c83db47fcede71db96b7b2b265a502",
+          "storage_path": "international\\aws\\ec2\\aws_ec2_pricing_bulk_us_east_1\\2026\\09\\20260929T174805Z_a822b8b9\\raw.bin",
+          "captured_at": "2026-09-29T17:48:05.637523+00:00",
+          "manifest_sha256": "ff3bbb20936c9c4c2dc29a11bcdfb3eaf2da968bae44107e2f6687f35b825876",
+          "registry_sha256": "392bc99909b90c4498289ad92eddb76d163cb842e05724ce9e5d076dd8ef6af3",
+          "locator": "/terms/OnDemand/2UVH39HPDNC399X4/2UVH39HPDNC399X4.JRTCKXETXF/priceDimensions/2UVH39HPDNC399X4.JRTCKXETXF.6YS6EN2CT7",
+          "parser_rule": "aws_document_catalog_derivation_v2",
+          "evidence_type": "json_path",
+          "excerpt": "{\"captured_at\":\"2026-09-29T17:48:05.637523+00:00\",\"catalog_disclaimer\":\"This pricing list is for informational purposes only. All prices are subject to the additional terms included in the pricing pages on http://aws.amazon.com. All Free Tier prices are also subject to the terms included at https://aws.amazon.com/free/\",\"catalog_record\":{\"begin_range\":\"0\",\"currency\":\"USD\",\"description\":\"$0.192 per On Demand Linux m6i.xlarge Instance Hour\",\"effective_from\":\"2026-09-01T00:00:00Z\",\"effective_to\":null,\"end_range\":\"Inf\",\"price_locator\":\"/terms/OnDemand/2UVH39HPDNC399X4/2UVH39HPDNC399X4.JRTCKXETXF/priceDimensions/2UVH39HPDNC399X4.JRTCKXETXF.6YS6EN2CT7\",\"product_attributes\":{\"availabilityzone\":\"NA\",\"capacitystatus\":\"Used\",\"classicnetworkingsupport\":\"false\",\"clockSpeed\":\"3.5 GHz\",\"currentGeneration\":\"Yes\",\"dedicatedEbsThroughput\":\"Up to 10000 Mbps\",\"dedicatedEbsThroughputDescription\":\"1250 Mbps\",\"ecu\":\"NA\",\"enhancedNetworkingSupported\":\"Yes\",\"gpuMemory\":\"NA\",\"instanceFamily\":\"General purpose\",\"instanceFamilyCategory\":\"General Purpose\",\"instanceType\":\"m6i.xlarge\",\"intelAvx2Available\":\"Yes\",\"intelAvxAvailable\":\"Yes\",\"intelTurboAvailable\":\"Yes\",\"licenseModel\":\"No License required\",\"location\":\"US East (N. Virginia)\",\"locationType\":\"AWS Region\",\"marketoption\":\"OnDemand\",\"memory\":\"16 GiB\",\"networkPerformance\":\"Up to 12500 Megabit\",\"normalizationSizeFactor\":\"8\",\"operatingSystem\":\"Linux\",\"operation\":\"RunInstances\",\"physicalProcessor\":\"Intel Xeon 8375C (Ice Lake)\",\"preInstalledSw\":\"NA\",\"processorArchitecture\":\"64-bit\",\"processorFeatures\":\"Intel AVX; Intel AVX2; Intel AVX512; Intel Turbo\",\"regionCode\":\"us-east-1\",\"servicecode\":\"AmazonEC2\",\"servicename\":\"Amazon Elastic Compute Cloud\",\"storage\":\"EBS only\",\"tenancy\":\"Shared\",\"usagetype\":\"BoxUsage:m6i.xlarge\",\"vcpu\":\"4\",\"vpcnetworkingsupport\":\"true\"},\"product_family\":\"Compute Instance\",\"product_locator\":\"/products/2UVH39HPDNC399X4\",\"rate_code\":\"2UVH39HPDNC399X4.JRTCKXETXF.6YS6EN2CT7\",\"sku\":\"2UVH39HPDNC399X4\",\"unit\":\"Hrs\",\"unit_price\":\"0.1920000000\"},\"catalog_version\":\"20260925174521\",\"cloud_partition\":\"aws\",\"complete_tco\":false,\"country_code\":\"US\",\"currency\":\"USD\",\"customer_eligible\":false,\"customer_payable_tax\":\"unknown\",\"derivation_config\":{\"max_age_days\":7,\"policy_references\":[{\"content_hash\":\"d370af609dbb33bb68c0572080a9df0e6c4145a540482ba4adbd26bb7d902c92\",\"evidence_id\":29344,\"kind\":\"compute_running_lifecycle\"},{\"content_hash\":\"75e8a87d477f8f9dcbaae65091aafcffeae6ed09725dc5256e23a1f73aa967b1\",\"evidence_id\":29339,\"kind\":\"general_compute_units\"},{\"content_hash\":\"c836c55563743485041472e0b8a292b7636954351910c79d10cb5fddc0751a03\",\"evidence_id\":29338,\"kind\":\"general_tax_exclusion\"}],\"selections\":[{\"attributes\":{\"capacitystatus\":\"Used\",\"instanceType\":\"m6i.xlarge\",\"licenseModel\":\"No License required\",\"locationType\":\"AWS Region\",\"marketoption\":\"OnDemand\",\"operatingSystem\":\"Linux\",\"operation\":\"RunInstances\",\"preInstalledSw\":\"NA\",\"regionCode\":\"us-east-1\",\"servicecode\":\"AmazonEC2\",\"tenancy\":\"Shared\",\"usagetype\":\"BoxUsage:m6i.xlarge\"},\"currency\":\"USD\",\"product_family\":\"Compute Instance\",\"sku\":\"2UVH39HPDNC399X4\",\"unit\":\"Hrs\"}],\"snapshot_id\":96},\"expected_price_fields\":{\"billing_period\":\"hourly\",\"captured_at\":\"2026-09-29T17:48:05.637523+00:00\",\"discount_type\":\"list\",\"effective_from\":\"2026-09-01T00:00:00+00:00\",\"effective_to\":null,\"maximum_quantity\":null,\"minimum_quantity\":\"0\",\"source_payload_path\":\"international\\\\aws\\\\ec2\\\\aws_ec2_pricing_bulk_us_east_1\\\\2026\\\\09\\\\20260929T174805Z_a822b8b9\\\\raw.bin\",\"unit_price\":\"0.1920000000\"},\"expected_sku_fields\":{\"billing_mode\":\"on_demand\",\"billing_unit\":\"instance-hour\",\"charge_category\":\"compute\",\"currency\":\"USD\",\"product_id\":3,\"provider_id\":2,\"provider_price_code\":\"aws:us-east-1:2UVH39HPDNC399X4\",\"region_id\":2,\"sku_id\":null,\"tax_included\":false},\"field_proofs\":{\"price.billing_period\":{\"basis\":\"catalog_unit_derivation_not_reporting_granularity\"},\"price.captured_at\":{\"basis\":\"original_catalog_snapshot.captured_at\"},\"price.discount_type\":{\"basis\":\"public_ondemand_catalog_not_customer_discount\"},\"price.effective_from\":{\"basis\":\"catalog_offer\",\"pointer\":\"/terms/OnDemand/2UVH39HPDNC399X4/2UVH39HPDNC399X4.JRTCKXETXF/effectiveDate\"},\"price.effective_to\":{\"basis\":\"no_end_date_in_selected_ondemand_offer\",\"value\":null},\"price.evidence_id\":{\"basis\":\"coordinator_links_exact_derived_catalog_evidence\"},\"price.maximum_quantity\":{\"Inf_maps_to\":null,\"basis\":\"catalog_dimension\",\"pointer\":\"/terms/OnDemand/2UVH39HPDNC399X4/2UVH39HPDNC399X4.JRTCKXETXF/priceDimensions/2UVH39HPDNC399X4.JRTCKXETXF.6YS6EN2CT7/endRange\"},\"price.minimum_quantity\":{\"basis\":\"catalog_dimension\",\"pointer\":\"/terms/OnDemand/2UVH39HPDNC399X4/2UVH39HPDNC399X4.JRTCKXETXF/priceDimensions/2UVH39HPDNC399X4.JRTCKXETXF.6YS6EN2CT7/beginRange\"},\"price.price_sku_id\":{\"basis\":\"coordinator_links_exact_verified_sku_fields\"},\"price.source_payload_path\":{\"basis\":\"original_catalog_snapshot.storage_path\"},\"price.unit_price\":{\"basis\":\"catalog_dimension\",\"pointer\":\"/terms/OnDemand/2UVH39HPDNC399X4/2UVH39HPDNC399X4.JRTCKXETXF/priceDimensions/2UVH39HPDNC399X4.JRTCKXETXF.6YS6EN2CT7/pricePerUnit/USD\"},\"required_document_kinds\":[\"compute_running_lifecycle\",\"general_compute_units\",\"general_tax_exclusion\"],\"sku.billing_mode\":{\"basis\":\"catalog_OnDemand_offer\"},\"sku.billing_unit\":{\"basis\":\"catalog_unit_derivation_and_scoped_document_refs\"},\"sku.charge_category\":{\"basis\":\"exact_catalog_product_family\"},\"sku.currency\":{\"basis\":\"sole_catalog_pricePerUnit_currency_USD\"},\"sku.product_id\":{\"basis\":\"unique_verified_aws_us_east_1_database_context\"},\"sku.provider_id\":{\"basis\":\"unique_verified_aws_us_east_1_database_context\"},\"sku.provider_price_code\":{\"basis\":\"aws:us-east-1:<exact_catalog_sku>\"},\"sku.region_id\":{\"basis\":\"unique_verified_aws_us_east_1_database_context\"},\"sku.sku_id\":{\"basis\":\"unmapped_normalized_sku_no_guess\",\"value\":null},\"sku.tax_included\":{\"basis\":\"conditional_general_exclusive_catalog_basis_only\",\"document_kind\":\"general_tax_exclusion\",\"not_customer_tax\":true}},\"hours_per_month\":null,\"lifecycle_activation_granted\":false,\"limitations\":[\"general_tax_basis_not_customer_tax_or_exemption\",\"document_claims_keep_original_scope_and_license\",\"no_storage_or_transfer_derivation\",\"no_account_tier_aggregation_inference\",\"no_scenario_cost_or_lifecycle_activation\"],\"manifest_sha256\":\"ff3bbb20936c9c4c2dc29a11bcdfb3eaf2da968bae44107e2f6687f35b825876\",\"market_mode\":\"international\",\"policy_evidence_references\":[{\"content_hash\":\"d370af609dbb33bb68c0572080a9df0e6c4145a540482ba4adbd26bb7d902c92\",\"evidence_id\":29344,\"kind\":\"compute_running_lifecycle\",\"locator\":\"css:#main-col-body > p:nth-of-type(6)\",\"manifest_sha256\":\"07be777a50cbd3b9d86f6022af42aae1357f5f5625bdad5aa039771974399a4f\",\"parser_rule\":\"aws_document_policy_v1\",\"raw_sha256\":\"dd5415c0ca8f9288c1e75eada606117d8c93e9d941b0fbd2e3ac30ae3af7b920\",\"reference_type\":\"aws_document_policy_evidence\",\"registry_sha256\":\"2675ff80f33e233857960173253045debf918f55108fc15576f47a34349ea9b5\",\"scope\":\"ec2_instance_usage_lifecycle_only\",\"snapshot_record_id\":108,\"source_document_id\":108,\"source_id\":\"aws_ec2_instance_lifecycle_billing\",\"source_url\":\"https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html\"},{\"content_hash\":\"75e8a87d477f8f9dcbaae65091aafcffeae6ed09725dc5256e23a1f73aa967b1\",\"evidence_id\":29339,\"kind\":\"general_compute_units\",\"locator\":\"css:#main-col-body > p:nth-of-type(3)\",\"manifest_sha256\":\"efa904bb55b5d502b58e5851770ee4788377534420ae071fe73135db093884c3\",\"parser_rule\":\"aws_document_policy_v1\",\"raw_sha256\":\"9fd7402b47a87a7f055f2775c6e69d80cf38d47a383a929f97f62751bed800a7\",\"reference_type\":\"aws_document_policy_evidence\",\"registry_sha256\":\"08aec72ffe38134fe165db69a6c4682e1ab4fb9cace830a56fe7287def9c0c5f\",\"scope\":\"general_aws_pricing_principles_only\",\"snapshot_record_id\":105,\"source_document_id\":105,\"source_id\":\"aws_pricing_principles\",\"source_url\":\"https://docs.aws.amazon.com/whitepapers/latest/how-aws-pricing-works/key-principles.html\"},{\"content_hash\":\"c836c55563743485041472e0b8a292b7636954351910c79d10cb5fddc0751a03\",\"evidence_id\":29338,\"kind\":\"general_tax_exclusion\",\"locator\":\"css:#main-col-body > p:nth-of-type(4)\",\"manifest_sha256\":\"efa904bb55b5d502b58e5851770ee4788377534420ae071fe73135db093884c3\",\"parser_rule\":\"aws_document_policy_v1\",\"raw_sha256\":\"9fd7402b47a87a7f055f2775c6e69d80cf38d47a383a929f97f62751bed800a7\",\"reference_type\":\"aws_document_policy_evidence\",\"registry_sha256\":\"08aec72ffe38134fe165db69a6c4682e1ab4fb9cace830a56fe7287def9c0c5f\",\"scope\":\"general_aws_pricing_principles_only\",\"snapshot_record_id\":105,\"source_document_id\":105,\"source_id\":\"aws_pricing_principles\",\"source_url\":\"https://docs.aws.amazon.com/whitepapers/latest/how-aws-pricing-works/key-principles.html\"}],\"price_approval\":false,\"price_basis\":\"public_catalog\",\"product_code\":\"ec2\",\"product_id\":3,\"provider_id\":2,\"publication_date\":\"2026-09-25T17:45:21Z\",\"raw_sha256\":\"a822b8b9ae885a3e6027860ea08d26c0a3c83db47fcede71db96b7b2b265a502\",\"realtime\":false,\"region_code\":\"us-east-1\",\"region_id\":2,\"registry_sha256\":\"392bc99909b90c4498289ad92eddb76d163cb842e05724ce9e5d076dd8ef6af3\",\"rule_version\":\"aws_document_catalog_derivation_v2\",\"scope\":\"internal_reference_only\",\"sku_tax_exception_status\":\"not_determined\",\"snapshot_record_id\":96,\"source_authorization\":{\"automated_fetch_allowed\":true,\"basis\":\"registered_terms_approved_documented_bulk_api_route\",\"catalog_url_version\":\"current\",\"documentation_url\":\"https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/using-the-aws-price-list-bulk-api-fetching-price-list-files-manually.html\",\"recorded_robots_allowed\":null,\"recorded_robots_checked_at\":null,\"reviewed_at\":\"2026-09-29T17:34:39+00:00\",\"robots_check_performed_by_inspector\":false,\"robots_policy\":\"not_applicable_api_route\",\"service_code\":\"AmazonEC2\",\"terms_review_status\":\"approved\"},\"source_document_id\":96,\"source_id\":\"aws_ec2_pricing_bulk_us_east_1\",\"source_url\":\"https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/us-east-1/index.json\",\"storage_path\":\"international\\\\aws\\\\ec2\\\\aws_ec2_pricing_bulk_us_east_1\\\\2026\\\\09\\\\20260929T174805Z_a822b8b9\\\\raw.bin\",\"tax_condition\":\"except_as_otherwise_noted\",\"tax_included\":false,\"tax_rate\":null,\"tax_status\":\"general_conditional_exclusive\",\"tier_group\":{\"catalog_sku\":\"2UVH39HPDNC399X4\",\"complete_ondemand_records_sha256\":\"509cfbe1443c01a3d985d1694beaa260cd77c6eb42273a77181f4e7c7c48589c\",\"group_sha256\":\"ddef1fa2160db89d6614555bb5a429b4c5effa7e1030f5fe943f89a3bcbbedc6\",\"rate_codes\":[\"2UVH39HPDNC399X4.JRTCKXETXF.6YS6EN2CT7\"],\"requires_all_tiers\":true},\"unit_derivation\":{\"basis\":\"catalog_unit_and_exact_description_amount_identity\",\"catalog_description\":\"$0.192 per On Demand Linux m6i.xlarge Instance Hour\",\"catalog_price_denominator\":1,\"catalog_price_locator\":\"/terms/OnDemand/2UVH39HPDNC399X4/2UVH39HPDNC399X4.JRTCKXETXF/priceDimensions/2UVH39HPDNC399X4.JRTCKXETXF.6YS6EN2CT7\",\"catalog_unit\":\"Hrs\",\"description_amount_usd\":\"0.192\",\"description_quantity\":1,\"identity\":\"pricePerUnit.USD * description_quantity == description_amount_usd\",\"product_attributes_locator\":\"/products/2UVH39HPDNC399X4/attributes\",\"unit_price_rescaled\":false}}",
+          "content_hash": "95c842377f0520effdf7ad37c2af5e1ffa47a77ff8cd2126d2026fe056375855"
+        }
+      }
+    ],
+    "scope": "internal_reference_only",
+    "review_required": true,
+    "customer_eligible": false,
+    "price_approval": false,
+    "complete_tco": false,
+    "lifecycle_activation_granted": false,
+    "database_write_performed": false,
+    "plan_sha256": "026dc5052b772cf3317f6c94b7f6850f8139927aaace2ade163612f9e2a78c3a"
+  },
+  "expected_lifecycle_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "plan_sha256": "64728c6615750bdeb53d90889a8e660b636c96d4173fd801502149e449fa4489"
+}

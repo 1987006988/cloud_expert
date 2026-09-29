@@ -1,0 +1,56 @@
+source_id: aws_basic_support_policy
+provider_code: aws
+market_mode: international
+cloud_partition: aws
+product_code: support
+source_type: documentation
+title: AWS Basic Support scope and no-additional-charge policy
+description: Read-only source discovery candidate; not enabled for ingestion.
+url: https://aws.amazon.com/premiumsupport/faqs/
+language: en-US
+authority_level: official_primary
+enabled: false
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: false
+expected_content_type: [text/html]
+expected_file_extension: .html
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains: [aws.amazon.com]
+  allow_subdomains: false
+  allow_redirects: true
+  allowed_redirect_domains: [aws.amazon.com]
+fetch_policy:
+  timeout_seconds: 45
+  connect_timeout_seconds: 10
+  read_timeout_seconds: 30
+  max_retries: 1
+  min_interval_seconds: 5
+  max_content_length_bytes: 8388608
+  user_agent_profile: cloud_expert_bot
+storage_policy:
+  keep_all_versions: true
+  store_response_headers: true
+  store_request_headers: false
+  retention_policy: keep_all
+schedule:
+  update_frequency: manual
+  priority: 50
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-29T18:51:29Z
+robots_checked_at: null
+robots_allowed: null
+terms_review_status: disallowed
+automated_fetch_allowed: false
+manual_only: false
+compliance_notes: >
+  Collection is retired: AWS Site Terms do not establish automated extraction
+  permission for this project merely from public visibility or robots rules.
+  Do not fetch. Seek a separately licensed technical-documentation counterpart.
+  No immutable snapshot or downstream fact is claimed for this candidate.
+  See reports/remediation/closure_20260930/aws_collection_policy_recheck.md.
+notes: >
+  Only the Basic plan is in scope. Exclude paid plans, technical support cases and response-time guarantees. A free policy requires scenario conditions and registered Evidence before consumption.
+  See reports/remediation/closure_20260930/aws_remaining_cost_sources.md.

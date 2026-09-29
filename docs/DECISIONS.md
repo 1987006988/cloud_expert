@@ -329,3 +329,79 @@ separate gate.
 
 Human review records are stored separately from machine-generated results. New
 rules or reruns must preserve historical results and review history.
+
+## 52. Model Review Replaces New Manual Queue Work, Not History
+
+The owner removed the requirement for new row-by-row human review. Existing
+human records remain immutable history; Week14 adds a separate model-review
+assignment and audit overlay. A model decision must never be labeled
+`human_reviewed`, `human_approved`, or `customer_approved`.
+
+## 53. Highest Verified Reasoning Model, No Silent Fallback
+
+The capability registry selects the highest approved and runtime-verified
+model. A weaker model cannot be substituted without an explicit policy change.
+The model alias, CLI version, prompt version, input hash, and unresolved
+snapshot-version limitation are recorded.
+
+## 54. Generation, Primary Review, Challenge, and Arbitration Are Isolated
+
+The generating pipeline does not approve its own output. Review stages use
+independent contexts and structured inputs only; adversarial review searches
+for semantic, scope, market, price, and evidence faults. A disagreement needs
+independent adjudication; unresolved or invalid output remains inconclusive.
+
+## 55. Deterministic Checks Precede Model Judgment
+
+Hash, link, schema, market, arithmetic, and status-transition checks are
+repeatable and cheaper than model judgment. Failing such a check blocks model
+approval, including when a model's language sounds confident.
+
+## 56. Root Cause Repairs Precede Re-review
+
+Repeated extraction errors must be clustered by parser root cause. Repairs
+change parser/normalizer code and rebuild derived records from immutable raw
+snapshots; direct database fact edits would break provenance. Every repair
+requires tests, impact counts, and preserved historical outputs.
+
+## 57. Model Availability Is Not Data-Transfer Authorization
+
+A read-only model probe established availability without sending business
+data. The environment safety reviewer rejected transfer of local review
+subjects and Evidence excerpts. Live review remains disabled until that
+specific transfer is authorized; an available model is not an approved run.
+
+## 58. Evals Must Block Release When Critical Coverage Is Missing
+
+Synthetic deterministic cases establish a reproducible baseline, not a full
+system score. Missing categories, unmeasured metrics, sub-85% code coverage,
+unsupported customer claims, or failed critical invariants keep Week14 and
+customer output NO-GO. Customer commitments cannot be inferred from a model
+verdict or a passing subset of tests.
+
+## 59. Dataset Authorization Is Narrow
+
+The owner authorized only official-source excerpts, mapping candidates, and
+necessary IDs for `gpt-6-astra` review. This does not include customer data,
+secrets, customer-output approval, or permission to transmit other review
+object classes without their own data controls.
+
+## 60. Model Input Uses Stdin and Technical Attempts Stay Auditable
+
+On Windows, passing JSON as a `.CMD` argument produced unreliable model input
+and copied it into a timeout error. The pilot now uses UTF-8 stdin and redacted
+technical errors. Failed attempts remain separate from successful runs.
+
+## 61. Adjudication Precedes Disposition, But Cannot Force Approval
+
+An adversarial reparse suggestion is not proof of a parser defect. The final
+decision considers independent adjudication before assigning reparse; any
+unresolved disagreement or attempted approval over an adverse opinion stays
+inconclusive. Inconclusive, blocked, reparse, and conditional states remain
+Gate blockers.
+
+## 62. Migration Tests Must Never Inherit an Acceptance Database URL
+
+Alembic's environment variable takes priority over a test Config URL. Tests
+now clear `DATABASE_URL` and use unique temporary SQLite files, so an
+acceptance or production-like database cannot be targeted accidentally.

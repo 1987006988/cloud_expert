@@ -1,0 +1,29 @@
+{
+  "source_id": "aws_ec2_general_purpose_specs",
+  "status": "succeeded",
+  "requested_url": "https://docs.aws.amazon.com/ec2/latest/instancetypes/gp.html",
+  "final_url": "https://docs.aws.amazon.com/ec2/latest/instancetypes/gp.html",
+  "http_status": 200,
+  "content_type": "text/html",
+  "bytes_downloaded": 611028,
+  "retry_count": 0,
+  "duration_ms": 483,
+  "snapshot_id": "466b49fe82b04e8eaf325bf6c8cdea68",
+  "snapshot_record_id": 117,
+  "error_code": null,
+  "error_message": null,
+  "change_status": "content_changed",
+  "manifest_path": "D:\\cloud_expert\\data\\raw\\international\\aws\\ec2\\aws_ec2_general_purpose_specs\\2026\\09\\20260929T192713Z_3e788c2f\\manifest.json",
+  "changes": [
+    {
+      "field": "content_length_bytes",
+      "old_value": 587859,
+      "new_value": 611028
+    },
+    {
+      "field": "content_sha256",
+      "old_value": "017f57142d1e44b960c25de197f612d65b811f7318a1f664640cf082058dc5d4",
+      "new_value": "3e788c2f74db2bf0fdd238dd6a1bf6326d0050f3c976d3168fdc16163f8e23b1"
+    }
+  ]
+}

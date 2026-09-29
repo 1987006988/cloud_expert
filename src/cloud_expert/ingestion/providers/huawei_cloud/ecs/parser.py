@@ -130,9 +130,9 @@ def _parse_product_fields(document: HtmlDocument) -> list[FieldCandidate]:
             section_title="product heading",
         )
     ]
-    paragraphs = document.paragraphs_containing("弹性云服务器", "ECS")
-    if paragraphs:
-        locator, excerpt = paragraphs[0]
+    description = document.product_description_containing("弹性云服务器", "ECS")
+    if description:
+        locator, excerpt = description
         fields.append(
             _candidate(
                 field_code="product.description",

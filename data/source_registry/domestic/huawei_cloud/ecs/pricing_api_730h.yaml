@@ -1,0 +1,39 @@
+source_id: huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2_730h
+provider_code: huawei_cloud
+market_mode: domestic
+cloud_partition: huawei_cn
+product_code: ecs
+source_type: pricing
+title: Huawei Cloud authorized ECS 730 instance-hour API quote
+url: https://bss.myhuaweicloud.com/v2/bills/ratings/on-demand-resources
+language: zh-CN
+authority_level: official_primary
+enabled: false
+requires_authentication: true
+requires_browser: false
+allow_automated_fetch: false
+expected_content_type: [application/json]
+domain_policy:
+  allowed_domains: [bss.myhuaweicloud.com]
+  allow_subdomains: false
+  allow_redirects: false
+schedule:
+  update_frequency: manual
+  priority: 50
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-29T15:24:28Z
+terms_review_status: approved
+automated_fetch_allowed: false
+manual_only: true
+compliance_notes: >
+  Owner authorized read-only official API use on 2026-09-29. The vendor documents
+  this endpoint at https://support.huaweicloud.com/api-oce/bcloud_01001.html.
+  Approval covers controlled authenticated query/import, not website scraping,
+  account-discount redistribution, or credential transmission to review models.
+  The generic HTTP fetcher remains disabled. Responses stay local.
+notes: >
+  Scope is c6.large.2.linux in cn-north-4, 730 usage units (measure_id 4),
+  one subscription. This is a separate quote from the one-hour source.
+  Copied API Explorer responses are labeled as such, not wire bytes.
+  Unit, tax and tier interpretation requires separate evidence.

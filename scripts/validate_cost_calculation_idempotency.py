@@ -5,9 +5,32 @@ from typing import Any
 
 from _bootstrap import ROOT as _ROOT  # noqa: F401
 from sqlalchemy import func, inspect, select
+from sqlalchemy.orm import Session
 
 from cloud_expert.database.models.tco import CostCalculationRun, CostLineItem, TCOResult
 from cloud_expert.database.session import SessionLocal, make_engine
+from cloud_expert.pricing.scoped_tco import RULE_VERSION, scoped_tco_result_currently_valid
+
+
+def validated_nonprice_line_ids(session: Session) -> set[int]:
+    validated: set[int] = set()
+    results = session.scalars(
+        select(TCOResult)
+        .join(CostCalculationRun, TCOResult.run_id == CostCalculationRun.id)
+        .where(CostCalculationRun.rule_version == RULE_VERSION)
+    )
+    for result in results:
+        if not scoped_tco_result_currently_valid(session, result):
+            continue
+        validated.update(
+            line.id
+            for line in result.run.line_items
+            if line.price_snapshot_id is None
+            and line.amount == 0
+            and line.missing_reason is None
+            and (line.assumptions or {}).get("treatment") in {"policy_zero", "not_applicable"}
+        )
+    return validated
 
 
 def validate_cost_calculation_idempotency() -> dict[str, Any]:
@@ -44,17 +67,15 @@ def validate_cost_calculation_idempotency() -> dict[str, Any]:
             )
             or 0
         )
-        priced_without_snapshot = (
-            session.scalar(
-                select(func.count())
-                .select_from(CostLineItem)
-                .where(
-                    CostLineItem.amount.is_not(None),
-                    CostLineItem.price_snapshot_id.is_(None),
+        nonprice_ids = set(
+            session.scalars(
+                select(CostLineItem.id).where(
+                    CostLineItem.amount.is_not(None), CostLineItem.price_snapshot_id.is_(None)
                 )
             )
-            or 0
         )
+        verified_nonprice_ids = validated_nonprice_line_ids(session)
+        priced_without_snapshot = len(nonprice_ids - verified_nonprice_ids)
         missing_treated_as_zero = (
             session.scalar(
                 select(func.count())
@@ -88,6 +109,7 @@ def validate_cost_calculation_idempotency() -> dict[str, Any]:
         "duplicate_run_codes": [row[0] for row in duplicate_run_codes],
         "missing_without_reason": missing_without_reason,
         "priced_without_snapshot": priced_without_snapshot,
+        "verified_policy_or_not_applicable_lines": len(nonprice_ids & verified_nonprice_ids),
         "missing_treated_as_zero": missing_treated_as_zero,
         "errors": errors,
         "valid": not errors,

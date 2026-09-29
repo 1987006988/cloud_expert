@@ -1,0 +1,10 @@
+{
+  "assessments_created": 0,
+  "assessments_updated": 120,
+  "status_counts": {
+    "not_comparable": 84,
+    "partial": 31,
+    "comparable": 3,
+    "needs_review": 2
+  }
+}

@@ -1,0 +1,15 @@
+version: week14.v1
+external_data_transfer_approved: true
+authorized_by: project_owner
+authorized_at: '2026-09-29'
+reason: "Owner explicitly authorized official-source excerpts, mapping candidates, and necessary identifiers for independent review and adjudication."
+approved_model: gpt-6-astra
+approved_payload_classes:
+  - official_source_excerpts
+  - mapping_candidates
+  - necessary_identifiers
+prohibited_payload_classes:
+  - customer_data
+  - credentials
+  - secrets
+customer_output_approval: false

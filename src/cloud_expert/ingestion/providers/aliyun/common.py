@@ -2,6 +2,17 @@ ALIYUN_PROVIDER_CODE = "aliyun"
 ALIYUN_PUBLIC_CN_PARTITION = "aliyun_public_cn"
 PARSER_VERSION = "2026.08.week11_review_remediation_v1"
 
+
+def parser_version_for_product(product_code: str | None) -> str:
+    """Select the ECS parser's version without relabeling OSS or legacy scopes."""
+    if product_code == "ecs":
+        # Import on demand: the ECS parser also imports this provider module.
+        from cloud_expert.ingestion.providers.aliyun.ecs.parser import PARSER_VERSION as ecs_version
+
+        return ecs_version
+    return PARSER_VERSION
+
+
 ALIYUN_PROVIDER_PROFILE = {
     "code": ALIYUN_PROVIDER_CODE,
     "name": "Alibaba Cloud China Public Cloud",

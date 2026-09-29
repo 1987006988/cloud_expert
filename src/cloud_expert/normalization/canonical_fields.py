@@ -568,11 +568,25 @@ LEGACY_FIELD_MAPPINGS: tuple[LegacyFieldMapping, ...] = (
         canonical_unit="Gbps",
     ),
     LegacyFieldMapping(
+        "network.cloud_disk_baseline_bandwidth_gbps",
+        "compute.block_storage.bandwidth_gbps",
+        ValueQualifier.BASELINE.value,
+        SpecificationScopeType.SKU.value,
+        canonical_unit="Gbps",
+    ),
+    LegacyFieldMapping(
         "network.cloud_disk_bandwidth_gbps",
         "compute.block_storage.bandwidth_gbps",
         ValueQualifier.MAXIMUM.value,
         SpecificationScopeType.SKU.value,
         canonical_unit="Gbps",
+    ),
+    LegacyFieldMapping(
+        "network.baseline_pps",
+        "compute.network.packets_per_second",
+        ValueQualifier.BASELINE.value,
+        SpecificationScopeType.SKU.value,
+        canonical_unit="PPS",
     ),
     LegacyFieldMapping(
         "network.max_pps",
@@ -581,6 +595,13 @@ LEGACY_FIELD_MAPPINGS: tuple[LegacyFieldMapping, ...] = (
         SpecificationScopeType.SKU.value,
         canonical_unit="PPS",
         conversion_note="Legacy Huawei definitions may use 10k PPS units.",
+    ),
+    LegacyFieldMapping(
+        "network.baseline_connections",
+        "compute.network.connections",
+        ValueQualifier.BASELINE.value,
+        SpecificationScopeType.SKU.value,
+        canonical_unit="count",
     ),
     LegacyFieldMapping(
         "network.max_connections",
@@ -594,6 +615,13 @@ LEGACY_FIELD_MAPPINGS: tuple[LegacyFieldMapping, ...] = (
         "compute.network.ena_express_supported",
         ValueQualifier.SUPPORTED.value,
         SpecificationScopeType.SKU.value,
+    ),
+    LegacyFieldMapping(
+        "storage.cloud_disk_baseline_iops",
+        "compute.block_storage.iops",
+        ValueQualifier.BASELINE.value,
+        SpecificationScopeType.SKU.value,
+        canonical_unit="IOPS",
     ),
     LegacyFieldMapping(
         "storage.cloud_disk_iops",

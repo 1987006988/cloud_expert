@@ -9,10 +9,10 @@ description: Official Huawei Cloud OBS pricing, billing items, and billing-mode 
 url: https://www.huaweicloud.com/product/obs/price.html
 language: zh-CN
 authority_level: official_primary
-enabled: true
+enabled: false
 requires_authentication: false
 requires_browser: false
-allow_automated_fetch: true
+allow_automated_fetch: false
 expected_content_type:
   - text/html
 expected_file_extension: .html
@@ -46,16 +46,18 @@ schedule:
   priority: 50
 owner: cloud_expert_data_engineering
 review_status: pending_review
-reviewed_at: 2026-07-23T00:00:00Z
+reviewed_at: 2026-09-29T13:51:36Z
 robots_checked_at: 2026-07-23T00:00:00Z
 robots_allowed: true
-terms_review_status: approved
-automated_fetch_allowed: true
+terms_review_status: disallowed
+automated_fetch_allowed: false
 manual_only: false
 compliance_notes: >
-  Public official Huawei Cloud product pricing page. Automated HTTP snapshot is
-  approved with a browser-compatible user agent because the default bot user
-  agent receives a 567 response from this public page.
+  Automated website collection approval revoked on 2026-09-29 after checking
+  https://www.huaweicloud.com/declaration/statement.html. Public visibility and
+  a successful browser-compatible user agent are not collection permission.
+  Use an explicitly authorized official pricing API or licensed export instead.
+  Prior approval history is retained in reports/remediation/pricing_collection_compliance.md.
 notes: >
   Use as official pricing source metadata. Parse concrete price values only
   when the immutable snapshot contains a product, region, unit, currency, and

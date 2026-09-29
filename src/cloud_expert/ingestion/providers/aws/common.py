@@ -1,6 +1,6 @@
 AWS_PROVIDER_CODE = "aws"
 AWS_COMMERCIAL_PARTITION = "aws"
-PARSER_VERSION = "week11_aws_review_remediation_v1"
+PARSER_VERSION = "2026.09.c09_aws_ec2_column_safety_v2"
 
 AWS_PROVIDER_PROFILE = {
     "code": AWS_PROVIDER_CODE,

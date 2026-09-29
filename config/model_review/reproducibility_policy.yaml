@@ -1,0 +1,29 @@
+policy_version: internal_rc_audit_bundle_v1
+authorization:
+  authorized_by: project_owner
+  recorded_on: '2026-09-30'
+  source: explicit_in_thread_answer
+  decision: allow_internal_release_candidate_audit_alternative
+deployment_scope:
+  allowed_mode: release_candidate
+  audience: internal_only
+  production_apply_allowed: false
+model:
+  required_id: gpt-6-astra
+  immutable_snapshot_claimed: false
+  allow_weaker_fallback: false
+required_controls:
+  - freeze_review_input_and_prompt_versions
+  - preserve_full_primary_adversarial_and_arbitration_responses
+  - verify_evidence_and_artifact_sha256_at_consumption
+  - preserve_actual_model_identity_and_execution_metadata
+  - independently_review_generation_and_adversarial_contexts
+  - rerun_full_evaluation_for_every_release_candidate
+  - bind_evaluation_to_candidate_code_rules_data_and_model_identity
+  - disclose_alias_drift_and_nondeterministic_model_reexecution
+  - prohibit_customer_or_production_authority_from_this_policy_alone
+gate_semantics:
+  owner_authorization_alone_passes: false
+  audit_bundle_must_be_verified: true
+  critical_eval_failure_allowed: false
+  original_fact_price_and_review_thresholds_unchanged: true

@@ -57,7 +57,7 @@ class DecisionScenario(IDMixin, TimestampMixin, TableNameMixin, ReprMixin, Base)
             name="decision_scenario_type",
         ),
         CheckConstraint(
-            f"market_mode IN ({sql_in_values(MarketMode.values())})",
+            f"market_mode IN ({sql_in_values(MarketMode.fact_values())})",
             name="decision_scenario_market_mode",
         ),
         CheckConstraint(

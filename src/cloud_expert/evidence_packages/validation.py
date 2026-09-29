@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import func, select
@@ -10,6 +11,33 @@ from cloud_expert.database.models.evidence_package import (
     EvidencePackageItem,
     EvidenceReference,
 )
+from cloud_expert.database.models.mapping import MappingCandidate
+from cloud_expert.evidence_packages.builder import (
+    _content_hash,
+    _customer_eligible_mapping,
+    _mapping_freshness,
+)
+
+
+def package_currently_eligible(session: Session, package: EvidencePackage) -> bool:
+    if (
+        not package.customer_eligible
+        or package.superseded_by_id is not None
+        or package.output_level != "customer_eligible"
+        or package.evidence_completeness != 1
+    ):
+        return False
+    candidate = (
+        session.get(MappingCandidate, package.mapping_candidate_id)
+        if package.mapping_candidate_id
+        else None
+    )
+    return bool(
+        candidate is not None
+        and _customer_eligible_mapping(candidate, session)
+        and _mapping_freshness(candidate, datetime.now(UTC)) == "fresh"
+        and _content_hash(session, candidate) == package.content_hash
+    )
 
 
 def validate_evidence_references(session: Session) -> dict[str, Any]:
@@ -52,19 +80,23 @@ def evidence_package_counts(session: Session) -> dict[str, int]:
 
 def customer_output_eligibility(session: Session, package_code: str) -> dict[str, Any]:
     package = session.scalar(
-        select(EvidencePackage).where(EvidencePackage.package_code == package_code)
+        select(EvidencePackage)
+        .where(
+            EvidencePackage.package_code == package_code, EvidencePackage.superseded_by_id.is_(None)
+        )
+        .order_by(EvidencePackage.id.desc())
     )
     if package is None:
         return {"package_code": package_code, "exists": False, "customer_eligible": False}
     return {
         "package_code": package.package_code,
         "exists": True,
-        "customer_eligible": package.customer_eligible,
+        "customer_eligible": package_currently_eligible(session, package),
         "review_status": package.review_status,
         "output_level": package.output_level,
         "reason": (
             "eligible"
-            if package.customer_eligible
+            if package_currently_eligible(session, package)
             else "mapping or evidence remains pending review or has completeness blockers"
         ),
     }
@@ -72,14 +104,16 @@ def customer_output_eligibility(session: Session, package_code: str) -> dict[str
 
 def customer_output_eligibility_summary(session: Session) -> dict[str, Any]:
     total = session.scalar(select(func.count()).select_from(EvidencePackage)) or 0
-    eligible = (
-        session.scalar(
-            select(func.count())
-            .select_from(EvidencePackage)
-            .where(EvidencePackage.customer_eligible.is_(True))
+    active_flagged = list(
+        session.scalars(
+            select(EvidencePackage).where(
+                EvidencePackage.customer_eligible.is_(True),
+                EvidencePackage.superseded_by_id.is_(None),
+            )
         )
-        or 0
     )
+    eligible = sum(package_currently_eligible(session, package) for package in active_flagged)
+    invalid_eligible = len(active_flagged) - eligible
     internal_only = total - eligible
     pending_review = (
         session.scalar(
@@ -94,5 +128,6 @@ def customer_output_eligibility_summary(session: Session) -> dict[str, Any]:
         "customer_eligible": eligible,
         "internal_only": internal_only,
         "pending_review": pending_review,
-        "valid": eligible == 0 and internal_only == total,
+        "invalid_customer_eligible": invalid_eligible,
+        "valid": invalid_eligible == 0,
     }

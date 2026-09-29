@@ -1,0 +1,59 @@
+source_id: aws_vpc_region_index
+provider_code: aws
+market_mode: international
+cloud_partition: aws
+product_code: vpc
+source_type: documentation
+title: AmazonVPC regional price-list index
+description: Authorized public Price List download route; capture is not price approval.
+url: https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonVPC/current/region_index.json
+language: en-US
+authority_level: official_primary
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type: [application/json, application/octet-stream]
+expected_file_extension: .json
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains: [pricing.us-east-1.amazonaws.com]
+  allow_subdomains: false
+  allow_redirects: false
+  allowed_redirect_domains: [pricing.us-east-1.amazonaws.com]
+fetch_policy:
+  timeout_seconds: 45
+  connect_timeout_seconds: 10
+  read_timeout_seconds: 30
+  max_retries: 1
+  min_interval_seconds: 5
+  max_content_length_bytes: 2097152
+  user_agent_profile: cloud_expert_bot
+storage_policy:
+  keep_all_versions: true
+  store_response_headers: true
+  store_request_headers: false
+  retention_policy: keep_all
+schedule:
+  update_frequency: manual
+  priority: 50
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-29T18:48:41Z
+robots_checked_at: null
+robots_allowed: null
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
+compliance_notes: >
+  Approved only for the public unauthenticated AWS Price List file-download
+  route documented at
+  https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/using-the-aws-price-list-bulk-api-fetching-price-list-files-manually.html.
+  Retain immutable bytes, headers, version and hash. No website-internal API,
+  account data, resource creation, price approval or customer authorization.
+  Robots observations remain unknown; this is a documented public download
+  channel, not an assertion about permission to crawl other website pages.
+  Source-specific 2 MiB cap and exact official host are mandatory.
+notes: >
+  Metadata only; select exact us-east-1 and retain the returned versioned currentVersionUrl.
+  See reports/remediation/closure_20260930/aws_remaining_cost_sources.md.

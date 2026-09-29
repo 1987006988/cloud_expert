@@ -13,12 +13,14 @@ from cloud_expert.database.models.region import (
     Region,
     ZoneAvailability,
 )
+from cloud_expert.database.models.source import Evidence
 from cloud_expert.database.models.specification import ProductSpecification
 from cloud_expert.ingestion.fetcher import SourceFetcher
 from cloud_expert.ingestion.providers.aliyun.ecs.parser import parse_ecs_document
 from cloud_expert.ingestion.providers.aliyun.oss.parser import parse_oss_document
 from cloud_expert.ingestion.registry.schemas import SourceRegistryEntry
 from cloud_expert.ingestion.storage.snapshot_store import SnapshotStore
+from cloud_expert.mapping.pipeline import _first_product_evidence
 from cloud_expert.parsing.html_adapter import HtmlDocument, load_html_document
 from cloud_expert.parsing.pipeline import parse_source_entry
 from cloud_expert.quality.evidence_checks import count_missing_evidence_links
@@ -96,6 +98,41 @@ def _aliyun_fixture_entry(
             "fixture_response_content_type": "text/html",
         }
     )
+
+
+def test_aliyun_product_description_persists_from_definition(
+    session: Session, tmp_path: Path
+) -> None:
+    fixture = tmp_path / "ecs_description.html"
+    fixture.write_text(
+        "<html><head><title>ECS</title></head><body>"
+        "<div>云服务器 ECS 产品概述 产品功能 选型与定价</div>"
+        "<p>云服务器 ECS 是阿里云提供的弹性扩展的云计算服务，"
+        "用户可按需取得计算资源并部署应用，不必预先采购服务器硬件。</p>"
+        "</body></html>",
+        encoding="utf-8",
+    )
+    entry = _aliyun_fixture_entry(
+        fixture,
+        source_id="synthetic_aliyun_ecs_description",
+        product_code="ecs",
+        source_type="documentation",
+    )
+    store = SnapshotStore(tmp_path / "raw")
+    SourceFetcher(snapshot_store=store).fetch(entry, session=session)
+
+    summary = parse_source_entry(session, entry, store)
+    product = session.query(Product).one()
+    description_evidence = (
+        session.query(Evidence).filter_by(parser_rule="aliyun.ecs.product.description").one()
+    )
+
+    assert summary.status == "succeeded"
+    assert product.description is not None
+    assert "云计算服务" in product.description
+    assert "产品概述" not in product.description
+    assert description_evidence.locator == "html:text[1]"
+    assert _first_product_evidence(session, product.id) == description_evidence.id
 
 
 def test_aliyun_ecs_parser_extracts_skus_families_regions_zones_and_sla() -> None:

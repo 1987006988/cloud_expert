@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from cloud_expert.database.models.ingestion import IngestionRun
 from cloud_expert.database.models.snapshot import SnapshotRecord
+from cloud_expert.database.models.source import SourceDocument
 from cloud_expert.ingestion.fetcher import SourceFetcher
 from cloud_expert.ingestion.registry.loader import get_entry_by_source_id
 from cloud_expert.ingestion.storage.snapshot_store import SnapshotStore
@@ -61,6 +62,22 @@ def test_html_content_change_creates_new_snapshot(session: Session) -> None:
         (fetcher.snapshot_store.latest_pointer_path(entry)).read_text(encoding="utf-8")
     )
     assert latest["snapshot_id"] == second.snapshot_id
+    first_record = session.get(SnapshotRecord, first.snapshot_record_id)
+    second_record = session.get(SnapshotRecord, second.snapshot_record_id)
+    assert first_record is not None and second_record is not None
+    assert first_record.is_current is False
+    assert session.get(SourceDocument, first_record.source_document_id).is_current is False
+    assert second_record.is_current is True
+    assert session.get(SourceDocument, second_record.source_document_id).is_current is True
+
+    third = fetcher.fetch(entry, session=session, force=True)
+    session.expire_all()
+    assert third.snapshot_record_id == first.snapshot_record_id
+    assert session.query(SnapshotRecord).count() == 2
+    assert first_record.is_current is True
+    assert second_record.is_current is False
+    assert session.get(SourceDocument, first_record.source_document_id).is_current is True
+    assert session.get(SourceDocument, second_record.source_document_id).is_current is False
 
 
 def test_json_and_pdf_fetch(session: Session) -> None:
@@ -73,6 +90,27 @@ def test_json_and_pdf_fetch(session: Session) -> None:
     assert json_outcome.status == "succeeded"
     assert pdf_outcome.status == "succeeded"
     assert session.query(SnapshotRecord).count() == 2
+
+
+def test_shared_document_stays_current_for_other_registry_entry(session: Session) -> None:
+    entry = _entry("synthetic_html_fixture")
+    raw_dir = _raw_dir("shared_current")
+    fetcher = SourceFetcher(snapshot_store=SnapshotStore(raw_dir))
+    first = fetcher.fetch(entry, session=session)
+    other = entry.model_copy(update={"source_id": "synthetic_shared_document"})
+    fetcher.fetch(other, session=session)
+    changed = raw_dir / "changed.html"
+    changed.write_text("<html><body>Synthetic updated document</body></html>", encoding="utf-8")
+    fetcher.fetch(
+        entry.model_copy(update={"fixture_response_path": str(changed.resolve())}),
+        session=session,
+        force=True,
+    )
+    session.expire_all()
+    snapshot = session.get(SnapshotRecord, first.snapshot_record_id)
+    assert snapshot is not None and snapshot.is_current is False
+    document = session.get(SourceDocument, snapshot.source_document_id)
+    assert document is not None and document.is_current is True
 
 
 def test_domain_violation_is_blocked_before_content_file(session: Session) -> None:

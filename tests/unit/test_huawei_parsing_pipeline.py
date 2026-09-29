@@ -15,6 +15,7 @@ from cloud_expert.ingestion.providers.huawei_cloud.obs.parser import parse_obs_d
 from cloud_expert.ingestion.registry.loader import load_registry_entries
 from cloud_expert.ingestion.registry.schemas import SourceRegistryEntry
 from cloud_expert.ingestion.storage.snapshot_store import SnapshotStore
+from cloud_expert.mapping.pipeline import _first_product_evidence
 from cloud_expert.parsing.html_adapter import load_html_document
 from cloud_expert.parsing.pipeline import parse_source_entry
 from cloud_expert.quality.reports import build_quality_report
@@ -183,6 +184,44 @@ def test_huawei_fetch_parse_pipeline_is_idempotent_for_product_data(
     assert first_counts["spec"] > 0
     assert first_counts["evidence"] > 0
     assert session.query(ParsingRun).count() == 2
+    product_evidence_id = _first_product_evidence(session, session.query(Product).one().id)
+    assert product_evidence_id is not None
+    assert session.get(Evidence, product_evidence_id).parser_rule == "ecs.product.description"
+
+
+def test_huawei_product_description_persists_from_definition(
+    session: Session, tmp_path: Path
+) -> None:
+    fixture = tmp_path / "ecs_description.html"
+    fixture.write_text(
+        "<html><head><title>ECS</title></head><body>"
+        "<div>文档首页 / 弹性云服务器 ECS / 产品介绍</div>"
+        "<p>弹性云服务器 ECS 是由 CPU、内存、操作系统和云硬盘组成的基础计算组件，"
+        "提供按需使用的计算服务，可依据业务需要调整规格并运行应用程序。</p>"
+        "</body></html>",
+        encoding="utf-8",
+    )
+    entry = _fixture_entry(
+        fixture,
+        source_id="synthetic_ecs_description",
+        product_code="ecs",
+        source_type="documentation",
+    )
+    store = SnapshotStore(tmp_path / "raw")
+    SourceFetcher(snapshot_store=store).fetch(entry, session=session)
+
+    summary = parse_source_entry(session, entry, store)
+    product = session.query(Product).one()
+    description_evidence = (
+        session.query(Evidence).filter_by(parser_rule="ecs.product.description").one()
+    )
+
+    assert summary.status == "succeeded"
+    assert product.description is not None
+    assert "基础计算组件" in product.description
+    assert "文档首页" not in product.description
+    assert description_evidence.locator == "html:text[1]"
+    assert _first_product_evidence(session, product.id) == description_evidence.id
 
 
 def test_huawei_obs_pipeline_creates_review_items_quality_report_and_sla(
@@ -220,7 +259,7 @@ def test_huawei_obs_pipeline_creates_review_items_quality_report_and_sla(
 
 def test_registered_huawei_sources_are_domestic_official_and_non_intl() -> None:
     entries = load_registry_entries(Path("data/source_registry/domestic/huawei_cloud"))
-    assert len(entries) == 24
+    assert len(entries) == 35
     assert {entry.product_code for entry in entries} == {"ecs", "obs"}
     assert all(entry.provider_code == "huawei_cloud" for entry in entries)
     assert all(str(entry.market_mode) == "domestic" for entry in entries)
@@ -228,5 +267,31 @@ def test_registered_huawei_sources_are_domestic_official_and_non_intl() -> None:
         entry.authority_level in {"official_primary", "official_secondary"} for entry in entries
     )
     assert all("/intl/" not in entry.url for entry in entries)
-    assert all(entry.requires_authentication is False for entry in entries)
-    assert all(entry.allow_automated_fetch is True for entry in entries)
+    api_sources = {
+        "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2",
+        "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2_730h",
+        "huawei_cloud_obs_pricing_api_cn_north_4",
+        "huawei_cloud_billing_measurements_api",
+        "huawei_cloud_ecs_pricing_api_cn_north_4_components_730h",
+        "huawei_cloud_obs_standard_single_az_usage_type_api",
+    }
+    assert {entry.source_id for entry in entries if entry.requires_authentication} == api_sources
+    held_sources = {"huawei_cloud_ecs_pricing", "huawei_cloud_obs_pricing"}
+    assert {
+        entry.source_id for entry in entries if not entry.allow_automated_fetch
+    } == held_sources | api_sources
+    assert all(
+        entry.manual_only and entry.terms_review_status == "approved"
+        for entry in entries
+        if entry.source_id in api_sources
+    )
+    assert all(
+        not entry.enabled
+        for entry in entries
+        if entry.source_id in api_sources and entry.source_type == "pricing"
+    )
+    assert all(
+        not entry.enabled and entry.terms_review_status == "disallowed"
+        for entry in entries
+        if entry.source_id in held_sources
+    )

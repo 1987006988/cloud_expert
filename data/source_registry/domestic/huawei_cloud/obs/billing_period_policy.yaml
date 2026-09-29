@@ -1,0 +1,35 @@
+source_id: huawei_cloud_obs_billing_period_policy
+provider_code: huawei_cloud
+market_mode: domestic
+cloud_partition: huawei_cn
+product_code: obs
+source_type: documentation
+title: Huawei Cloud OBS pay-per-use billing period and calculation policy
+url: https://support.huaweicloud.com/price-obs/obs_42_0009.html
+language: zh-CN
+authority_level: official_primary
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type: [text/html]
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains: [support.huaweicloud.com]
+  allow_subdomains: false
+  allow_redirects: false
+schedule:
+  update_frequency: weekly
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-30T00:00:00+08:00
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
+compliance_notes: >
+  Public official support document under the existing approved documentation
+  collection policy. Fixed query-free HTTPS URL; no authentication or account
+  data. No permission to scrape disabled dynamic pricing sites is introduced.
+notes: >
+  Billing policy only. Example rates are not current tariffs. This document
+  alone does not prove the time basis of a separate API size-factor quotation.

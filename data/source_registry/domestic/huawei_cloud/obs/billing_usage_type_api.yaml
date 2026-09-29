@@ -1,0 +1,35 @@
+source_id: huawei_cloud_obs_standard_single_az_usage_type_api
+provider_code: huawei_cloud
+market_mode: domestic
+cloud_partition: huawei_cn
+product_code: obs
+source_type: documentation
+title: Huawei Cloud official OBS size billing factor definition
+url: https://bss.myhuaweicloud.com/v2/products/usage-types?resource_type_code=hws.resource.type.obs&offset=93&limit=1
+language: zh-CN
+authority_level: official_primary
+enabled: true
+requires_authentication: true
+requires_browser: true
+allow_automated_fetch: false
+expected_content_type: [application/json]
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains: [bss.myhuaweicloud.com]
+  allow_subdomains: false
+  allow_redirects: false
+schedule:
+  update_frequency: monthly
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-30T01:01:56+08:00
+terms_review_status: approved
+automated_fetch_allowed: false
+manual_only: true
+compliance_notes: >
+  Owner-authorized read-only official API Explorer metadata inquiry. Import
+  only the observed successful response copy; no request headers, identifiers,
+  Tokens, resource creation, orders or permissions changes. Page selection was
+  based on the observed size factor at offset 93; reject a different response.
+notes: >
+  Defines size as Standard single-AZ capacity, not its rate or time basis.

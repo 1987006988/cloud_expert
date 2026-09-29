@@ -1,0 +1,36 @@
+source_id: huawei_cloud_billing_tax_policy
+provider_code: huawei_cloud
+market_mode: domestic
+cloud_partition: huawei_cn
+product_code: ecs
+source_type: documentation
+title: Huawei Cloud China billing tax inclusion policy
+url: https://support.huaweicloud.com/billing_faq/billing_faq_5100086.html
+language: zh-CN
+authority_level: official_primary
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type: [text/html]
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains: [support.huaweicloud.com]
+  allow_subdomains: false
+  allow_redirects: false
+schedule:
+  update_frequency: monthly
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-29T15:11:14Z
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
+compliance_notes: >
+  Public China-site support documentation, stable query-free URL, following
+  the existing official support-document collection policy. Collect only the
+  policy explanation, without login, billing account data or request secrets.
+  This source is not permission to scrape disabled website price catalogues.
+notes: >
+  General China-site cloud-service pricing inclusion statement; does not prove
+  a tax rate, international treatment, or the contents of an account invoice.

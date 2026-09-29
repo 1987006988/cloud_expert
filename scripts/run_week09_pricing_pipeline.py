@@ -22,6 +22,7 @@ from cloud_expert.ingestion.registry.loader import load_registry_entries
 from cloud_expert.ingestion.registry.schemas import SourceRegistryEntry
 from cloud_expert.ingestion.storage.atomic_write import atomic_write_text
 from cloud_expert.pricing.extraction import extract_price_records, persist_price_records
+from cloud_expert.pricing.source_policy import approved_collection, collection_mode
 from cloud_expert.pricing.tco import RUN_CODE, generate_internal_tco
 
 REPORT_DIR = _ROOT / "reports" / "week09_pricing"
@@ -47,15 +48,21 @@ def _pricing_entries() -> list[SourceRegistryEntry]:
 
 
 def _collection_mode(entry: SourceRegistryEntry) -> str:
-    if entry.enabled and entry.allow_automated_fetch and not entry.manual_only:
-        return "automated_http_snapshot"
-    if entry.manual_only and not entry.enabled and not entry.allow_automated_fetch:
-        return "manual_or_browser_snapshot_required"
-    return "blocked_or_misconfigured"
+    return collection_mode(entry)
 
 
 def audit_pricing_sources(entries: list[SourceRegistryEntry]) -> dict[str, Any]:
     registered = {(entry.provider_code, entry.product_code or "") for entry in entries}
+    approved = {
+        (entry.provider_code, entry.product_code or "")
+        for entry in entries
+        if approved_collection(entry)
+    }
+    missing_approved = sorted(
+        f"{provider}/{product}"
+        for provider, product in REQUIRED_PRICING_SOURCES
+        if (provider, product) not in approved
+    )
     missing = sorted(
         f"{provider}/{product}"
         for provider, product in REQUIRED_PRICING_SOURCES
@@ -65,7 +72,7 @@ def audit_pricing_sources(entries: list[SourceRegistryEntry]) -> dict[str, Any]:
     errors: list[str] = []
     for entry in entries:
         mode = _collection_mode(entry)
-        if entry.terms_review_status != "approved":
+        if entry.terms_review_status != "approved" and mode != "retired_no_collection":
             errors.append(f"{entry.source_id}: terms_review_status is not approved")
         if mode == "blocked_or_misconfigured":
             errors.append(f"{entry.source_id}: collection mode is not approved")
@@ -85,6 +92,8 @@ def audit_pricing_sources(entries: list[SourceRegistryEntry]) -> dict[str, Any]:
         )
     if missing:
         errors.append("missing required provider/product pricing registry entries")
+    if missing_approved:
+        errors.append("missing approved collection route for required provider/product")
     return {
         "generated_at": _now(),
         "required_provider_products": sorted(
@@ -92,6 +101,7 @@ def audit_pricing_sources(entries: list[SourceRegistryEntry]) -> dict[str, Any]:
         ),
         "registered_pricing_sources": len(entries),
         "missing_required": missing,
+        "missing_approved_collection_routes": missing_approved,
         "automated_sources": [
             row["source_id"]
             for row in source_rows

@@ -1,0 +1,36 @@
+schema_version: "1.0"
+code: aliyun_domestic_bounded_cost_audit_v1
+version: "v1"
+name: "Aliyun Beijing 720h bounded infrastructure cost audit"
+description: "Internal cost validation only; does not replace existing suitability scenarios or prove cross-vendor equivalence."
+scenario_type: compute_general
+market_mode: domestic
+industry: internal_research
+country_code: CN
+preferred_regions: [cn-beijing]
+workload_profile:
+  category: compute
+  monthly_hours: 720
+  outbound_gb: 100
+  cost_required: true
+  purpose: internal_bounded_cost_audit
+technical_requirements: {}
+availability_requirements: {}
+compliance_requirements: {customer_output_required: false}
+data_residency_requirements: {}
+operational_requirements: {public_evidence_only: true}
+migration_requirements: {}
+budget_preferences: {currency: CNY}
+scoring_policy_code: bounded_cost_audit
+scoring_policy_version: "v1"
+effective_from: "2026-09-29T00:00:00+00:00"
+status: active
+requirements:
+  - code: complete_scoped_tco
+    requirement_type: cost
+    operator: equals
+    required_value: {completeness_status: complete}
+    priority: critical
+    is_mandatory: true
+    missing_data_policy: block
+    evidence_requirement: {price_snapshot_required: true}

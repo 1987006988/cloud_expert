@@ -1,0 +1,39 @@
+source_id: huawei_cloud_ecs_pricing_api_cn_north_4_components_730h
+provider_code: huawei_cloud
+market_mode: domestic
+cloud_partition: huawei_cn
+product_code: ecs
+source_type: pricing
+title: Huawei Cloud authorized ECS disk and network component inquiry
+url: https://bss.myhuaweicloud.com/v2/bills/ratings/on-demand-resources
+language: zh-CN
+authority_level: official_primary
+enabled: false
+requires_authentication: true
+requires_browser: false
+allow_automated_fetch: false
+expected_content_type: [application/json]
+domain_policy:
+  allowed_domains: [bss.myhuaweicloud.com]
+  allow_subdomains: false
+  allow_redirects: false
+schedule:
+  update_frequency: manual
+  priority: 50
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-29T15:55:00Z
+terms_review_status: approved
+automated_fetch_allowed: false
+manual_only: true
+compliance_notes: >
+  Owner-authorized read-only official account API inquiry. Endpoint and resource
+  parameters are documented at https://support.huaweicloud.com/api-oce/bcloud_01001.html
+  and https://support.huaweicloud.com/api-oce/csdp_faq_062502.html.
+  No purchases, resource creation, credential export or account-discount redistribution.
+  Controlled browser/API import only; generic HTTP collection remains disabled.
+notes: >
+  Exact scope: cn-north-4, one subscription each; c6.xlarge.4.linux for 730 hours;
+  GPSSD 100 GB for 730 hours; dynamic BGP 12_bgp outbound 100 GB with 5 Mbps cap;
+  dynamic BGP 5_bgp public IP for 730 hours. No capacity or availability assertion.
+  Independent component inquiry does not prove IP-binding discounts or complete TCO.

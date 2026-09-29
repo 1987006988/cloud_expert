@@ -1,0 +1,61 @@
+source_id: aws_ec2_pricing_bulk_us_east_1
+provider_code: aws
+market_mode: international
+cloud_partition: aws
+product_code: ec2
+source_type: pricing
+title: AWS Price List Bulk API Amazon EC2 us-east-1
+description: Public official regional OnDemand catalog; no cloud resources or account API.
+url: https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/us-east-1/index.json
+language: en-US
+authority_level: official_primary
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type: [application/json, application/octet-stream]
+expected_file_extension: .json
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains: [pricing.us-east-1.amazonaws.com]
+  allow_subdomains: false
+  allow_redirects: true
+  allowed_redirect_domains: [pricing.us-east-1.amazonaws.com]
+fetch_policy:
+  timeout_seconds: 90
+  connect_timeout_seconds: 10
+  read_timeout_seconds: 90
+  max_retries: 1
+  retry_backoff_seconds: 1
+  min_interval_seconds: 5
+  max_content_length_bytes: 536870912
+  user_agent_profile: cloud_expert_bot
+storage_policy:
+  keep_all_versions: true
+  deduplicate_identical_content: true
+  store_response_headers: true
+  store_request_headers: false
+  compression: none
+  retention_policy: keep_all
+schedule:
+  update_frequency: weekly
+  priority: 40
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-29T17:34:39Z
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
+compliance_notes: >
+  Public unauthenticated AWS Price List Bulk API download route documented at
+  https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/using-the-aws-price-list-bulk-api-fetching-price-list-files-manually.html.
+  Same official collection channel as the approved S3 bulk source. Full raw
+  bytes and terms must be retained. No website-internal pricing endpoint or
+  account data is accessed. A source-specific 512 MiB acquisition ceiling is
+  required by the observed 481532363-byte official regional file. Other sources
+  retain their 50 MiB ceiling. JSON structure is validated by a streaming parser
+  before promotion; capture alone never grants pricing eligibility.
+notes: >
+  AWS commercial partition, US East N Virginia only. A captured catalog is not
+  an approved SKU match, stock availability, tax-inclusive quote or complete
+  TCO. Preserve all applicable ranges; do not pick only the first tier.

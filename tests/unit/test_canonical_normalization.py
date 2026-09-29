@@ -1,10 +1,17 @@
+from dataclasses import replace
+from datetime import UTC, datetime
 from decimal import Decimal
+from hashlib import sha256
+from pathlib import Path
 
+import pytest
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from cloud_expert.config.settings import get_settings
 from cloud_expert.database.enums import (
     AuthorityLevel,
+    ChangeStatus,
     DataType,
     EvidenceType,
     MarketMode,
@@ -14,11 +21,14 @@ from cloud_expert.database.enums import (
     SourceType,
 )
 from cloud_expert.database.models.canonical import ComparabilityAssessment, NormalizedSpecification
+from cloud_expert.database.models.cloud_partition import CloudPartition
 from cloud_expert.database.models.parsing import ParsedFieldCandidate, ParsingRun
 from cloud_expert.database.models.product import SKU, Product, ProductCategory
 from cloud_expert.database.models.provider import Provider
+from cloud_expert.database.models.snapshot import SnapshotRecord
 from cloud_expert.database.models.source import Evidence, SourceDocument
 from cloud_expert.database.models.specification import ProductSpecification, SpecificationDefinition
+from cloud_expert.normalization import evidence_validity
 from cloud_expert.normalization.canonical_fields import (
     LegacyFieldMapping,
     validate_canonical_registry,
@@ -29,8 +39,18 @@ from cloud_expert.normalization.canonical_service import (
     normalize_specifications,
     seed_canonical_registry,
 )
+from cloud_expert.normalization.evidence_validity import normalized_evidence_valid
 from cloud_expert.normalization.unit_standardization import standardize_value
 from tests.fixtures.synthetic_data import load_synthetic_fixture
+
+
+@pytest.fixture
+def synthetic_raw_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    root = tmp_path / "synthetic_raw"
+    root.mkdir()
+    settings = replace(get_settings(), raw_data_dir=str(root))
+    monkeypatch.setattr(evidence_validity, "get_settings", lambda: settings)
+    return root
 
 
 def test_canonical_registry_is_complete() -> None:
@@ -55,6 +75,10 @@ def test_packet_rate_standardization_converts_10k_pps() -> None:
 
 def test_normalize_specifications_is_idempotent(session: Session) -> None:
     fixture = load_synthetic_fixture(session)
+    assert isinstance(fixture["category"], ProductCategory)
+    assert isinstance(fixture["product"], Product)
+    assert isinstance(fixture["sku"], SKU)
+    assert isinstance(fixture["evidence"], Evidence)
     definition = SpecificationDefinition(
         code="compute.vcpu_count",
         name="vCPU count",
@@ -113,6 +137,7 @@ def test_normalize_specifications_is_idempotent(session: Session) -> None:
 
 def test_assess_comparability_creates_and_updates_blocker_aware_records(
     session: Session,
+    synthetic_raw_root: Path,
 ) -> None:
     category = ProductCategory(code="compute", name="Compute")
     huawei = Provider(
@@ -148,8 +173,8 @@ def test_assess_comparability_creates_and_updates_blocker_aware_records(
     session.add_all([ecs_sku, ec2_sku])
     session.flush()
 
-    huawei_evidence = _evidence(session, huawei.id, "huawei")
-    aws_evidence = _evidence(session, aws.id, "aws")
+    huawei_evidence = _evidence(session, ecs, "huawei", synthetic_raw_root)
+    aws_evidence = _evidence(session, ec2, "aws", synthetic_raw_root)
     definition = SpecificationDefinition(
         code="compute.vcpu_count",
         name="vCPU count",
@@ -169,6 +194,14 @@ def test_assess_comparability_creates_and_updates_blocker_aware_records(
     session.flush()
 
     normalize_specifications(session, run_key="comparability-flow-test")
+    normalized = session.scalars(select(NormalizedSpecification)).all()
+    assert len(normalized) == 2
+    assert all(normalized_evidence_valid(session, row) for row in normalized)
+    assert all(
+        row.evidence.source_document.authority_level == AuthorityLevel.UNKNOWN.value
+        and row.evidence.review_status == ReviewStatus.MACHINE_EXTRACTED.value
+        for row in normalized
+    )
     created = assess_comparability(session, run_key="comparability-flow-test")
     updated = assess_comparability(session, run_key="comparability-flow-test")
 
@@ -183,6 +216,10 @@ def test_assess_comparability_creates_and_updates_blocker_aware_records(
 
 def test_infer_scope_uses_parser_candidate_target_identity(session: Session) -> None:
     fixture = load_synthetic_fixture(session)
+    assert isinstance(fixture["category"], ProductCategory)
+    assert isinstance(fixture["product"], Product)
+    assert isinstance(fixture["evidence"], Evidence)
+    assert isinstance(fixture["source_document"], SourceDocument)
     mapping = LegacyFieldMapping(
         source_field_code="object_storage.durability_percentage",
         canonical_field_code="object_storage.reliability.durability_percentage",
@@ -277,23 +314,57 @@ def _product(provider_id: int, category_id: int, code: str) -> Product:
     )
 
 
-def _evidence(session: Session, provider_id: int, label: str) -> Evidence:
+def _evidence(session: Session, product: Product, label: str, raw_root: Path) -> Evidence:
+    """Build synthetic provenance in memory and temporary files, never official facts."""
+    partition = CloudPartition(
+        provider_id=product.provider_id,
+        partition_code=f"synthetic_{label}",
+        partition_name=f"Synthetic {label} partition",
+        market_mode=product.market_mode,
+        is_active=True,
+    )
+    session.add(partition)
+    excerpt = f"Synthetic-only {label} fixture: vCPU count 4; not an official cloud fact."
+    raw = f'<html><body><p id="{label}">{excerpt}</p></body></html>'.encode()
+    path = raw_root / f"synthetic_{label}.html"
+    path.write_bytes(raw)
+    digest = sha256(raw).hexdigest()
+    captured_at = datetime(2026, 9, 30, tzinfo=UTC)
     source = SourceDocument(
-        provider_id=provider_id,
+        provider_id=product.provider_id,
         source_type=SourceType.DOCUMENTATION.value,
         title=f"Synthetic {label} source",
         url=f"https://example.invalid/{label}/source",
         authority_level=AuthorityLevel.UNKNOWN.value,
-        content_hash=f"synthetic-{label}-hash",
+        cloud_partition=partition.partition_code,
+        content_hash=digest,
+        storage_path=path.name,
+        captured_at=captured_at,
         http_status=200,
         is_current=True,
     )
     session.add(source)
     session.flush()
+    snapshot = SnapshotRecord(
+        source_document_id=source.id,
+        source_id=f"synthetic_{label}_comparability",
+        content_hash=digest,
+        storage_path=path.name,
+        manifest_path=f"synthetic_{label}.json",
+        content_type="text/html",
+        content_length_bytes=len(raw),
+        captured_at=captured_at,
+        change_status=ChangeStatus.CONTENT_CHANGED.value,
+        is_current=True,
+    )
+    session.add(snapshot)
+    session.flush()
     evidence = Evidence(
         source_document_id=source.id,
+        snapshot_record_id=snapshot.id,
+        content_hash=digest,
         locator=f"html:#{label}",
-        excerpt=f"Synthetic {label} excerpt.",
+        excerpt=excerpt,
         evidence_type=EvidenceType.HTML_SECTION.value,
         confidence=0.95,
         review_status=ReviewStatus.MACHINE_EXTRACTED.value,

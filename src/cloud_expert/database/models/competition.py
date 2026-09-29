@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class CompetitiveClaim(IDMixin, TimestampMixin, TableNameMixin, ReprMixin, Base):
     __table_args__ = (
         CheckConstraint(
-            f"market_mode IN ({sql_in_values(MarketMode.values())})",
+            f"market_mode IN ({sql_in_values(MarketMode.fact_values())})",
             name="competitive_claim_market_mode",
         ),
         CheckConstraint(

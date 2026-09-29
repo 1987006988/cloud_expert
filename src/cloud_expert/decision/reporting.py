@@ -103,17 +103,22 @@ def decision_report_payload(session: Session, run_code: str | None = None) -> di
     }
 
 
-def write_decision_reports(session: Session, run_code: str | None = None) -> dict[str, Any]:
+def write_decision_reports(
+    session: Session, run_code: str | None = None, *, report_dir: Path | None = None
+) -> dict[str, Any]:
+    destination = report_dir or REPORT_DIR
     payload = decision_report_payload(session, run_code)
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    _write_json(REPORT_DIR / "decision_results.json", payload)
+    destination.mkdir(parents=True, exist_ok=True)
+    _write_json(destination / "decision_results.json", payload)
     if not payload["valid"]:
-        _write(REPORT_DIR / "decision_run_summary.md", "# Decision Run Summary\n\nNo run exists.\n")
+        _write(
+            destination / "decision_run_summary.md", "# Decision Run Summary\n\nNo run exists.\n"
+        )
         return payload
     run = session.scalar(select(DecisionRun).where(DecisionRun.run_code == payload["run_code"]))
     assert run is not None
     _write(
-        REPORT_DIR / "decision_run_summary.md",
+        destination / "decision_run_summary.md",
         "\n".join(
             [
                 "# Decision Run Summary",
@@ -131,57 +136,57 @@ def write_decision_reports(session: Session, run_code: str | None = None) -> dic
         ),
     )
     _write(
-        REPORT_DIR / "scenario_coverage.md",
+        destination / "scenario_coverage.md",
         f"# Scenario Coverage\n\nScenarios: {session.scalar(select(func.count()).select_from(DecisionScenario)) or 0}\n"
         f"\nRequirements: {session.scalar(select(func.count()).select_from(ScenarioRequirement)) or 0}\n",
     )
     _write(
-        REPORT_DIR / "hard_block_summary.md",
+        destination / "hard_block_summary.md",
         f"# Hard Block Summary\n\nBlocked or invalid results: {payload['blocked']}\n",
     )
     _write(
-        REPORT_DIR / "dimension_score_distribution.md",
+        destination / "dimension_score_distribution.md",
         "# Dimension Score Distribution\n\n"
         + json.dumps(payload["dimension_status_counts"], ensure_ascii=False, indent=2),
     )
     _write(
-        REPORT_DIR / "confidence_summary.md",
+        destination / "confidence_summary.md",
         "# Confidence Summary\n\n"
         + json.dumps(payload["confidence_counts"], ensure_ascii=False, indent=2),
     )
     _write(
-        REPORT_DIR / "completeness_summary.md",
+        destination / "completeness_summary.md",
         "# Completeness Summary\n\nCompleteness is stored separately from Business Fit and Confidence.\n",
     )
     _write(
-        REPORT_DIR / "missing_data_summary.md",
+        destination / "missing_data_summary.md",
         "# Missing Data Summary\n\nMissing dimensions are marked as insufficient evidence or excluded; they are not scored as zero.\n",
     )
     _write(
-        REPORT_DIR / "evidence_quality.md",
+        destination / "evidence_quality.md",
         f"# Evidence Quality\n\nEvidence packages: {session.scalar(select(func.count()).select_from(EvidencePackage)) or 0}\n"
         f"\nCustomer-eligible decision candidates: {payload['customer_eligible']}\n",
     )
     _write(
-        REPORT_DIR / "cost_input_quality.md",
+        destination / "cost_input_quality.md",
         f"# Cost Input Quality\n\nPriceSKU: {session.scalar(select(func.count()).select_from(PriceSKU)) or 0}\n"
         f"\nPriceSnapshot: {session.scalar(select(func.count()).select_from(PriceSnapshot)) or 0}\n"
         f"\nTCOResult: {session.scalar(select(func.count()).select_from(TCOResult)) or 0}\n",
     )
     _write(
-        REPORT_DIR / "sensitivity_summary.md",
+        destination / "sensitivity_summary.md",
         f"# Sensitivity Summary\n\nStatus: `{payload['sensitivity_status']}`\n",
     )
     _write(
-        REPORT_DIR / "review_status.md",
+        destination / "review_status.md",
         "# Review Status\n\n" + json.dumps(payload["review_counts"], ensure_ascii=False, indent=2),
     )
     _write(
-        REPORT_DIR / "customer_eligibility.md",
+        destination / "customer_eligibility.md",
         f"# Customer Eligibility\n\nInternal-only: {payload['internal_only']}\n\nCustomer eligible: {payload['customer_eligible']}\n",
     )
     rows = result_rows(session, payload["run_code"])
-    _write_json(REPORT_DIR / "decision_result_rows.json", rows)
+    _write_json(destination / "decision_result_rows.json", rows)
     write_review_sample(session, payload["run_code"])
     return payload
 

@@ -1,0 +1,19 @@
+{
+  "rule_version": "aws_price_policy_replacement_v1",
+  "plan_sha256": "70c1e59ac7faa3936a58ec48af1e6c4bc7f2b6e7ea56d9c1fc981a56442216c1",
+  "old_price_id": 13,
+  "new_price_id": null,
+  "applied": false,
+  "created": false,
+  "transaction_committed": false,
+  "evidence_created": 0,
+  "price_snapshots_created": 0,
+  "price_skus_created": 0,
+  "scope": "internal_reference_only",
+  "customer_eligible": false,
+  "price_approval": false,
+  "complete_tco": false,
+  "customer_payable_tax": "unknown",
+  "status": "replacement_planned",
+  "prices_planned": 1
+}

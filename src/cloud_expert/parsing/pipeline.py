@@ -41,7 +41,7 @@ from cloud_expert.ingestion.providers.aliyun.common import (
     ALIYUN_PUBLIC_CN_PARTITION_PROFILE,
 )
 from cloud_expert.ingestion.providers.aliyun.common import (
-    PARSER_VERSION as ALIYUN_PARSER_VERSION,
+    parser_version_for_product as aliyun_parser_version_for_product,
 )
 from cloud_expert.ingestion.providers.aliyun.ecs.mappings import ALIYUN_ECS_SPEC_DEFINITIONS
 from cloud_expert.ingestion.providers.aliyun.ecs.parser import (
@@ -283,7 +283,7 @@ def _parser_name(entry: SourceRegistryEntry) -> str:
 
 def _parser_version(entry: SourceRegistryEntry) -> str:
     if entry.provider_code == ALIYUN_PROVIDER_CODE:
-        return ALIYUN_PARSER_VERSION
+        return aliyun_parser_version_for_product(entry.product_code)
     if entry.provider_code == AWS_PROVIDER_CODE:
         return AWS_PARSER_VERSION
     return HUAWEI_PARSER_VERSION
@@ -412,7 +412,7 @@ def _ensure_product(
     product = session.scalar(
         select(Product).where(Product.provider_id == provider.id, Product.code == product_code)
     )
-    field_values = _field_values(records, "product")
+    field_values = _product_field_values(records, product_code)
     official_name = (
         _canonical_product_name(product_code, entry.provider_code)
         or field_values.get("product.official_name")
@@ -472,10 +472,10 @@ def _canonical_product_name(product_code: str, provider_code: str | None = None)
     return None
 
 
-def _field_values(records: list[ParsedRecord], target_identity: str) -> dict[str, str]:
+def _product_field_values(records: list[ParsedRecord], product_code: str) -> dict[str, str]:
     values: dict[str, str] = {}
     for record in records:
-        if record.target_identity != target_identity:
+        if record.record_type != "product" or record.target_identity != product_code:
             continue
         for field in record.fields:
             if field.raw_value is not None:

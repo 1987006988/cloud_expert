@@ -4,18 +4,17 @@ from decimal import Decimal
 from cloud_expert.database.enums import AvailabilityStatus, ReviewStatus
 from cloud_expert.ingestion.providers.aliyun.common import (
     ALIYUN_PUBLIC_CN_PARTITION,
-    PARSER_VERSION,
     is_mainland_region_code,
 )
 from cloud_expert.normalization.percentages import normalize_percentage
 from cloud_expert.normalization.units import (
-    normalize_bandwidth_to_gbps,
     normalize_memory_to_gib,
     parse_decimal,
 )
 from cloud_expert.parsing.html_adapter import HtmlDocument, HtmlTable
 from cloud_expert.parsing.models import FieldCandidate, ParsedRecord
 
+PARSER_VERSION = "2026.09.c09_aliyun_ecs_table_units_v2"
 INSTANCE_TYPE_PATTERN = re.compile(r"\becs\.[a-z0-9-]+(?:\.[a-z0-9.-]+)?\b", re.IGNORECASE)
 REGION_CODE_PATTERN = re.compile(r"\bcn-[a-z0-9-]+(?:-[a-z0-9]+)*\b")
 ZONE_CODE_PATTERN = re.compile(r"\b(cn-[a-z0-9-]+-[a-z])\b")
@@ -99,9 +98,11 @@ def _parse_product_fields(document: HtmlDocument) -> list[FieldCandidate]:
             section_title="product heading",
         )
     ]
-    paragraphs = document.paragraphs_containing("云服务器 ECS", "Elastic Compute Service", "ECS")
-    if paragraphs:
-        locator, excerpt = paragraphs[0]
+    description = document.product_description_containing(
+        "云服务器 ECS", "Elastic Compute Service", "ECS"
+    )
+    if description:
+        locator, excerpt = description
         fields.append(
             _candidate(
                 field_code="product.description",
@@ -154,7 +155,7 @@ def _instance_records(
                         parser_version=PARSER_VERSION,
                     )
                 )
-            fields = _sku_fields(row, header_map, instance_type, locator, excerpt)
+            fields = _sku_fields(row, header_map, instance_type, locator, excerpt, table.headers)
             if fields:
                 records.append(
                     ParsedRecord(
@@ -252,6 +253,7 @@ def _sku_fields(
     instance_type: str,
     locator: str,
     excerpt: str,
+    headers: list[str],
 ) -> list[FieldCandidate]:
     fields = [
         _candidate(
@@ -269,6 +271,9 @@ def _sku_fields(
             section_title="ECS instance table",
         )
     ]
+    # The shared HTML adapter does not expand merged cells; never shift numeric columns.
+    if len(row) != len(headers):
+        return fields
     _add_decimal_field(
         fields,
         row,
@@ -304,66 +309,20 @@ def _sku_fields(
     processor = _cell(row, header_map.get("processor"))
     if processor:
         fields.extend(_processor_fields(processor, locator, excerpt, instance_type))
-    network = _cell(row, header_map.get("network"))
-    if network:
-        fields.extend(_network_fields(network, locator, excerpt, instance_type))
-    pps = _cell(row, header_map.get("pps"))
-    if pps:
-        fields.append(
-            _numeric_text_field(
-                "network.max_pps",
-                pps,
-                _parse_pps(pps),
-                "PPS",
-                locator,
-                excerpt,
-                instance_type,
-                "aliyun.ecs.sku.pps",
+    for key in _PERFORMANCE_FIELDS:
+        index = header_map.get(key)
+        raw_value = _cell(row, index)
+        if raw_value is not None and index is not None:
+            fields.extend(
+                _performance_fields(
+                    key,
+                    raw_value,
+                    headers[index],
+                    f"{locator}:cell[{index}]",
+                    excerpt,
+                    instance_type,
+                )
             )
-        )
-    connections = _cell(row, header_map.get("connections"))
-    if connections:
-        fields.append(
-            _numeric_text_field(
-                "network.max_connections",
-                connections,
-                parse_decimal(connections.replace(",", "")),
-                "count",
-                locator,
-                excerpt,
-                instance_type,
-                "aliyun.ecs.sku.connections",
-            )
-        )
-    disk_bandwidth = _cell(row, header_map.get("cloud_disk_bandwidth"))
-    if disk_bandwidth:
-        value, unit = normalize_bandwidth_to_gbps(disk_bandwidth)
-        fields.append(
-            _numeric_text_field(
-                "network.cloud_disk_bandwidth_gbps",
-                disk_bandwidth,
-                value,
-                unit or "Gbps",
-                locator,
-                excerpt,
-                instance_type,
-                "aliyun.ecs.sku.cloud_disk_bandwidth",
-            )
-        )
-    disk_iops = _cell(row, header_map.get("cloud_disk_iops"))
-    if disk_iops:
-        fields.append(
-            _numeric_text_field(
-                "storage.cloud_disk_iops",
-                disk_iops,
-                parse_decimal(disk_iops.replace(",", "")),
-                "IOPS",
-                locator,
-                excerpt,
-                instance_type,
-                "aliyun.ecs.sku.cloud_disk_iops",
-            )
-        )
     local_storage = _cell(row, header_map.get("local_storage"))
     if local_storage:
         fields.extend(_local_storage_fields(local_storage, locator, excerpt, instance_type))
@@ -434,32 +393,111 @@ def _processor_fields(
     return fields
 
 
-def _network_fields(
+_PERFORMANCE_FIELDS = {
+    "network": ("network.baseline_bandwidth_gbps", "network.max_bandwidth_gbps", "Gbps"),
+    "pps": ("network.baseline_pps", "network.max_pps", "PPS"),
+    "connections": ("network.baseline_connections", "network.max_connections", "count"),
+    "cloud_disk_bandwidth": (
+        "network.cloud_disk_baseline_bandwidth_gbps",
+        "network.cloud_disk_bandwidth_gbps",
+        "Gbps",
+    ),
+    "cloud_disk_iops": ("storage.cloud_disk_baseline_iops", "storage.cloud_disk_iops", "IOPS"),
+}
+_QUALIFIER = re.compile(
+    r"基础|基准|最高|最大|突发|\bbaseline\b|\bmaximum\b|\bmax\b|\bup\s+to\b|\bburst\b", re.I
+)
+_NUMBER = r"(?:\d{1,3}(?:[,，]\d{3})+|\d+)(?:\.\d+)?"
+_BANDWIDTH_UNIT = r"[KMGkmg](?:bit/s|bps|[bB]/s)"
+_MAGNITUDES = {
+    "万": Decimal(10000),
+    "亿": Decimal(100000000),
+    "k": Decimal(1000),
+    "m": Decimal(1000000),
+}
+
+
+def _qualifiers(value: str) -> list[str]:
+    return [
+        "baseline" if match.group().lower() in {"基础", "基准", "baseline"} else "maximum"
+        for match in _QUALIFIER.finditer(value)
+    ]
+
+
+def _performance_parts(raw_value: str, header: str, default: str) -> list[tuple[str, str | None]]:
+    # Unit slashes (Gbit/s, GB/s) are not baseline/burst separators.
+    parts = re.split(r"[/／](?!s\b)", raw_value, flags=re.I)
+    header_qualifiers = list(dict.fromkeys(_qualifiers(header)))
+    result: list[tuple[str, str | None]] = []
+    for index, part in enumerate(parts):
+        qualifiers = list(dict.fromkeys(_qualifiers(part)))
+        if len(qualifiers) == 1:
+            qualifier = qualifiers[0]
+        elif not qualifiers and len(header_qualifiers) == len(parts):
+            qualifier = header_qualifiers[index]
+        elif not qualifiers and len(parts) == 1:
+            qualifier = header_qualifiers[0] if header_qualifiers else default
+        else:
+            return [(default, None)]
+        result.append((qualifier, part))
+    if len(parts) > 2 or len({qualifier for qualifier, _ in result}) != len(result):
+        return [(default, None)]
+    return result
+
+
+def _table_number(raw_value: str, header: str, unit: str) -> Decimal | None:
+    text = _QUALIFIER.sub("", raw_value).strip(" :：")
+    if unit == "Gbps":
+        match = re.fullmatch(rf"({_NUMBER})\s*({_BANDWIDTH_UNIT})?", text)
+        if match is None:
+            return None
+        header_unit = re.search(_BANDWIDTH_UNIT, header)
+        source_unit = match[2] or (header_unit[0] if header_unit else "Gbps")
+        multiplier = {"k": Decimal("0.000001"), "m": Decimal("0.001"), "g": Decimal(1)}[
+            source_unit[0].lower()
+        ]
+        if "B/s" in source_unit:
+            multiplier *= 8
+    else:
+        suffix = {"PPS": "pps", "IOPS": "iops", "count": "count|个|条"}[unit]
+        match = re.fullmatch(rf"({_NUMBER})\s*([万亿kKmM])?\s*({suffix})?", text, re.I)
+        if match is None:
+            return None
+        magnitude = match[2]
+        # Explicit cell magnitudes/units override header units, never multiply twice.
+        if magnitude is None and match[3] is None:
+            header_magnitude = re.search(r"[万亿]|\b([kKmM])(?:pps|iops)\b", header, re.I)
+            if header_magnitude:
+                magnitude = header_magnitude[1] or header_magnitude[0]
+        multiplier = _MAGNITUDES.get((magnitude or "").lower(), Decimal(1))
+    return Decimal(match[1].replace(",", "").replace("，", "")) * multiplier
+
+
+def _performance_fields(
+    key: str,
     raw_value: str,
+    header: str,
     locator: str,
     excerpt: str,
     target_identity: str,
 ) -> list[FieldCandidate]:
-    value, unit = normalize_bandwidth_to_gbps(raw_value)
-    if value is None:
-        return []
-    field_code = (
-        "network.max_bandwidth_gbps"
-        if "最高" in raw_value or "max" in raw_value.lower()
-        else "network.baseline_bandwidth_gbps"
-    )
-    return [
-        _numeric_text_field(
-            field_code,
-            raw_value,
-            value,
-            unit or "Gbps",
-            locator,
-            excerpt,
-            target_identity,
-            "aliyun.ecs.sku.network_bandwidth",
+    baseline_code, maximum_code, unit = _PERFORMANCE_FIELDS[key]
+    default = "baseline" if key == "network" else "maximum"
+    fields = []
+    for qualifier, part in _performance_parts(raw_value, header, default):
+        fields.append(
+            _numeric_text_field(
+                baseline_code if qualifier == "baseline" else maximum_code,
+                raw_value,
+                _table_number(part, header, unit) if part is not None else None,
+                unit,
+                locator,
+                f"{header}: {raw_value} | {excerpt}",
+                target_identity,
+                f"aliyun.ecs.sku.{key}.table_units_v2.{qualifier}",
+            )
         )
-    ]
+    return fields
 
 
 def _local_storage_fields(
@@ -906,23 +944,29 @@ def _header_map(table: HtmlTable) -> dict[str, int]:
             mapping["instance"] = index
         elif "vcpu" in normalized or "vCPU" in header or header.strip() == "核":
             mapping["vcpu"] = index
-        elif "内存" in header or "memory" in normalized:
+        elif ("内存" in header or "memory" in normalized) and not any(
+            token in normalized for token in ("持久", "加密", "persistent", "encrypted", "gpu")
+        ):
             mapping["memory"] = index
-        elif "处理器" in header or "processor" in normalized or "CPU" in header:
+        elif "处理器" in header or "processor" in normalized or normalized == "cpu":
             mapping["processor"] = index
-        elif "网络" in header and "包" not in header and "连接" not in header:
-            mapping["network"] = index
-        elif "PPS" in header or "收发包" in header:
+        elif "pps" in normalized or "收发包" in header:
             mapping["pps"] = index
         elif "连接" in header:
             mapping["connections"] = index
         elif "云盘" in header and ("带宽" in header or "吞吐" in header):
             mapping["cloud_disk_bandwidth"] = index
-        elif "IOPS" in header and "云盘" in header:
+        elif "iops" in normalized and "云盘" in header:
             mapping["cloud_disk_iops"] = index
+        elif (
+            "网络" in header
+            and "包" not in header
+            and not any(token in normalized for token in ("rdma", "roce"))
+        ):
+            mapping["network"] = index
         elif "本地" in header or "存储" in header:
             mapping["local_storage"] = index
-        elif "GPU" in header or "NPU" in header:
+        elif ("GPU" in header or "NPU" in header) and "显存" not in header:
             mapping["gpu"] = index
     return mapping
 
@@ -1081,17 +1125,6 @@ def _region_name_from_excerpt(excerpt: str, region_code: str) -> str | None:
     before = excerpt[max(0, index - 80) : index]
     candidates = re.findall(r"([\u4e00-\u9fff]+\s*\d?（[^）]+）|[\u4e00-\u9fff]+)", before)
     return candidates[-1].strip() if candidates else None
-
-
-def _parse_pps(raw_value: str) -> Decimal | None:
-    value = parse_decimal(raw_value.replace(",", ""))
-    if value is None:
-        return None
-    if "万" in raw_value:
-        return value * Decimal("10000")
-    if "mpps" in raw_value.lower():
-        return value * Decimal("1000000")
-    return value
 
 
 def _processor_vendor(value: str) -> str | None:

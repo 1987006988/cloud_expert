@@ -10,7 +10,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select, and_, func, or_, select
 from sqlalchemy.orm import Session
 
 from cloud_expert.database.enums import (
@@ -27,6 +27,7 @@ from cloud_expert.database.enums import (
     ScoringDimension,
     TCOCompletenessStatus,
 )
+from cloud_expert.database.models.canonical import NormalizedSpecification
 from cloud_expert.database.models.decision import (
     CandidateDecisionResult,
     DecisionRun,
@@ -38,23 +39,38 @@ from cloud_expert.database.models.decision import (
     ScoringPolicy,
     ScoringRule,
 )
-from cloud_expert.database.models.evidence_package import EvidencePackage
-from cloud_expert.database.models.mapping import MappingCandidate, MappingFieldComparison
-from cloud_expert.database.models.product import Product
+from cloud_expert.database.models.evidence_package import EvidencePackage, EvidencePackageItem
+from cloud_expert.database.models.mapping import (
+    MappingCandidate,
+    MappingCandidateEvidence,
+    MappingFieldComparison,
+    MappingRuleSet,
+)
+from cloud_expert.database.models.pricing import PriceSnapshot
+from cloud_expert.database.models.product import SKU, Product, ProductCategory
 from cloud_expert.database.models.provider import Provider
-from cloud_expert.database.models.tco import TCOResult
+from cloud_expert.database.models.source import Evidence, SourceDocument
+from cloud_expert.database.models.tco import CostLineItem, PricingScenario, TCOResult
 from cloud_expert.decision.config import (
     PolicyConfig,
     ScenarioConfig,
     load_policy_config,
     load_scenario_config,
 )
+from cloud_expert.decision.dependency_state import current_source_state, implementation_state
+from cloud_expert.decision.policy_rules import evaluate_policy_rule
+from cloud_expert.decision.requirements import evaluate_scenario_requirements
+from cloud_expert.decision.sensitivity import analyze_weight_sensitivity
+from cloud_expert.model_review.approvals import mapping_approval
+from cloud_expert.pricing.freshness import price_snapshot_freshness
+from cloud_expert.pricing.tco import tco_result_currently_complete
 
 REPORT_DIR = Path("reports") / "decision"
 REVIEW_SAMPLE_PATH = Path("reports") / "review_samples" / "week10_decision_review.csv"
 Q = Decimal("0.0001")
 ZERO = Decimal("0.0000")
 ONE = Decimal("1.0000")
+ENGINE_VERSION = "week14_decision_verified_requirements_v5"
 
 
 @dataclass(frozen=True)
@@ -226,18 +242,49 @@ def create_from_config(session: Session, scenario_path: Path) -> DecisionScenari
 def _candidate_query(scenario: DecisionScenario) -> Select[tuple[MappingCandidate]]:
     levels = {"product", "sku", "product_family", "service_tier"}
     category = str(scenario.workload_profile.get("category", ""))
-    statement = select(MappingCandidate).where(MappingCandidate.mapping_level.in_(levels))
+    if category not in {"compute", "object_storage"}:
+        raise ValueError(f"unsupported decision workload category: {category or '<missing>'}")
+    statement = select(MappingCandidate).where(
+        MappingCandidate.mapping_level.in_(levels),
+        MappingCandidate.candidate_status.not_in(
+            [MappingCandidateStatus.REJECTED.value, MappingCandidateStatus.SUPERSEDED.value]
+        ),
+    )
     if category == "compute":
         statement = statement.where(
             MappingCandidate.mapping_level.in_({"product", "sku", "product_family"})
         )
     if category == "object_storage":
         statement = statement.where(MappingCandidate.mapping_level.in_({"product", "service_tier"}))
+    if category in {"compute", "object_storage"}:
+        matching_product_ids = (
+            select(Product.id)
+            .join(ProductCategory, Product.category_id == ProductCategory.id)
+            .where(ProductCategory.code == category)
+        )
+        statement = statement.where(
+            or_(
+                and_(
+                    MappingCandidate.mapping_level != "product",
+                    MappingCandidate.rule_set.has(MappingRuleSet.category == category),
+                ),
+                and_(
+                    MappingCandidate.mapping_level == "product",
+                    MappingCandidate.source_entity_type == "product",
+                    MappingCandidate.target_entity_type == "product",
+                    MappingCandidate.source_entity_id.in_(matching_product_ids),
+                    MappingCandidate.target_entity_id.in_(matching_product_ids),
+                ),
+            )
+        )
     return statement.order_by(MappingCandidate.id)
 
 
 def _product_for_candidate(session: Session, candidate: MappingCandidate) -> Product | None:
     entity_id = candidate.target_entity_id
+    if candidate.target_entity_type == "sku":
+        sku = session.get(SKU, entity_id)
+        return sku.product if sku else None
     if candidate.target_entity_type != "product":
         return None
     return session.get(Product, entity_id)
@@ -251,17 +298,79 @@ def _latest_package(session: Session, candidate: MappingCandidate) -> EvidencePa
     )
 
 
-def _latest_tco(session: Session, candidate: MappingCandidate) -> TCOResult | None:
+def _latest_tco(
+    session: Session, candidate: MappingCandidate, scenario: DecisionScenario
+) -> TCOResult | None:
     if candidate.target_entity_type != "product":
         return None
-    return session.scalar(
+    results = session.scalars(
         select(TCOResult)
         .where(
             TCOResult.provider_id == candidate.target_provider_id,
             TCOResult.product_id == candidate.target_entity_id,
+            TCOResult.scenario.has(PricingScenario.market_mode == scenario.market_mode),
+            TCOResult.currency == (scenario.budget_preferences or {}).get("currency", ""),
         )
         .order_by(TCOResult.created_at.desc(), TCOResult.id.desc())
-    )
+    ).all()
+    for result in results:
+        if _tco_matches_scenario(session, result, scenario):
+            return result
+    return None
+
+
+def _tco_matches_scenario(session: Session, result: TCOResult, scenario: DecisionScenario) -> bool:
+    if (
+        result.completeness_status != TCOCompletenessStatus.COMPLETE.value
+        or result.freshness_status != FreshnessStatus.FRESH.value
+    ):
+        return False
+    pricing_profile = result.scenario.workload_profile
+    usage_keys = {
+        "storage_gb_month": "storage_gb_month",
+        "requests_per_month": "requests_per_month",
+        "outbound_gb": "outbound_gb",
+        "monthly_hours": "compute_instance_hours",
+        "vcpu": "vcpu",
+        "memory_gb": "memory_gb",
+    }
+    for decision_key, pricing_key in usage_keys.items():
+        required = scenario.workload_profile.get(decision_key)
+        if required is not None and str(pricing_profile.get(pricing_key)) != str(required):
+            return False
+    if not tco_result_currently_complete(session, result):
+        return False
+    if "scoped_ecs_config" in pricing_profile:
+        # The scoped validator has already reconstructed every price, policy and exclusion.
+        context = pricing_profile["scoped_ecs_config"]["context"]
+        return bool(
+            context["market_mode"] == scenario.market_mode
+            and (not scenario.country_code or context["country_code"] == scenario.country_code)
+            and (not scenario.preferred_regions or context["region"] in scenario.preferred_regions)
+        )
+    line_items = session.scalars(
+        select(CostLineItem).where(
+            CostLineItem.run_id == result.run_id,
+            CostLineItem.provider_id == result.provider_id,
+            CostLineItem.product_id == result.product_id,
+        )
+    ).all()
+    if not line_items or any(
+        item.amount is None or item.price_snapshot is None for item in line_items
+    ):
+        return False
+    for item in line_items:
+        snapshot = item.price_snapshot
+        if snapshot is None:
+            return False
+        if price_snapshot_freshness(snapshot) != FreshnessStatus.FRESH.value:
+            return False
+        region = snapshot.price_sku.region
+        if scenario.country_code and region.country_code != scenario.country_code:
+            return False
+        if scenario.preferred_regions and region.code not in scenario.preferred_regions:
+            return False
+    return True
 
 
 def _comparison_counts(session: Session, candidate: MappingCandidate) -> Counter[str]:
@@ -278,14 +387,30 @@ def _target_market_block(
     scenario: DecisionScenario,
     candidate: MappingCandidate,
 ) -> str | None:
+    if candidate.rule_set.market_mode == "cross_market":
+        return "cross_market_mapping_in_normal_decision"
     product = _product_for_candidate(session, candidate)
     if product is None:
-        return None
+        return "candidate_target_product_scope_unresolved"
+    if product.provider_id != candidate.target_provider_id:
+        return "candidate_target_provider_mismatch"
     if product.market_mode != scenario.market_mode:
         return (
             f"candidate target product market_mode={product.market_mode} does not match "
             f"scenario market_mode={scenario.market_mode}"
         )
+    source_product = None
+    if candidate.source_entity_type == "product":
+        source_product = session.get(Product, candidate.source_entity_id)
+    elif candidate.source_entity_type == "sku":
+        source_sku = session.get(SKU, candidate.source_entity_id)
+        source_product = source_sku.product if source_sku else None
+    if source_product is None:
+        return "candidate_source_product_scope_unresolved"
+    if source_product.provider_id != candidate.source_provider_id:
+        return "candidate_source_provider_mismatch"
+    if source_product.market_mode != scenario.market_mode:
+        return "candidate_source_market_mismatch"
     return None
 
 
@@ -296,6 +421,8 @@ def _status_from_candidate(
     tco: TCOResult | None,
     hard_blocks: list[str],
     scenario: DecisionScenario,
+    scoped_model_approval: bool = False,
+    requirements_need_review: bool = False,
 ) -> str:
     if hard_blocks:
         return DecisionStatus.BLOCKED.value
@@ -309,10 +436,14 @@ def _status_from_candidate(
     if package is None or package.evidence_completeness is None:
         return DecisionStatus.INSUFFICIENT_EVIDENCE.value
     if scenario.workload_profile.get("cost_required", True) and (
-        tco is None or tco.completeness_status != TCOCompletenessStatus.COMPLETE.value
+        tco is None
+        or tco.completeness_status != TCOCompletenessStatus.COMPLETE.value
+        or tco.freshness_status != FreshnessStatus.FRESH.value
     ):
         return DecisionStatus.INCOMPLETE_COST.value
-    if candidate.review_status != ReviewStatus.HUMAN_REVIEWED.value:
+    if requirements_need_review or (
+        candidate.review_status != ReviewStatus.HUMAN_REVIEWED.value and not scoped_model_approval
+    ):
         return DecisionStatus.REQUIRES_REVIEW.value
     if not package.customer_eligible:
         return DecisionStatus.CONDITIONALLY_ELIGIBLE.value
@@ -324,16 +455,23 @@ def _confidence(
     package: EvidencePackage | None,
     tco: TCOResult | None,
     comparison_counts: Counter[str],
+    *,
+    scoped_model_approval: bool = False,
 ) -> tuple[Decimal, str]:
     components: list[Decimal] = []
     components.append(_decimal(candidate.confidence, Decimal("0.5000")))
     components.append(_decimal(package.evidence_completeness if package else None))
     components.append(
-        ONE if candidate.review_status == ReviewStatus.HUMAN_REVIEWED.value else Decimal("0.4000")
+        ONE
+        if candidate.review_status == ReviewStatus.HUMAN_REVIEWED.value or scoped_model_approval
+        else Decimal("0.4000")
     )
     if tco is None:
         components.append(Decimal("0.3000"))
-    elif tco.completeness_status == TCOCompletenessStatus.COMPLETE.value:
+    elif (
+        tco.completeness_status == TCOCompletenessStatus.COMPLETE.value
+        and tco.freshness_status == FreshnessStatus.FRESH.value
+    ):
         components.append(ONE)
     else:
         components.append(Decimal("0.5000"))
@@ -359,28 +497,40 @@ def _dimension_inputs(
     package: EvidencePackage | None,
     tco: TCOResult | None,
     comparison_counts: Counter[str],
+    scoped_model_approval: bool = False,
 ) -> dict[str, tuple[Decimal | None, str, str]]:
-    match_score = _decimal(candidate.normalized_score)
-    package_score = _decimal(package.evidence_completeness if package else None)
-    total_comparisons = sum(comparison_counts.values())
-    comparable = Decimal(total_comparisons - comparison_counts.get("not_comparable", 0))
-    comparison_score = (
-        (comparable / Decimal(total_comparisons)).quantize(Q) if total_comparisons else None
+    match_score = (
+        _decimal(candidate.normalized_score)
+        if candidate.normalized_score is not None and candidate.mapping_level == "sku"
+        else None
     )
+    package_score = (
+        _decimal(package.evidence_completeness)
+        if package and package.evidence_completeness is not None
+        else None
+    )
+    # A generic comparison ratio proves neither region, SLA nor migration fitness.
+    comparison_score = None
     review_score = (
-        ONE if candidate.review_status == ReviewStatus.HUMAN_REVIEWED.value else Decimal("0.4000")
+        ONE
+        if candidate.review_status == ReviewStatus.HUMAN_REVIEWED.value or scoped_model_approval
+        else Decimal("0.4000")
     )
     cost_score: Decimal | None = None
     cost_status = DimensionScoreStatus.INSUFFICIENT_EVIDENCE.value
     cost_text = "No complete TCO is available; the cost dimension is excluded, not scored as zero."
-    if tco is not None and tco.completeness_status == TCOCompletenessStatus.COMPLETE.value:
-        cost_score = ONE
-        cost_status = DimensionScoreStatus.SCORED.value
-        cost_text = "Complete TCO result is available for this candidate."
+    if (
+        tco is not None
+        and tco.completeness_status == TCOCompletenessStatus.COMPLETE.value
+        and tco.freshness_status == FreshnessStatus.FRESH.value
+    ):
+        cost_text = "Complete scoped TCO is available, but no evidenced budget or comparable alternative establishes a cost-fit score."
     return {
         ScoringDimension.TECHNICAL_FIT.value: (
             match_score,
-            DimensionScoreStatus.SCORED.value,
+            DimensionScoreStatus.SCORED.value
+            if match_score is not None
+            else DimensionScoreStatus.INSUFFICIENT_EVIDENCE.value,
             "Technical fit uses the Week 7 normalized mapping score as an input only.",
         ),
         ScoringDimension.AVAILABILITY_FIT.value: (
@@ -415,9 +565,9 @@ def _dimension_inputs(
             "Operational capability facts are insufficient for a numeric fit score.",
         ),
         ScoringDimension.MIGRATION_FIT.value: (
-            match_score,
-            DimensionScoreStatus.SCORED.value,
-            "Migration fit uses mapping similarity only as a technical compatibility signal.",
+            None,
+            DimensionScoreStatus.INSUFFICIENT_EVIDENCE.value,
+            "Category or SKU similarity does not establish migration compatibility.",
         ),
         ScoringDimension.COST_FIT.value: (cost_score, cost_status, cost_text),
         ScoringDimension.EVIDENCE_QUALITY.value: (
@@ -430,7 +580,9 @@ def _dimension_inputs(
         ScoringDimension.DATA_FRESHNESS.value: (
             ONE
             if package and package.freshness_status == FreshnessStatus.FRESH.value
-            else Decimal("0.5000"),
+            else Decimal("0.5000")
+            if package
+            else None,
             DimensionScoreStatus.SCORED.value
             if package
             else DimensionScoreStatus.INSUFFICIENT_EVIDENCE.value,
@@ -440,8 +592,9 @@ def _dimension_inputs(
             review_score,
             DimensionScoreStatus.REQUIRES_REVIEW.value
             if candidate.review_status != ReviewStatus.HUMAN_REVIEWED.value
+            and not scoped_model_approval
             else DimensionScoreStatus.SCORED.value,
-            "Machine generated candidates remain pending until real human review.",
+            "Verified model approval is limited to its recorded scope; it grants no customer-output authority.",
         ),
     }
 
@@ -472,7 +625,233 @@ def _completeness(dimensions: dict[str, tuple[Decimal | None, str, str]]) -> Dec
     return (Decimal(present) / Decimal(len(dimensions))).quantize(Q)
 
 
-def _run_code(scenario: DecisionScenario, policy: ScoringPolicy, price_cutoff: datetime) -> str:
+def _dependency_fingerprint(
+    session: Session,
+    scenario: DecisionScenario,
+    policy: ScoringPolicy,
+    candidates: list[MappingCandidate],
+) -> str:
+    def entity_category(entity_type: str, entity_id: int) -> str | None:
+        if entity_type != "product":
+            return None
+        product = session.get(Product, entity_id)
+        return product.category.code if product is not None else None
+
+    candidate_ids = [candidate.id for candidate in candidates]
+    if not candidate_ids:
+        return _json_hash({"engine": ENGINE_VERSION, "candidates": []})
+    comparisons = session.execute(
+        select(
+            MappingFieldComparison.mapping_candidate_id,
+            MappingFieldComparison.id,
+            MappingFieldComparison.source_value_id,
+            MappingFieldComparison.target_value_id,
+            MappingFieldComparison.comparison_status,
+            MappingFieldComparison.blocking_reason,
+        )
+        .where(MappingFieldComparison.mapping_candidate_id.in_(candidate_ids))
+        .order_by(MappingFieldComparison.mapping_candidate_id, MappingFieldComparison.id)
+    ).all()
+    linked_sources = session.execute(
+        select(
+            MappingCandidateEvidence.mapping_candidate_id,
+            Evidence.id,
+            Evidence.locator,
+            Evidence.excerpt,
+            SourceDocument.content_hash,
+        )
+        .join(Evidence, MappingCandidateEvidence.evidence_id == Evidence.id)
+        .join(SourceDocument, Evidence.source_document_id == SourceDocument.id)
+        .where(MappingCandidateEvidence.mapping_candidate_id.in_(candidate_ids))
+        .order_by(MappingCandidateEvidence.mapping_candidate_id, Evidence.id)
+    ).all()
+    packages = session.scalars(
+        select(EvidencePackage).where(EvidencePackage.mapping_candidate_id.in_(candidate_ids))
+    ).all()
+    package_items = (
+        session.execute(
+            select(
+                EvidencePackageItem.package_id,
+                EvidencePackageItem.id,
+                EvidencePackageItem.source_value_id,
+                EvidencePackageItem.target_value_id,
+                EvidencePackageItem.comparison_status,
+                EvidencePackageItem.scope_status,
+                EvidencePackageItem.qualifier_status,
+                EvidencePackageItem.blocking_reason,
+            )
+            .where(EvidencePackageItem.package_id.in_([package.id for package in packages]))
+            .order_by(EvidencePackageItem.package_id, EvidencePackageItem.id)
+        ).all()
+        if packages
+        else []
+    )
+    tco = session.scalars(select(TCOResult).order_by(TCOResult.id)).all()
+    cost_items = session.execute(
+        select(
+            CostLineItem.id,
+            CostLineItem.run_id,
+            CostLineItem.product_id,
+            CostLineItem.dimension,
+            CostLineItem.amount,
+            CostLineItem.price_snapshot_id,
+            CostLineItem.missing_reason,
+        ).order_by(CostLineItem.id)
+    ).all()
+    price_snapshots = session.execute(
+        select(
+            PriceSnapshot.id,
+            PriceSnapshot.captured_at,
+            PriceSnapshot.effective_to,
+            PriceSnapshot.unit_price,
+            PriceSnapshot.evidence_id,
+        ).order_by(PriceSnapshot.id)
+    ).all()
+    normalized_values = session.execute(
+        select(
+            NormalizedSpecification.id,
+            NormalizedSpecification.product_id,
+            NormalizedSpecification.sku_id,
+            NormalizedSpecification.canonical_field_id,
+            NormalizedSpecification.scope_type,
+            NormalizedSpecification.scope_identity,
+            NormalizedSpecification.value_qualifier,
+            NormalizedSpecification.canonical_value,
+            NormalizedSpecification.numeric_value,
+            NormalizedSpecification.text_value,
+            NormalizedSpecification.boolean_value,
+            NormalizedSpecification.canonical_unit,
+            NormalizedSpecification.evidence_id,
+            NormalizedSpecification.review_status,
+            NormalizedSpecification.source_value_hash,
+        ).order_by(NormalizedSpecification.id)
+    ).all()
+    return _json_hash(
+        {
+            "engine": ENGINE_VERSION,
+            "implementation_state": implementation_state(),
+            "freshness_day": datetime.now(UTC).date().isoformat(),
+            "scenario": [
+                scenario.id,
+                scenario.market_mode,
+                scenario.workload_profile,
+                scenario.technical_requirements,
+                scenario.budget_preferences,
+                scenario.country_code,
+                scenario.preferred_regions,
+                scenario.availability_requirements,
+                scenario.compliance_requirements,
+                scenario.data_residency_requirements,
+                scenario.operational_requirements,
+                scenario.migration_requirements,
+            ],
+            "requirements": [
+                [
+                    item.id,
+                    item.requirement_code,
+                    item.requirement_type,
+                    item.required_value,
+                    item.operator,
+                    item.unit,
+                    item.scope,
+                    item.qualifier,
+                    item.priority,
+                    item.is_mandatory,
+                    item.missing_data_policy,
+                    item.evidence_requirement,
+                ]
+                for item in sorted(scenario.requirements, key=lambda item: item.id)
+            ],
+            "mapping_approvals": [mapping_approval(session, candidate) for candidate in candidates],
+            "policy": [
+                policy.id,
+                policy.policy_version,
+                policy.dimension_weights,
+                policy.hard_block_rules,
+                policy.missing_data_policy,
+                policy.confidence_policy,
+                policy.thresholds,
+                policy.effective_from,
+                policy.deprecated_at,
+                policy.status,
+            ],
+            "policy_rules": [
+                [
+                    rule.id,
+                    rule.rule_code,
+                    rule.rule_version,
+                    rule.dimension,
+                    rule.canonical_field_id,
+                    rule.operator,
+                    rule.expected_value,
+                    rule.minimum_score,
+                    rule.maximum_score,
+                    rule.score_function,
+                    rule.conditions,
+                    rule.evidence_requirement,
+                    rule.missing_data_policy,
+                    rule.priority,
+                    rule.status,
+                ]
+                for rule in sorted(policy.rules, key=lambda rule: rule.id)
+            ],
+            "candidates": [
+                [
+                    candidate.id,
+                    candidate.candidate_status,
+                    candidate.review_status,
+                    candidate.blocking_reasons,
+                    candidate.relationship_type,
+                    candidate.normalized_score,
+                    candidate.confidence,
+                    candidate.rule_set.market_mode,
+                    candidate.rule_set.category,
+                    entity_category(candidate.source_entity_type, candidate.source_entity_id),
+                    entity_category(candidate.target_entity_type, candidate.target_entity_id),
+                ]
+                for candidate in candidates
+            ],
+            "comparisons": comparisons,
+            "linked_sources": linked_sources,
+            "packages": [
+                [
+                    package.id,
+                    package.mapping_candidate_id,
+                    package.content_hash,
+                    package.review_status,
+                    package.customer_eligible,
+                    package.evidence_completeness,
+                    package.freshness_status,
+                ]
+                for package in packages
+            ],
+            "package_items": package_items,
+            "tco": [
+                [
+                    row.id,
+                    row.product_id,
+                    row.scenario.market_mode,
+                    row.total,
+                    row.completeness_status,
+                    row.freshness_status,
+                    row.created_at,
+                ]
+                for row in tco
+            ],
+            "cost_items": cost_items,
+            "price_snapshots": price_snapshots,
+            "normalized_values": normalized_values,
+            "current_source_state": current_source_state(session, _now()),
+        }
+    )
+
+
+def _run_code(
+    scenario: DecisionScenario,
+    policy: ScoringPolicy,
+    price_cutoff: datetime,
+    dependency_hash: str,
+) -> str:
     digest = _json_hash(
         {
             "scenario": scenario.scenario_code,
@@ -480,6 +859,7 @@ def _run_code(scenario: DecisionScenario, policy: ScoringPolicy, price_cutoff: d
             "policy": policy.policy_code,
             "policy_version": policy.policy_version,
             "price_cutoff": price_cutoff.isoformat(),
+            "dependency_hash": dependency_hash,
         }
     )[:12]
     return f"{scenario.scenario_code}_{scenario.scenario_version}_{policy.policy_version}_{digest}"
@@ -504,7 +884,9 @@ def run_decision_engine(
         raise ValueError(f"scenario policy not found: {scenario_code}")
     generated_at = _now()
     price_cutoff = _latest_price_cutoff(session)
-    run_code = _run_code(scenario, policy, price_cutoff)
+    candidates = list(session.execute(_candidate_query(scenario)).scalars())
+    dependency_hash = _dependency_fingerprint(session, scenario, policy, candidates)
+    run_code = _run_code(scenario, policy, price_cutoff, dependency_hash)
     existing = session.scalar(select(DecisionRun).where(DecisionRun.run_code == run_code))
     if existing is not None:
         return RunSummary(
@@ -519,9 +901,8 @@ def run_decision_engine(
             warning_count=existing.warning_count,
             created=False,
         )
-    candidates = list(session.execute(_candidate_query(scenario)).scalars())
     status = DecisionRunStatus.DRY_RUN.value if dry_run else DecisionRunStatus.SUCCEEDED.value
-    content_hash = _json_hash({"run_code": run_code, "candidate_ids": [c.id for c in candidates]})
+    content_hash = dependency_hash
     run = DecisionRun(
         run_code=run_code,
         scenario_id=scenario.id,
@@ -547,29 +928,90 @@ def run_decision_engine(
     counters: Counter[str] = Counter()
     for candidate in candidates:
         package = _latest_package(session, candidate)
-        tco = _latest_tco(session, candidate)
+        tco = _latest_tco(session, candidate, scenario)
         comparisons = _comparison_counts(session, candidate)
+        approval = mapping_approval(session, candidate)
+        requirement_outcomes = evaluate_scenario_requirements(session, scenario, candidate, tco)
+        rule_evidence_ids = tuple(
+            sorted(
+                {link.evidence_id for link in candidate.evidence_links}
+                | {eid for outcome in requirement_outcomes for eid in outcome.evidence_ids}
+            )
+        )
+        policy_outcomes = [
+            evaluate_policy_rule(rule, candidate, package, tco, rule_evidence_ids)
+            for rule in policy.rules
+            if rule.status == "active"
+        ]
         hard_blocks: list[str] = []
         market_block = _target_market_block(session, scenario, candidate)
         if market_block:
             hard_blocks.append(market_block)
+        hard_blocks.extend(
+            outcome.reason
+            for outcome in requirement_outcomes
+            if outcome.hard_block and outcome.reason
+        )
+        hard_blocks.extend(
+            outcome.reason for outcome in policy_outcomes if outcome.hard_block and outcome.reason
+        )
         decision_status = _status_from_candidate(
             candidate=candidate,
             package=package,
             tco=tco,
             hard_blocks=hard_blocks,
             scenario=scenario,
+            scoped_model_approval=approval is not None,
+            requirements_need_review=any(
+                outcome.requires_review for outcome in requirement_outcomes
+            )
+            or any(outcome.requires_review for outcome in policy_outcomes),
         )
         dimensions = _dimension_inputs(
             candidate=candidate,
             package=package,
             tco=tco,
             comparison_counts=comparisons,
+            scoped_model_approval=approval is not None,
         )
+        for dimension in {outcome.dimension for outcome in requirement_outcomes}:
+            outcomes = [
+                outcome for outcome in requirement_outcomes if outcome.dimension == dimension
+            ]
+            if dimension not in dimensions or dimension == ScoringDimension.COST_FIT.value:
+                continue
+            known = all(outcome.status in {"pass", "fail"} for outcome in outcomes)
+            dimensions[dimension] = (
+                (
+                    Decimal(sum(outcome.status == "pass" for outcome in outcomes))
+                    / Decimal(len(outcomes))
+                ).quantize(Q)
+                if known
+                else None,
+                DimensionScoreStatus.SCORED.value
+                if known
+                else DimensionScoreStatus.INSUFFICIENT_EVIDENCE.value,
+                "Target scenario requirements evaluated from scope-matched official evidence; no cross-vendor equivalence is asserted.",
+            )
+        for dimension, (_, _, explanation) in list(dimensions.items()):
+            if weights.get(dimension, ZERO) == ZERO:
+                dimensions[dimension] = (
+                    None,
+                    DimensionScoreStatus.EXCLUDED.value,
+                    "Outside this policy's declared scoring scope. " + explanation,
+                )
         reference_fit = _business_fit(weights, dimensions)
-        business_fit = None if hard_blocks else reference_fit
-        confidence_score, confidence_level = _confidence(candidate, package, tco, comparisons)
-        completeness_score = _completeness(dimensions)
+        business_fit = (
+            None
+            if hard_blocks or (policy.thresholds or {}).get("business_fit_enabled") is False
+            else reference_fit
+        )
+        confidence_score, confidence_level = _confidence(
+            candidate, package, tco, comparisons, scoped_model_approval=approval is not None
+        )
+        completeness_score = _completeness(
+            {key: value for key, value in dimensions.items() if weights.get(key, ZERO) > ZERO}
+        )
         result = CandidateDecisionResult(
             decision_run_id=run.id,
             mapping_candidate_id=candidate.id,
@@ -581,7 +1023,9 @@ def run_decision_engine(
             confidence_score=confidence_score,
             confidence_level=confidence_level,
             completeness_score=completeness_score,
-            match_score=_decimal(candidate.normalized_score),
+            match_score=_decimal(candidate.normalized_score)
+            if candidate.normalized_score is not None
+            else None,
             tco_result_id=tco.id if tco else None,
             hard_block_count=len(hard_blocks),
             warning_count=1
@@ -608,6 +1052,8 @@ def run_decision_engine(
                 }
             ]
             if package
+            and candidate.normalized_score is not None
+            and candidate.mapping_level == "sku"
             else [],
             key_risks=[
                 {"type": "relative_risk", "reason": reason, "severity": "critical"}
@@ -629,6 +1075,52 @@ def run_decision_engine(
         )
         session.add(result)
         session.flush()
+        result.missing_information = list(result.missing_information or []) + [
+            {"type": "missing_information", "requirement": outcome.code, "reason": outcome.reason}
+            for outcome in requirement_outcomes
+            if outcome.status == "missing_data"
+        ]
+        result.missing_information += [
+            {
+                "type": "missing_information",
+                "scoring_rule_id": outcome.rule_id,
+                "reason": outcome.reason,
+            }
+            for outcome in policy_outcomes
+            if outcome.status == "missing_data"
+        ]
+        for policy_outcome in policy_outcomes:
+            session.add(
+                RuleEvaluation(
+                    candidate_result_id=result.id,
+                    scoring_rule_id=policy_outcome.rule_id,
+                    result_status=policy_outcome.status,
+                    score=policy_outcome.score,
+                    hard_block=policy_outcome.hard_block,
+                    blocking_reason=policy_outcome.reason,
+                    observed_value=policy_outcome.observed,
+                    expected_value=policy_outcome.expected,
+                    evidence_reference_ids=list(policy_outcome.evidence_ids),
+                )
+            )
+        for outcome in requirement_outcomes:
+            session.add(
+                RuleEvaluation(
+                    candidate_result_id=result.id,
+                    requirement_id=outcome.requirement_id,
+                    result_status=outcome.status,
+                    score=ONE
+                    if outcome.status == "pass"
+                    else ZERO
+                    if outcome.status == "fail"
+                    else None,
+                    hard_block=outcome.hard_block,
+                    blocking_reason=outcome.reason,
+                    observed_value=json.loads(json.dumps(outcome.observed, default=str)),
+                    expected_value=outcome.expected,
+                    evidence_reference_ids=list(outcome.evidence_ids),
+                )
+            )
         for dimension, (score, dimension_status, explanation) in dimensions.items():
             weight = weights.get(dimension, ZERO)
             session.add(
@@ -646,7 +1138,7 @@ def run_decision_engine(
                     evidence_package_id=package.id if package else None,
                 )
             )
-        for reason in hard_blocks:
+        for reason in [market_block] if market_block else []:
             session.add(
                 RuleEvaluation(
                     candidate_result_id=result.id,
@@ -673,8 +1165,7 @@ def run_decision_engine(
     run.review_count = counters[DecisionStatus.REQUIRES_REVIEW.value]
     run.warning_count = counters[DecisionStatus.INCOMPLETE_COST.value] + run.review_count
     _upsert_sensitivity(session, run)
-    session.commit()
-    return RunSummary(
+    summary = RunSummary(
         run_code=run.run_code,
         scenario_code=scenario.scenario_code,
         scenario_version=scenario.scenario_version,
@@ -686,6 +1177,11 @@ def run_decision_engine(
         warning_count=run.warning_count,
         created=True,
     )
+    if dry_run:
+        session.rollback()
+    else:
+        session.commit()
+    return summary
 
 
 def _assign_ranks(session: Session, run: DecisionRun) -> None:
@@ -704,13 +1200,21 @@ def _assign_ranks(session: Session, run: DecisionRun) -> None:
     )
     rank = 0
     previous_score: Decimal | None = None
+    minimum_fit = _decimal(
+        (run.policy.thresholds or {}).get("minimum_business_fit"), Decimal("0.6500")
+    )
+    minimum_confidence = _decimal(
+        (run.policy.confidence_policy or {}).get("minimum_for_ranking"), Decimal("0.6500")
+    )
     for result in results:
         if (
-            result.decision_status not in eligible_statuses
+            (run.policy.thresholds or {}).get("ranking_enabled") is False
+            or result.decision_status not in eligible_statuses
             or result.hard_block_count > 0
             or result.business_fit_score is None
             or result.confidence_score is None
-            or result.confidence_score < Decimal("0.6500")
+            or result.confidence_score < minimum_confidence
+            or result.business_fit_score < minimum_fit
         ):
             result.rank = None
             continue
@@ -724,37 +1228,34 @@ def _upsert_sensitivity(session: Session, run: DecisionRun) -> None:
     existing = session.scalar(
         select(DecisionSensitivityResult).where(
             DecisionSensitivityResult.decision_run_id == run.id,
-            DecisionSensitivityResult.analysis_code == "weight_plus_minus_10pct_v1",
+            DecisionSensitivityResult.analysis_code == "weight_plus_minus_10pct_measured_v1",
         )
     )
     if existing is not None:
         return
-    ranked = session.scalar(
-        select(func.count())
-        .select_from(CandidateDecisionResult)
-        .where(
-            CandidateDecisionResult.decision_run_id == run.id,
-            CandidateDecisionResult.rank.is_not(None),
+    session.flush()
+    results = list(
+        session.scalars(
+            select(CandidateDecisionResult).where(CandidateDecisionResult.decision_run_id == run.id)
         )
     )
-    status = "indeterminate" if not ranked else "stable"
+    payload = analyze_weight_sensitivity(
+        candidate_dimensions={
+            result.id: {
+                score.dimension: (score.normalized_score, score.status)
+                for score in result.dimension_scores
+            }
+            for result in results
+        },
+        weights=_weights(run.policy),
+        eligible_candidate_ids=[result.id for result in results if result.rank is not None],
+        baseline_ranks={result.id: result.rank for result in results},
+    )
     session.add(
         DecisionSensitivityResult(
             decision_run_id=run.id,
-            analysis_code="weight_plus_minus_10pct_v1",
-            ranking_stability="no_formal_ranking" if not ranked else "ranking_unchanged",
-            score_variance=ZERO,
-            top_candidate_change_count=0,
-            critical_assumption_count=1,
-            sensitivity_status=status,
-            scenarios_tested=[
-                {
-                    "type": "weight_sensitivity",
-                    "range": "+/-10pct",
-                    "discounts_included": False,
-                    "customer_commitment_included": False,
-                }
-            ],
+            analysis_code="weight_plus_minus_10pct_measured_v1",
+            **payload,
         )
     )
 

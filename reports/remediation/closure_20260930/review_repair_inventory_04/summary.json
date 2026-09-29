@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "status": "complete",
+  "generated_at": "2026-09-29T20:10:13.388284+00:00",
+  "python_version": "3.12.14",
+  "database_path": "D:\\cloud_expert\\test_outputs\\week6_combined_projection.sqlite",
+  "planner_version": "review_repair_inventory_v2",
+  "plan_id": "46c7cb116a2dd2b8f0d3401a7f46e9f7a6005340c8c91a6c3429cda9ccf0407b",
+  "source_snapshot_hash": "d4dbdeac4373b66d19ed37f3f1b9409f84c1d85563ff61e955b8bd53f96e79a9",
+  "manifest_file": "manifest.json",
+  "manifest_sha256": "9e38780e80ffeb0d408758e3a637d0a8528c0bb0b3fb9a0c1fb0f78af644996a",
+  "manifest_bytes": 46697106,
+  "dry_run": true,
+  "database_writeback": false,
+  "approvals_granted": 0,
+  "gate_updated": false,
+  "summary": {
+    "subjects": 14253,
+    "assignments": 11346,
+    "audit_events_preserved": 11349,
+    "latest_precheck_subjects": 11343,
+    "root_cause_counts": {
+      "comparability_market_limitation": 5,
+      "comparability_missing_both_sides": 84,
+      "comparability_missing_one_side": 26,
+      "comparability_scope_verification": 2,
+      "cpu_architecture_source_verification": 1346,
+      "cross_market_research_only": 159,
+      "decision_hard_block": 100,
+      "decision_package_superseded": 5648,
+      "decision_source_verification": 1,
+      "decision_upstream_superseded": 3447,
+      "field_source_verification": 1139,
+      "historical_superseded": 235,
+      "mapping_category_mismatch": 18,
+      "mapping_hard_block": 14,
+      "mapping_rejected": 1,
+      "mapping_required_fields_missing": 148,
+      "mapping_source_verification": 377,
+      "memory_column_non_numeric": 7,
+      "object_storage_scope_qualifier": 14,
+      "parse_replacement_requires_validation": 1409,
+      "price_lifecycle_requires_live_validation": 3,
+      "rejected_parser_output": 5,
+      "sla_request_storage_scope": 2,
+      "zone_identity_availability_scope": 63
+    },
+    "subject_type_counts": {
+      "candidate_decision_result": 9196,
+      "comparability_assessment": 117,
+      "mapping_candidate": 952,
+      "price_snapshot": 3,
+      "review_item": 3985
+    },
+    "flag_counts": {
+      "existing_approval_requires_scope_and_version_validation": 1,
+      "missing_deterministic_precheck": 2907,
+      "price_lifecycle_live_validation_required": 3
+    },
+    "assignment_state_counts": {
+      "blocked_by_deterministic_check": 10332,
+      "model_approved_with_conditions": 1,
+      "pending_model_review": 1009,
+      "superseded": 4
+    }
+  },
+  "limits": [
+    "Root causes are deterministic triage, not semantic model verdicts.",
+    "Newer parsed candidates are not automatically accepted or marked superseding.",
+    "Raw files and source freshness must be verified before any disposition.",
+    "No executable write operations are included; no apply mode exists.",
+    "Price lifecycle envelopes are not model reviews; receipt hashes, permissions and current consumability require the dedicated live validator."
+  ]
+}

@@ -1,0 +1,25 @@
+registry_version: week14.v1
+allow_review_model_fallback: false
+models:
+  - provider: openai
+    model_id: gpt-6-astra
+    model_version: alias_unresolved
+    reasoning_tier: highest_reasoning
+    context_window: 1050000
+    structured_output_supported: true
+    tool_call_supported: true
+    availability: requires_probe
+    approved_for_review: true
+    capability_rank: 100
+    effective_at: '2026-09-29T00:00:00+08:00'
+  - provider: openai
+    model_id: gpt-6-sol
+    model_version: alias_unresolved
+    reasoning_tier: high_reasoning
+    context_window: 1050000
+    structured_output_supported: true
+    tool_call_supported: true
+    availability: requires_probe
+    approved_for_review: false
+    capability_rank: 80
+    effective_at: '2026-09-29T00:00:00+08:00'

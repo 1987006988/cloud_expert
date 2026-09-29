@@ -1,0 +1,57 @@
+source_id: aws_billing_consolidated_usage_policy
+provider_code: aws
+market_mode: international
+cloud_partition: aws
+product_code: null
+source_type: documentation
+title: AWS consolidated billing volume and free-tier aggregation
+description: Licensed official technical documentation; evidence extraction is scoped separately.
+url: https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/useconsolidatedbilling-effective.html
+language: en-US
+authority_level: official_primary
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type: [text/html]
+expected_file_extension: .html
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains: [docs.aws.amazon.com]
+  allow_subdomains: false
+  allow_redirects: true
+  allowed_redirect_domains: [docs.aws.amazon.com]
+fetch_policy:
+  timeout_seconds: 45
+  connect_timeout_seconds: 10
+  read_timeout_seconds: 30
+  max_retries: 1
+  min_interval_seconds: 5
+  max_content_length_bytes: 2097152
+  user_agent_profile: cloud_expert_bot
+storage_policy:
+  keep_all_versions: true
+  store_response_headers: true
+  store_request_headers: false
+  retention_policy: keep_all
+schedule:
+  update_frequency: manual
+  priority: 50
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-29T18:54:31Z
+robots_checked_at: 2026-09-29T18:51:29Z
+robots_allowed: true
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
+compliance_notes: >
+  AWS Site Terms explicitly license docs.aws.amazon.com documentation under
+  CC-BY-SA-4.0. Retain attribution, original URL and applicable ShareAlike notice.
+  This exact technical-documentation path is not disallowed by the observed
+  docs robots rules; respect its five-second crawl delay. This does not authorize
+  ordinary website extraction, cloud resource creation or customer output.
+  Statement scope and qualifiers must be separately verified before consumption.
+notes: >
+  Account/organization aggregation policy only. Example historical prices are not current rates; do not duplicate an allowance for each component.
+  See reports/remediation/closure_20260930/aws_remaining_cost_sources.md.

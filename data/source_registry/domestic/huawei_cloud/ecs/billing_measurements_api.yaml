@@ -1,0 +1,30 @@
+source_id: huawei_cloud_billing_measurements_api
+provider_code: huawei_cloud
+market_mode: domestic
+cloud_partition: huawei_cn
+product_code: ecs
+source_type: api_response
+title: Huawei Cloud official billing measurement dictionary
+url: https://bss.myhuaweicloud.com/v2/bases/measurements
+language: zh-CN
+authority_level: official_primary
+enabled: false
+requires_authentication: true
+allow_automated_fetch: false
+expected_content_type: [application/json]
+domain_policy:
+  allowed_domains: [bss.myhuaweicloud.com]
+  allow_subdomains: false
+  allow_redirects: false
+schedule:
+  update_frequency: manual
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-29T14:35:47Z
+terms_review_status: approved
+automated_fetch_allowed: false
+manual_only: true
+compliance_notes: >
+  Read-only API documented at https://support.huaweicloud.com/api-oce/qct_00006.html.
+  Authenticated official API Explorer capture only; no request headers stored.
+  Generic unauthenticated fetch remains disabled.

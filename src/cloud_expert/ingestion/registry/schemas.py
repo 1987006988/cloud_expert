@@ -54,7 +54,7 @@ class FetchPolicy(RegistrySchemaBase):
     max_retries: int = Field(default=3, ge=0, le=5)
     retry_backoff_seconds: float = Field(default=1.0, ge=0, le=30)
     min_interval_seconds: float = Field(default=2.0, ge=0, le=60)
-    max_content_length_bytes: int = Field(default=10_485_760, gt=0, le=52_428_800)
+    max_content_length_bytes: int = Field(default=10_485_760, gt=0, le=536_870_912)
     user_agent_profile: str = "cloud_expert_bot"
 
     @field_validator("user_agent_profile")
@@ -162,6 +162,22 @@ class SourceRegistryEntry(RegistrySchemaBase):
             self.domain_policy.allowed_domains,
             allow_subdomains=self.domain_policy.allow_subdomains,
         )
+        if self.fetch_policy.max_content_length_bytes > 52_428_800 and not (
+            self.source_id == "aws_ec2_pricing_bulk_us_east_1"
+            and self.provider_code == "aws"
+            and self.product_code == "ec2"
+            and self.market_mode == MarketMode.INTERNATIONAL
+            and self.cloud_partition == "aws"
+            and self.source_type == SourceType.PRICING
+            and self.url
+            == "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/us-east-1/index.json"
+            and self.terms_review_status == ComplianceReviewStatus.APPROVED
+            and not self.requires_authentication
+            and not self.requires_browser
+        ):
+            raise ValueError(
+                "large catalog limit is restricted to the reviewed AWS EC2 regional bulk source"
+            )
         if self.requires_authentication and self.allow_automated_fetch:
             msg = "requires_authentication=true requires allow_automated_fetch=false"
             raise ValueError(msg)

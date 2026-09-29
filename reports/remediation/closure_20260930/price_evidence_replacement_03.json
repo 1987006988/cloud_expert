@@ -1,0 +1,186 @@
+{
+  "price_snapshots": 21,
+  "linked_to_evidence": 21,
+  "linked_to_pricing_source": 21,
+  "missing_snapshot_record": 0,
+  "invalid_bounded_prices": [],
+  "invalid_catalog_prices": [],
+  "invalid_aws_catalog_prices": [
+    1,
+    14,
+    15,
+    16
+  ],
+  "historical_superseded_aws_prices": [
+    13,
+    17,
+    18
+  ],
+  "currently_unusable_aws_prices": [
+    1,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18
+  ],
+  "aws_price_dispositions": [
+    {
+      "price_id": 1,
+      "status": "blocked",
+      "successor_id": null,
+      "current_price_id": null,
+      "replacement_path": [],
+      "receipt_sha256s": [],
+      "proof_sha256": null,
+      "diagnostics": [
+        "unverified_aws_catalog_or_derivation"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 13,
+      "status": "superseded",
+      "successor_id": 19,
+      "current_price_id": 19,
+      "replacement_path": [
+        13,
+        19
+      ],
+      "receipt_sha256s": [
+        "8ffc012ae097e142e86c3ee40d02e13862f6d6440fc61a5d7767a6e9b1b484ec"
+      ],
+      "proof_sha256": "251ded1ecfad8b8a84866aad529be2e87dadec62e63b803a6ea6dfe2151c6ed9",
+      "diagnostics": [
+        "validated_internal_replacement"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 14,
+      "status": "blocked",
+      "successor_id": null,
+      "current_price_id": null,
+      "replacement_path": [],
+      "receipt_sha256s": [],
+      "proof_sha256": null,
+      "diagnostics": [
+        "unverified_aws_catalog_or_derivation"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 15,
+      "status": "blocked",
+      "successor_id": null,
+      "current_price_id": null,
+      "replacement_path": [],
+      "receipt_sha256s": [],
+      "proof_sha256": null,
+      "diagnostics": [
+        "unverified_aws_catalog_or_derivation"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 16,
+      "status": "blocked",
+      "successor_id": null,
+      "current_price_id": null,
+      "replacement_path": [],
+      "receipt_sha256s": [],
+      "proof_sha256": null,
+      "diagnostics": [
+        "unverified_aws_catalog_or_derivation"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 17,
+      "status": "superseded",
+      "successor_id": 20,
+      "current_price_id": 20,
+      "replacement_path": [
+        17,
+        20
+      ],
+      "receipt_sha256s": [
+        "68423c69d1802828ec919c2919ccca0ff27b09b2c1b78cba1822b1b0dbe0ca13"
+      ],
+      "proof_sha256": "2c49ae581c8fc78663d7c45f385362285f1250cfb0d7071da09cbc3d51e75cf1",
+      "diagnostics": [
+        "validated_internal_replacement"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 18,
+      "status": "superseded",
+      "successor_id": 21,
+      "current_price_id": 21,
+      "replacement_path": [
+        18,
+        21
+      ],
+      "receipt_sha256s": [
+        "67cea46f41fabf3a4d5df5fc6a6a4c7611b55160217aa1674e46e7d550908a7e"
+      ],
+      "proof_sha256": "7b25756864bbe90ed44d3b423a236b673a41ce21e3be8391fff8cf8939fee9bc",
+      "diagnostics": [
+        "validated_internal_replacement"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 19,
+      "status": "current",
+      "successor_id": null,
+      "current_price_id": 19,
+      "replacement_path": [
+        19
+      ],
+      "receipt_sha256s": [
+        "8ffc012ae097e142e86c3ee40d02e13862f6d6440fc61a5d7767a6e9b1b484ec"
+      ],
+      "proof_sha256": "251ded1ecfad8b8a84866aad529be2e87dadec62e63b803a6ea6dfe2151c6ed9",
+      "diagnostics": [],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 20,
+      "status": "current",
+      "successor_id": null,
+      "current_price_id": 20,
+      "replacement_path": [
+        20
+      ],
+      "receipt_sha256s": [
+        "68423c69d1802828ec919c2919ccca0ff27b09b2c1b78cba1822b1b0dbe0ca13"
+      ],
+      "proof_sha256": "2c49ae581c8fc78663d7c45f385362285f1250cfb0d7071da09cbc3d51e75cf1",
+      "diagnostics": [],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 21,
+      "status": "current",
+      "successor_id": null,
+      "current_price_id": 21,
+      "replacement_path": [
+        21
+      ],
+      "receipt_sha256s": [
+        "67cea46f41fabf3a4d5df5fc6a6a4c7611b55160217aa1674e46e7d550908a7e"
+      ],
+      "proof_sha256": "7b25756864bbe90ed44d3b423a236b673a41ce21e3be8391fff8cf8939fee9bc",
+      "diagnostics": [],
+      "customer_eligible": false
+    }
+  ],
+  "price_evidence_completeness": 1.0,
+  "errors": [
+    "AWS catalog tiers, raw hashes, policy evidence or persisted prices are invalid"
+  ],
+  "valid": false
+}

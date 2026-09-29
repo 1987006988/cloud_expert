@@ -1,0 +1,345 @@
+{
+  "gate": "WEEK9_GATE",
+  "verdict": "NO-GO",
+  "week7_gate": {
+    "gate": "WEEK7_GATE",
+    "verdict": "GO",
+    "unresolved": [],
+    "r008_waiver_present": true,
+    "allowed_statuses": [
+      "complete",
+      "waived_by_owner"
+    ],
+    "notes": "R008 waiver allows internal engineering only; pending review facts are not customer eligible."
+  },
+  "week8_gate": {
+    "gate": "WEEK8_GATE",
+    "week7_gate": "GO",
+    "mapping_rule_sets": 16,
+    "mapping_candidates": 952,
+    "mapping_field_comparisons": 1776,
+    "mapping_evidence_links": 3682,
+    "mapping_evidence": {
+      "candidate_count": 952,
+      "candidates_with_evidence": 952,
+      "missing_evidence": 0,
+      "auto_approved_candidates": 0,
+      "valid": true
+    },
+    "verdict": "GO"
+  },
+  "evidence_packages": 2086,
+  "evidence_references": 692,
+  "customer_output_eligibility": {
+    "packages": 2086,
+    "customer_eligible": 1,
+    "internal_only": 2085,
+    "pending_review": 2085,
+    "invalid_customer_eligible": 0,
+    "valid": true
+  },
+  "coverage": {
+    "coverage_json": "D:\\cloud_expert\\reports\\remediation\\stage2\\coverage.json",
+    "percent_covered": 85.2552253661311,
+    "threshold": 85.0,
+    "passed": true
+  },
+  "postgres": {
+    "validation_report": "D:\\cloud_expert\\reports\\remediation\\r011\\runs\\run_02\\validation_results.json",
+    "r011_status": "COMPLETED",
+    "postgres_version": "PostgreSQL 16.14 (Debian 16.14-1.pgdg13+1)",
+    "pytest_postgres_passed": 6,
+    "pytest_integration_passed": 6,
+    "passed": true
+  },
+  "pricing_sources": {
+    "required_provider_products": [
+      "aliyun/ecs",
+      "aliyun/oss",
+      "aws/ec2",
+      "aws/s3",
+      "huawei_cloud/ecs",
+      "huawei_cloud/obs"
+    ],
+    "registered_pricing_sources": 19,
+    "registered_by_provider": {
+      "aliyun": 4,
+      "aws": 8,
+      "huawei_cloud": 7
+    },
+    "missing_required": [],
+    "missing_approved_collection_routes": [],
+    "retired_sources": [
+      "huawei_cloud_ecs_pricing",
+      "huawei_cloud_obs_pricing",
+      "aws_ec2_ebs_gp3_pricing_policy",
+      "aws_ec2_pricing_on_demand",
+      "aws_s3_pricing",
+      "aws_vpc_public_ipv4_pricing_policy"
+    ],
+    "disabled_sources": [
+      "aliyun_ecs_pricing",
+      "aliyun_oss_pricing",
+      "huawei_cloud_ecs_pricing",
+      "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2",
+      "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2_730h",
+      "huawei_cloud_ecs_pricing_api_cn_north_4_components_730h",
+      "huawei_cloud_obs_pricing",
+      "huawei_cloud_obs_pricing_api_cn_north_4",
+      "aws_ec2_ebs_gp3_pricing_policy",
+      "aws_ec2_pricing_on_demand",
+      "aws_s3_pricing",
+      "aws_vpc_public_ipv4_pricing_policy"
+    ],
+    "manual_only_sources": [
+      "aliyun_ecs_pricing",
+      "aliyun_oss_pricing",
+      "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2",
+      "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2_730h",
+      "huawei_cloud_ecs_pricing_api_cn_north_4_components_730h",
+      "huawei_cloud_obs_pricing_api_cn_north_4"
+    ],
+    "manual_or_browser_sources": [
+      "aliyun_ecs_pricing",
+      "aliyun_oss_pricing",
+      "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2",
+      "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2_730h",
+      "huawei_cloud_ecs_pricing_api_cn_north_4_components_730h",
+      "huawei_cloud_obs_pricing_api_cn_north_4"
+    ],
+    "automated_fetchable_sources": [
+      "aliyun_oss_billing_overview_pricing",
+      "aliyun_oss_storage_fees_pricing",
+      "huawei_cloud_ecs_on_demand_example",
+      "aws_data_transfer_pricing_us_east_1_20260916132208",
+      "aws_ec2_pricing_bulk_us_east_1",
+      "aws_s3_pricing_bulk_us_east_1",
+      "aws_vpc_pricing_us_east_1_20260917190528"
+    ],
+    "terms_not_approved": [],
+    "collection_mode_not_reviewed": [],
+    "pricing_source_documents": 24,
+    "pricing_evidence": 109,
+    "errors": [],
+    "valid": true
+  },
+  "price_skus": {
+    "price_skus": 16,
+    "price_snapshots": 21,
+    "sku_without_snapshots": 0,
+    "errors": [],
+    "valid": true
+  },
+  "price_evidence": {
+    "price_snapshots": 21,
+    "linked_to_evidence": 21,
+    "linked_to_pricing_source": 21,
+    "missing_snapshot_record": 0,
+    "invalid_bounded_prices": [],
+    "invalid_catalog_prices": [],
+    "invalid_aws_catalog_prices": [
+      1,
+      14,
+      15,
+      16
+    ],
+    "historical_superseded_aws_prices": [
+      13,
+      17,
+      18
+    ],
+    "currently_unusable_aws_prices": [
+      1,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "aws_price_dispositions": [
+      {
+        "price_id": 1,
+        "status": "blocked",
+        "successor_id": null,
+        "current_price_id": null,
+        "replacement_path": [],
+        "receipt_sha256s": [],
+        "proof_sha256": null,
+        "diagnostics": [
+          "unverified_aws_catalog_or_derivation"
+        ],
+        "customer_eligible": false
+      },
+      {
+        "price_id": 13,
+        "status": "superseded",
+        "successor_id": 19,
+        "current_price_id": 19,
+        "replacement_path": [
+          13,
+          19
+        ],
+        "receipt_sha256s": [
+          "8ffc012ae097e142e86c3ee40d02e13862f6d6440fc61a5d7767a6e9b1b484ec"
+        ],
+        "proof_sha256": "251ded1ecfad8b8a84866aad529be2e87dadec62e63b803a6ea6dfe2151c6ed9",
+        "diagnostics": [
+          "validated_internal_replacement"
+        ],
+        "customer_eligible": false
+      },
+      {
+        "price_id": 14,
+        "status": "blocked",
+        "successor_id": null,
+        "current_price_id": null,
+        "replacement_path": [],
+        "receipt_sha256s": [],
+        "proof_sha256": null,
+        "diagnostics": [
+          "unverified_aws_catalog_or_derivation"
+        ],
+        "customer_eligible": false
+      },
+      {
+        "price_id": 15,
+        "status": "blocked",
+        "successor_id": null,
+        "current_price_id": null,
+        "replacement_path": [],
+        "receipt_sha256s": [],
+        "proof_sha256": null,
+        "diagnostics": [
+          "unverified_aws_catalog_or_derivation"
+        ],
+        "customer_eligible": false
+      },
+      {
+        "price_id": 16,
+        "status": "blocked",
+        "successor_id": null,
+        "current_price_id": null,
+        "replacement_path": [],
+        "receipt_sha256s": [],
+        "proof_sha256": null,
+        "diagnostics": [
+          "unverified_aws_catalog_or_derivation"
+        ],
+        "customer_eligible": false
+      },
+      {
+        "price_id": 17,
+        "status": "superseded",
+        "successor_id": 20,
+        "current_price_id": 20,
+        "replacement_path": [
+          17,
+          20
+        ],
+        "receipt_sha256s": [
+          "68423c69d1802828ec919c2919ccca0ff27b09b2c1b78cba1822b1b0dbe0ca13"
+        ],
+        "proof_sha256": "2c49ae581c8fc78663d7c45f385362285f1250cfb0d7071da09cbc3d51e75cf1",
+        "diagnostics": [
+          "validated_internal_replacement"
+        ],
+        "customer_eligible": false
+      },
+      {
+        "price_id": 18,
+        "status": "superseded",
+        "successor_id": 21,
+        "current_price_id": 21,
+        "replacement_path": [
+          18,
+          21
+        ],
+        "receipt_sha256s": [
+          "67cea46f41fabf3a4d5df5fc6a6a4c7611b55160217aa1674e46e7d550908a7e"
+        ],
+        "proof_sha256": "7b25756864bbe90ed44d3b423a236b673a41ce21e3be8391fff8cf8939fee9bc",
+        "diagnostics": [
+          "validated_internal_replacement"
+        ],
+        "customer_eligible": false
+      },
+      {
+        "price_id": 19,
+        "status": "current",
+        "successor_id": null,
+        "current_price_id": 19,
+        "replacement_path": [
+          19
+        ],
+        "receipt_sha256s": [
+          "8ffc012ae097e142e86c3ee40d02e13862f6d6440fc61a5d7767a6e9b1b484ec"
+        ],
+        "proof_sha256": "251ded1ecfad8b8a84866aad529be2e87dadec62e63b803a6ea6dfe2151c6ed9",
+        "diagnostics": [],
+        "customer_eligible": false
+      },
+      {
+        "price_id": 20,
+        "status": "current",
+        "successor_id": null,
+        "current_price_id": 20,
+        "replacement_path": [
+          20
+        ],
+        "receipt_sha256s": [
+          "68423c69d1802828ec919c2919ccca0ff27b09b2c1b78cba1822b1b0dbe0ca13"
+        ],
+        "proof_sha256": "2c49ae581c8fc78663d7c45f385362285f1250cfb0d7071da09cbc3d51e75cf1",
+        "diagnostics": [],
+        "customer_eligible": false
+      },
+      {
+        "price_id": 21,
+        "status": "current",
+        "successor_id": null,
+        "current_price_id": 21,
+        "replacement_path": [
+          21
+        ],
+        "receipt_sha256s": [
+          "67cea46f41fabf3a4d5df5fc6a6a4c7611b55160217aa1674e46e7d550908a7e"
+        ],
+        "proof_sha256": "7b25756864bbe90ed44d3b423a236b673a41ce21e3be8391fff8cf8939fee9bc",
+        "diagnostics": [],
+        "customer_eligible": false
+      }
+    ],
+    "price_evidence_completeness": 1.0,
+    "errors": [
+      "AWS catalog tiers, raw hashes, policy evidence or persisted prices are invalid"
+    ],
+    "valid": false
+  },
+  "tco_validation": {
+    "expected_tables": [
+      "cost_calculation_run",
+      "cost_line_item",
+      "pricing_scenario",
+      "tco_result"
+    ],
+    "missing_tables": [],
+    "calculation_runs_checked": 9,
+    "cost_line_items": 82,
+    "tco_results": 21,
+    "duplicate_run_codes": [],
+    "missing_without_reason": 0,
+    "priced_without_snapshot": 0,
+    "verified_policy_or_not_applicable_lines": 47,
+    "missing_treated_as_zero": 0,
+    "errors": [],
+    "valid": true
+  },
+  "blocking_items": [
+    "W9-B009-price-evidence-chain"
+  ],
+  "notes": [
+    "Pricing/TCO business code must not run while pricing source readiness is false.",
+    "Missing prices must remain missing; they must not be treated as zero."
+  ]
+}

@@ -1,0 +1,77 @@
+task_id: week11_16_closure_20260930
+status: in_progress
+authority: explicit_owner_request_20260930
+checklist: docs/WEEK11_16_CLOSURE_CHECKLIST.md
+coordinator_only_business_database_writes: true
+business_database: test_outputs/week6_combined_projection.sqlite
+starting_commit: 8d9fb65
+starting_database_revision: 0014_week14_review_workflow
+backup: test_outputs/closure_before_20260930.sqlite
+backup_integrity: ok
+run_directory: reports/remediation/closure_20260930
+phases:
+  baseline_and_scope: in_progress
+  official_price_completion: in_progress
+  review_root_cause_remediation: in_progress
+  scoped_complete_tco: in_progress
+  decision_model_review: implementation_in_progress
+  week11_sales: awaiting_prerequisites
+  week12_full_chain_market_validation: awaiting_prerequisites
+  week13_workbench: awaiting_prerequisites
+  week14_full_evaluation: awaiting_prerequisites
+  week15_release_candidate: awaiting_prerequisites
+  week16_technical_readiness: awaiting_prerequisites
+  week16_real_pilot: deferred_by_owner
+parallel_ownership:
+  review_inventory: review_inventory_agent
+  competitor_catalog: competitor_pricing_agent
+  scoped_tco: scoped_tco_agent
+  decision_panel: decision_panel_agent
+  huawei_sources_and_integration: coordinator
+gate_policy: evidence_based_no_manual_overrides
+model_reproducibility_amendment:
+  owner_authorized: true
+  scope: internal_release_candidate_only
+  policy: config/model_review/reproducibility_policy.yaml
+  audit_bundle_verification: pending
+  immutable_model_version_claimed: false
+progress_checkpoints:
+  - reports/remediation/closure_20260930/checkpoint_01.md
+  - reports/remediation/closure_20260930/checkpoint_02.md
+  - reports/remediation/closure_20260930/checkpoint_03.md
+verified_runs:
+  price_evidence: reports/remediation/closure_20260930/price_evidence_replacement_03.json
+  price_evidence_current_valid: false
+  unresolved_aws_price_ids: [1, 14, 15, 16]
+  superseded_aws_price_ids: [13, 17, 18]
+  current_internal_aws_replacements: [19, 20, 21]
+  prior_price_evidence_historical_only: reports/remediation/closure_20260930/price_evidence_18_full_01.json
+  postgres: reports/remediation/closure_20260930/postgres_04/junit.xml
+  postgres_tests_passed: 10
+  panel_and_writeback: reports/remediation/closure_20260930/panel_recheck_03/junit.xml
+  licensed_aws_document_import: reports/remediation/closure_20260930/aws_document_import_tests_02/junit.xml
+  comparability: reports/remediation/closure_20260930/comparability_aws_v2_02.json
+  mapping: reports/remediation/closure_20260930/mapping_aws_v2_02.json
+  evidence_packages: reports/remediation/closure_20260930/evidence_packages_aws_v2_02.json
+  normalized_evidence: reports/remediation/closure_20260930/normalized_evidence_after_c09_03.json
+  normalized_records_checked: 29160
+  normalized_evidence_missing_or_hash_errors: 0
+  review_inventory: reports/remediation/closure_20260930/review_repair_inventory_04/summary.json
+  week9_gate: reports/remediation/closure_20260930/week09_gate_current_04.json
+  dependent_gate_block: reports/remediation/closure_20260930/week11_16_prerequisite_block_03.json
+  offline_verification: reports/verification/closure_frozen_20260930_04/manifest.json
+  offline_manifest_sha256: 355c43eb7691cfc58ddb0c0ea3e72dc0116e60c748f3d745a9c038788d6b683a
+  offline_manifest_independently_reverified: true
+  offline_input_sha256: 609a2782baf85a33ff39bdb4f459e2926d5239a2e30d4f61c618a5aae4393189
+  offline_inputs_unchanged: true
+  offline_tests_passed: 2203
+  offline_coverage_percent: 89.89090909090909
+  full_chain_eval_completed: false
+  model_judge_completed: false
+  fresh_decision_model_panel_completed: false
+  database_checkpoint: reports/remediation/closure_20260930/database_checkpoint_03.json
+authorization_pending:
+  internal_engineering_gate_split: awaiting_owner_answer
+external_dependencies:
+  fresh_huawei_inquiry: awaiting_owner_login
+  actual_internal_pilot: deferred_by_owner

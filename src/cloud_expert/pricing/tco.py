@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import delete, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from cloud_expert.database.enums import (
@@ -22,17 +23,19 @@ from cloud_expert.database.enums import (
 from cloud_expert.database.models.pricing import PriceSKU, PriceSnapshot
 from cloud_expert.database.models.product import Product
 from cloud_expert.database.models.provider import Provider
+from cloud_expert.database.models.region import Region
 from cloud_expert.database.models.tco import (
     CostCalculationRun,
     CostLineItem,
     PricingScenario,
     TCOResult,
 )
+from cloud_expert.pricing.freshness import price_snapshot_freshness
 
-RULE_VERSION = "week09_tco_v1"
+RULE_VERSION = "week14_tco_exact_price_selection_v6"
 SCENARIO_CODE = "internal_price_readiness_storage_1tb_month"
 SCENARIO_VERSION = "2026-07-23"
-RUN_CODE = "week09_price_readiness_20260723"
+RUN_CODE = "internal_price_readiness_v2"
 
 
 @dataclass(frozen=True)
@@ -85,7 +88,6 @@ WORKLOAD_DIMENSIONS = (
 
 def generate_internal_tco(session: Session) -> dict[str, Any]:
     scenario = _ensure_scenario(session)
-    _delete_existing_run(session, scenario)
     now = datetime.now(UTC)
     providers = {
         provider.code: provider
@@ -94,15 +96,54 @@ def generate_internal_tco(session: Session) -> dict[str, Any]:
         )
     }
     products = _products_by_provider(session)
+    planned: list[tuple[Provider, Product, WorkloadDimension, PriceSnapshot | None]] = []
+    for provider_code, provider in providers.items():
+        for dimension in _dimensions_for_provider(provider_code):
+            product = products.get((provider_code, dimension.product_code))
+            if product is None or product.market_mode != scenario.market_mode:
+                continue
+            snapshot = _latest_snapshot_for_dimension(
+                session,
+                provider_id=provider.id,
+                product_id=product.id,
+                billing_unit=dimension.billing_unit,
+                market_mode=scenario.market_mode,
+                currency=scenario.target_currency,
+            )
+            planned.append((provider, product, dimension, snapshot))
+    input_hash = _input_hash(scenario, planned, now)
+    run_code = f"{RUN_CODE}_{input_hash[:16]}"
+    existing = session.scalar(
+        select(CostCalculationRun).where(CostCalculationRun.run_code == run_code)
+    )
+    if existing is not None:
+        return {
+            "scenario_code": scenario.scenario_code,
+            "scenario_version": scenario.scenario_version,
+            "run_code": existing.run_code,
+            "status": existing.status,
+            "line_items": session.scalar(
+                select(func.count())
+                .select_from(CostLineItem)
+                .where(CostLineItem.run_id == existing.id)
+            )
+            or 0,
+            "warnings": existing.warning_count,
+            "results": session.scalar(
+                select(func.count()).select_from(TCOResult).where(TCOResult.run_id == existing.id)
+            )
+            or 0,
+            "created": False,
+        }
     run = CostCalculationRun(
         scenario_id=scenario.id,
-        run_code=RUN_CODE,
+        run_code=run_code,
         rule_version=RULE_VERSION,
         price_snapshot_cutoff=now,
         started_at=now,
         status=CostCalculationRunStatus.PARTIAL.value,
         currency="USD",
-        provider_count=len(providers),
+        provider_count=len({provider.id for provider, _, _, _ in planned}),
         line_item_count=0,
         warning_count=0,
         error_count=0,
@@ -112,26 +153,16 @@ def generate_internal_tco(session: Session) -> dict[str, Any]:
     session.flush()
 
     line_items: list[CostLineItem] = []
-    for provider_code, provider in providers.items():
-        for dimension in _dimensions_for_provider(provider_code):
-            product = products.get((provider_code, dimension.product_code))
-            if product is None:
-                continue
-            snapshot = _latest_snapshot_for_dimension(
-                session,
-                provider_id=provider.id,
-                product_id=product.id,
-                billing_unit=dimension.billing_unit,
+    for provider, product, dimension, snapshot in planned:
+        line_items.append(
+            _line_item_for_dimension(
+                run=run,
+                provider=provider,
+                product=product,
+                dimension=dimension,
+                snapshot=snapshot,
             )
-            line_items.append(
-                _line_item_for_dimension(
-                    run=run,
-                    provider=provider,
-                    product=product,
-                    dimension=dimension,
-                    snapshot=snapshot,
-                )
-            )
+        )
     session.add_all(line_items)
     session.flush()
     results = _results_from_line_items(run, scenario, line_items)
@@ -156,6 +187,7 @@ def generate_internal_tco(session: Session) -> dict[str, Any]:
         "line_items": len(line_items),
         "warnings": run.warning_count,
         "results": len(results),
+        "created": True,
     }
 
 
@@ -192,14 +224,38 @@ def _ensure_scenario(session: Session) -> PricingScenario:
     return scenario
 
 
-def _delete_existing_run(session: Session, scenario: PricingScenario) -> None:
-    run = session.scalar(select(CostCalculationRun).where(CostCalculationRun.run_code == RUN_CODE))
-    if run is None:
-        return
-    session.execute(delete(TCOResult).where(TCOResult.run_id == run.id))
-    session.execute(delete(CostLineItem).where(CostLineItem.run_id == run.id))
-    session.execute(delete(CostCalculationRun).where(CostCalculationRun.id == run.id))
-    session.flush()
+def _input_hash(
+    scenario: PricingScenario,
+    planned: list[tuple[Provider, Product, WorkloadDimension, PriceSnapshot | None]],
+    now: datetime,
+) -> str:
+    payload = {
+        "rule_version": RULE_VERSION,
+        "freshness_day": now.date().isoformat(),
+        "scenario": [
+            scenario.scenario_code,
+            scenario.scenario_version,
+            scenario.market_mode,
+            scenario.target_currency,
+            scenario.workload_profile,
+        ],
+        "dimensions": [
+            [
+                provider.id,
+                product.id,
+                dimension.dimension,
+                str(dimension.usage_quantity),
+                snapshot.id if snapshot else None,
+                str(snapshot.unit_price) if snapshot else None,
+                snapshot.captured_at if snapshot else None,
+                snapshot.evidence.source_document.content_hash if snapshot else None,
+            ]
+            for provider, product, dimension, snapshot in planned
+        ],
+    }
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+    ).hexdigest()
 
 
 def _products_by_provider(session: Session) -> dict[tuple[str, str], Product]:
@@ -225,17 +281,42 @@ def _latest_snapshot_for_dimension(
     provider_id: int,
     product_id: int,
     billing_unit: str,
+    market_mode: str,
+    currency: str,
+    region_code: str | None = None,
+    provider_price_code: str | None = None,
 ) -> PriceSnapshot | None:
-    return session.scalar(
+    # A shared billing unit is not a resource identity or evidence of regional sale.
+    if not region_code or not provider_price_code:
+        return None
+    snapshot = session.scalar(
         select(PriceSnapshot)
         .join(PriceSKU, PriceSnapshot.price_sku_id == PriceSKU.id)
+        .join(Region, PriceSKU.region_id == Region.id)
         .where(
             PriceSKU.provider_id == provider_id,
             PriceSKU.product_id == product_id,
             PriceSKU.billing_unit == billing_unit,
+            PriceSKU.currency == currency,
+            Region.market_mode == market_mode,
+            Region.code == region_code,
+            PriceSKU.provider_price_code == provider_price_code,
+            PriceSnapshot.minimum_quantity.is_(None) | (PriceSnapshot.minimum_quantity == 0),
+            PriceSnapshot.maximum_quantity.is_(None),
         )
         .order_by(PriceSnapshot.captured_at.desc(), PriceSnapshot.id.desc())
     )
+    if snapshot is not None and not _aws_policy_current(session, snapshot):
+        return None
+    return snapshot
+
+
+def _aws_policy_current(session: Session, snapshot: PriceSnapshot) -> bool:
+    from cloud_expert.pricing.consumption import aws_price_current, is_aws_price
+
+    if is_aws_price(snapshot):
+        return aws_price_current(session, snapshot)
+    return True
 
 
 def _line_item_for_dimension(
@@ -246,6 +327,25 @@ def _line_item_for_dimension(
     dimension: WorkloadDimension,
     snapshot: PriceSnapshot | None,
 ) -> CostLineItem:
+    if dimension.usage_quantity < 0:
+        raise ValueError("usage quantity cannot be negative")
+    if snapshot is not None and (
+        (
+            snapshot.minimum_quantity is not None
+            and dimension.usage_quantity < snapshot.minimum_quantity
+        )
+        or (
+            snapshot.maximum_quantity is not None
+            and dimension.usage_quantity > snapshot.maximum_quantity
+        )
+    ):
+        item = _line_item_for_dimension(
+            run=run, provider=provider, product=product, dimension=dimension, snapshot=None
+        )
+        item.missing_reason = (
+            "Usage exceeds the evidenced price tier; additional tiers are required."
+        )
+        return item
     if snapshot is None:
         return CostLineItem(
             run_id=run.id,
@@ -281,7 +381,13 @@ def _line_item_for_dimension(
         else TaxStatus.TAX_EXCLUDED.value,
         formula=f"{dimension.usage_quantity} {dimension.usage_unit} * {snapshot.unit_price} {price_sku.currency}/{price_sku.billing_unit}",
         assumptions={"missing_prices_are_not_zero": True},
-        warning=None if price_sku.currency == "USD" else "Currency not converted to USD.",
+        warning=(
+            "Official price snapshot is not fresh."
+            if price_snapshot_freshness(snapshot) != FreshnessStatus.FRESH.value
+            else None
+            if price_sku.currency == run.currency
+            else "Price currency differs from calculation currency."
+        ),
     )
 
 
@@ -291,32 +397,76 @@ def _results_from_line_items(
     line_items: list[CostLineItem],
 ) -> list[TCOResult]:
     results: list[TCOResult] = []
+    groups: dict[tuple[int, int], list[CostLineItem]] = defaultdict(list)
     for item in line_items:
-        missing = 1 if item.amount is None else 0
-        warnings = 1 if item.warning or item.missing_reason else 0
-        status = (
-            TCOCompletenessStatus.MISSING_PRICE.value
-            if item.amount is None
-            else TCOCompletenessStatus.COMPLETE.value
+        groups[(item.provider_id, item.product_id)].append(item)
+    for (provider_id, product_id), items in groups.items():
+        missing = sum(item.amount is None for item in items)
+        warnings = sum(bool(item.warning or item.missing_reason) for item in items)
+        currencies_match = all(item.currency in {None, scenario.target_currency} for item in items)
+        dimensions = {item.dimension for item in items}
+        duplicate_dimension = len(dimensions) != len(items)
+        declared = scenario.workload_profile.get("required_cost_dimensions", [])
+        scope_complete = bool(
+            isinstance(declared, list) and declared and set(declared) == dimensions
         )
+        fresh_states = {price_snapshot_freshness(item.price_snapshot) for item in items}
+        freshness = (
+            FreshnessStatus.FRESH.value
+            if fresh_states == {FreshnessStatus.FRESH.value}
+            else FreshnessStatus.STALE.value
+            if FreshnessStatus.STALE.value in fresh_states
+            else FreshnessStatus.UNKNOWN.value
+        )
+        known_subtotal = sum(
+            (item.amount for item in items if item.amount is not None), Decimal("0")
+        )
+        subtotal = (
+            known_subtotal
+            if currencies_match and not duplicate_dimension and missing < len(items)
+            else None
+        )
+        total = subtotal if missing == 0 else None
+        # A pre-tax estimate is not proof that tax equals zero.
+        tax_known = all(item.tax_status == TaxStatus.TAX_INCLUDED.value for item in items)
+        pre_tax_scope = (scenario.assumptions or {}).get("tax_scope") == "pre_tax" and all(
+            item.tax_status == TaxStatus.TAX_EXCLUDED.value for item in items
+        )
+        tax_scope_matches = (
+            pre_tax_scope
+            or tax_known
+            and (scenario.assumptions or {}).get("tax_scope") != "pre_tax"
+        )
+        if not currencies_match or duplicate_dimension:
+            status = TCOCompletenessStatus.REQUIRES_REVIEW.value
+            warnings += 1
+        elif missing:
+            status = TCOCompletenessStatus.MISSING_PRICE.value
+        elif (
+            scope_complete
+            and freshness == FreshnessStatus.FRESH.value
+            and tax_scope_matches
+            and not warnings
+        ):
+            status = TCOCompletenessStatus.COMPLETE.value
+        else:
+            status = TCOCompletenessStatus.PARTIAL.value
         results.append(
             TCOResult(
                 run_id=run.id,
                 scenario_id=scenario.id,
-                provider_id=item.provider_id,
-                product_id=item.product_id,
-                subtotal=item.amount,
-                tax_amount=Decimal("0.00000000") if item.amount is not None else None,
-                total=item.amount,
-                currency=item.currency or scenario.target_currency,
+                provider_id=provider_id,
+                product_id=product_id,
+                subtotal=subtotal,
+                tax_amount=None,
+                total=total,
+                currency=scenario.target_currency,
                 billing_period=scenario.billing_period,
                 completeness_status=status,
-                freshness_status=FreshnessStatus.FRESH.value
-                if item.amount is not None
-                else FreshnessStatus.UNKNOWN.value,
+                freshness_status=freshness,
                 comparability_status=(
                     ComparabilityStatus.PARTIAL.value
-                    if item.amount is not None
+                    if total is not None
                     else ComparabilityStatus.NEEDS_REVIEW.value
                 ),
                 warning_count=warnings,
@@ -340,3 +490,71 @@ def _run_hash(line_items: list[CostLineItem]) -> str:
         for item in line_items
     ]
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def tco_result_currently_complete(session: Session, result: TCOResult) -> bool:
+    from cloud_expert.pricing.scoped_tco import RULE_VERSION as SCOPED_RULE
+    from cloud_expert.pricing.scoped_tco import scoped_tco_result_currently_complete
+
+    if result.run is not None and result.run.rule_version == SCOPED_RULE:
+        return scoped_tco_result_currently_complete(session, result)
+    if result.completeness_status != TCOCompletenessStatus.COMPLETE.value:
+        return False
+    items = list(
+        session.scalars(
+            select(CostLineItem).where(
+                CostLineItem.run_id == result.run_id,
+                CostLineItem.provider_id == result.provider_id,
+                CostLineItem.product_id == result.product_id,
+            )
+        )
+    )
+    if not items:
+        return False
+    for item in items:
+        snapshot = item.price_snapshot
+        if (
+            snapshot is None
+            or item.usage_quantity is None
+            or item.unit_price is None
+            or item.unit_price != snapshot.unit_price
+            or item.evidence_id != snapshot.evidence_id
+            or snapshot.price_sku.provider_id != item.provider_id
+            or snapshot.price_sku.product_id != item.product_id
+            or snapshot.price_sku.currency != item.currency
+            or item.price_sku_id != snapshot.price_sku_id
+            or item.usage_unit != snapshot.price_sku.billing_unit
+            or item.tax_status
+            != (
+                TaxStatus.TAX_INCLUDED.value
+                if snapshot.price_sku.tax_included
+                else TaxStatus.TAX_EXCLUDED.value
+            )
+            or snapshot.minimum_quantity is not None
+            and item.usage_quantity < snapshot.minimum_quantity
+            or snapshot.maximum_quantity is not None
+            and item.usage_quantity > snapshot.maximum_quantity
+            or item.amount
+            != (item.usage_quantity * item.unit_price).quantize(Decimal("0.00000001"))
+        ):
+            return False
+        from cloud_expert.pricing.huawei_promotion import RULE, bounded_quote_valid
+
+        if snapshot.evidence.parser_rule == RULE and not bounded_quote_valid(session, snapshot):
+            return False
+        from cloud_expert.pricing.aliyun_promotion import RULE as CATALOG_RULE
+        from cloud_expert.pricing.aliyun_promotion import catalog_price_valid
+
+        if snapshot.evidence.parser_rule == CATALOG_RULE and (
+            (result.scenario.assumptions or {}).get("price_basis") != "catalog_reference"
+            or not catalog_price_valid(session, snapshot)
+        ):
+            return False
+        if not _aws_policy_current(session, snapshot):
+            return False
+    recalculated = _results_from_line_items(result.run, result.scenario, items)[0]
+    return (
+        recalculated.completeness_status == TCOCompletenessStatus.COMPLETE.value
+        and recalculated.total == result.total
+        and recalculated.subtotal == result.subtotal
+    )

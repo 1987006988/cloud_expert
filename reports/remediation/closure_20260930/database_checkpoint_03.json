@@ -1,0 +1,17 @@
+{
+  "captured_at": "2026-09-29T20:06:24.322428+00:00",
+  "source_database": "D:\\cloud_expert\\test_outputs\\week6_combined_projection.sqlite",
+  "backup_database": "D:\\cloud_expert\\test_outputs\\closure_after_price_replacement_20260930.sqlite",
+  "backup_sha256": "156028bbf737b9ba3ec8a5993df032f7f71d9e7aefde72cae0823711652fb112",
+  "integrity": "ok",
+  "alembic_revision": "0014_week14_review_workflow",
+  "row_counts": {
+    "price_snapshot": 21,
+    "evidence": 34141,
+    "snapshot_record": 118,
+    "model_review_assignment": 11346,
+    "model_review_audit_event": 11349
+  },
+  "production_deployment": false,
+  "git_inclusion": false
+}

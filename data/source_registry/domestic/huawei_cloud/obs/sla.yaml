@@ -1,6 +1,7 @@
 source_id: huawei_cloud_obs_sla
 provider_code: huawei_cloud
 market_mode: domestic
+cloud_partition: huawei_cn
 product_code: obs
 source_type: sla
 title: OBS service level agreement

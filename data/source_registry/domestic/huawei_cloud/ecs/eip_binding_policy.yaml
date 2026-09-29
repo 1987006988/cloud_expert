@@ -1,0 +1,34 @@
+source_id: huawei_cloud_eip_binding_policy
+provider_code: huawei_cloud
+market_mode: domestic
+cloud_partition: huawei_cn
+product_code: ecs
+source_type: documentation
+title: Huawei Cloud domestic EIP holding fee conditions
+url: https://support.huaweicloud.com/price-eip/eip_billing_0030.html
+language: zh-CN
+authority_level: official_primary
+enabled: true
+requires_authentication: false
+requires_browser: false
+allow_automated_fetch: true
+expected_content_type: [text/html]
+expected_encoding: utf-8
+domain_policy:
+  allowed_domains: [support.huaweicloud.com]
+  allow_subdomains: false
+  allow_redirects: false
+schedule:
+  update_frequency: monthly
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-29T16:04:13Z
+terms_review_status: approved
+automated_fetch_allowed: true
+manual_only: false
+compliance_notes: >
+  Public official support documentation, query-free URL, following the existing
+  official support-document collection policy. No login, account data or secrets.
+  No permission is granted to scrape disabled dynamic price websites.
+notes: >
+  An EIP binding assumption must be explicit; do not erase an independently captured IP quote.

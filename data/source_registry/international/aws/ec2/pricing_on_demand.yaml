@@ -9,10 +9,10 @@ description: Official EC2 On-Demand pricing page.
 url: https://aws.amazon.com/ec2/pricing/on-demand/
 language: en-US
 authority_level: official_primary
-enabled: true
+enabled: false
 requires_authentication: false
 requires_browser: false
-allow_automated_fetch: true
+allow_automated_fetch: false
 expected_content_type:
   - text/html
 expected_file_extension: .html
@@ -45,16 +45,19 @@ schedule:
   priority: 80
 owner: cloud_expert_data_engineering
 review_status: pending_review
-reviewed_at: 2026-07-23T00:00:00Z
+reviewed_at: 2026-09-29T18:51:29Z
 robots_checked_at: 2026-07-23T00:00:00Z
 robots_allowed: true
-terms_review_status: approved
-automated_fetch_allowed: true
+terms_review_status: disallowed
+automated_fetch_allowed: false
 manual_only: false
 compliance_notes: >
-  Public official AWS pricing page. Automated HTTP snapshot is approved for
-  immutable source capture. Dynamic token prices must be parsed only when the
-  resolved snapshot contains product, region, unit, currency, and numeric price.
+  Retired collection after 2026-09-30 Site Terms recheck. Public visibility and
+  robots allowance do not authorize automated extraction for this project.
+  Preserve prior snapshots and Evidence as history, not current authorization.
+  Use the documented Price List download API and separately licensed AWS
+  technical documentation for replacement evidence. See
+  reports/remediation/closure_20260930/aws_collection_policy_recheck.md.
 notes: >
   EC2 compute prices may require AWS pricing-table tokens or Bulk API files.
   Missing compute prices must remain missing.

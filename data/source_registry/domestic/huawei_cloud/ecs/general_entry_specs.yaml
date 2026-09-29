@@ -1,6 +1,7 @@
 source_id: huawei_cloud_ecs_general_entry_specs
 provider_code: huawei_cloud
 market_mode: domestic
+cloud_partition: huawei_cn
 product_code: ecs
 source_type: specification
 title: ECS general entry instance specifications

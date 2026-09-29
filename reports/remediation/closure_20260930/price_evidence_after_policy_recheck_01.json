@@ -1,0 +1,21 @@
+{
+  "price_snapshots": 18,
+  "linked_to_evidence": 18,
+  "linked_to_pricing_source": 18,
+  "missing_snapshot_record": 0,
+  "invalid_bounded_prices": [],
+  "invalid_catalog_prices": [],
+  "invalid_aws_catalog_prices": [
+    13,
+    14,
+    15,
+    16,
+    17,
+    18
+  ],
+  "price_evidence_completeness": 1.0,
+  "errors": [
+    "AWS catalog tiers, raw hashes, policy evidence or persisted prices are invalid"
+  ],
+  "valid": false
+}

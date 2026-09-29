@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,6 +36,26 @@ class HtmlDocument:
             if any(keyword in text for keyword in keywords):
                 matches.append((f"html:text[{index}]", text))
         return matches
+
+    def product_description_containing(self, *keywords: str) -> tuple[str, str] | None:
+        candidates: list[tuple[int, int, int, str, str]] = []
+        for index, node in enumerate(self.soup.find_all(["p", "li", "td", "th", "div"])):
+            if node.name not in {"p", "div"}:
+                continue
+            text = " ".join(node.get_text(" ", strip=True).split())
+            if not 40 <= len(text) <= 800 or not any(keyword in text for keyword in keywords):
+                continue
+            if not re.search(
+                r"(?:是|提供).{0,80}(?:计算|服务|云服务器)|"
+                r"(?:计算|服务).{0,80}(?:是|提供)",
+                text,
+            ):
+                continue
+            candidates.append((node.name == "p", len(text), -index, f"html:text[{index}]", text))
+        if not candidates:
+            return None
+        _, _, _, locator, excerpt = max(candidates)
+        return locator, excerpt
 
     def tables(self) -> list[HtmlTable]:
         tables: list[HtmlTable] = []

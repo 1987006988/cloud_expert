@@ -1,0 +1,29 @@
+{
+  "rule_version": "aws_price_policy_replacement_v1",
+  "plan_sha256": "c1136701c25ad90f38d11969a269a0a319b645a1c76922a0ee7e418e4d1be63c",
+  "old_price_id": 17,
+  "new_price_id": 20,
+  "applied": true,
+  "created": true,
+  "transaction_committed": true,
+  "evidence_created": 1,
+  "price_snapshots_created": 1,
+  "price_skus_created": 0,
+  "scope": "internal_reference_only",
+  "customer_eligible": false,
+  "price_approval": false,
+  "complete_tco": false,
+  "customer_payable_tax": "unknown",
+  "status": "replacement_appended_pending_caller_commit",
+  "lifecycle": {
+    "plan_sha256": "2d0cf4959c3dc9d67cf5359adfc32b187e4fa19e82326284ebe72c11f0086c52",
+    "receipt_sha256": "68423c69d1802828ec919c2919ccca0ff27b09b2c1b78cba1822b1b0dbe0ca13",
+    "applied": true,
+    "created": true,
+    "replaced_prices": 1,
+    "transaction_committed": false,
+    "approvals_granted": 0
+  },
+  "database_open_mode": "rw",
+  "network_requests": 0
+}

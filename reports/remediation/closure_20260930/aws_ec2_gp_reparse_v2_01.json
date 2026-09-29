@@ -1,0 +1,13 @@
+[
+  {
+    "source_id": "aws_ec2_general_purpose_specs",
+    "product_code": "ec2",
+    "status": "partial",
+    "records_found": 501,
+    "fields_found": 2483,
+    "evidence_created": 2483,
+    "review_items_created": 363,
+    "parsing_run_id": 133,
+    "error_message": null
+  }
+]

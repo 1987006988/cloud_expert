@@ -39,7 +39,7 @@ class PricingScenario(IDMixin, TableNameMixin, ReprMixin, Base):
     __table_args__ = (
         UniqueConstraint("scenario_code", "scenario_version", name="uq_pricing_scenario_version"),
         CheckConstraint(
-            f"market_mode IN ({sql_in_values(MarketMode.values())})",
+            f"market_mode IN ({sql_in_values(MarketMode.fact_values())})",
             name="pricing_scenario_market_mode",
         ),
         CheckConstraint("length(target_currency) = 3", name="pricing_scenario_currency_len"),

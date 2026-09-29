@@ -26,8 +26,8 @@ from cloud_expert.database.models.source import Evidence, SourceDocument
 from cloud_expert.database.models.tco import TCOResult
 from cloud_expert.database.session import SessionLocal
 
-POLICY_VERSION = "week11_model_review_v1"
-REVIEWER_MODEL = "codex_agent_evidence_rules"
+POLICY_VERSION = "week12_deterministic_precheck_v3"
+REVIEWER_MODEL = "deterministic_evidence_precheck"
 REPORT_ROOT = Path("reports/remediation/week11_model_review")
 
 
@@ -130,8 +130,11 @@ def _build_findings() -> list[Finding]:
                 verdict, reason = "internal_research_only", "cross_market_mapping"
                 rationale = "Evidence supports a research candidate across markets; it does not establish same-market customer eligibility."
             else:
-                verdict, reason = "requires_human_confirmation", "customer_mapping_review_required"
-                rationale = "Model checks cannot substitute for the named reviewer required for customer mapping approval."
+                verdict, reason = (
+                    "requires_dual_model_review",
+                    "same_market_mapping_review_required",
+                )
+                rationale = "Deterministic checks cannot approve this mapping; two independent source-backed model opinions are required for internal review."
             findings.append(
                 _finding(
                     "mapping_candidate",
@@ -237,8 +240,11 @@ def _build_findings() -> list[Finding]:
                 verdict, reason = "internal_research_only", "cross_market_decision"
                 rationale = "Cross-market analysis is internal research and cannot be used as a same-market customer decision."
             else:
-                verdict, reason = "requires_human_confirmation", "customer_decision_review_required"
-                rationale = "Model checks do not grant customer decision approval."
+                verdict, reason = (
+                    "requires_dual_model_review",
+                    "same_market_decision_review_required",
+                )
+                rationale = "Deterministic checks do not grant decision approval; two independent source-backed model opinions are required for internal review."
             findings.append(
                 _finding(
                     "candidate_decision_result",
@@ -266,6 +272,7 @@ def run_model_review() -> dict[str, Any]:
     counts = Counter((row.subject_type, row.verdict) for row in findings)
     summary: dict[str, Any] = {
         "run_code": run_code,
+        "stage": "precheck",
         "policy_version": POLICY_VERSION,
         "reviewer_model": REVIEWER_MODEL,
         "input_fingerprint": fingerprint,
@@ -274,6 +281,7 @@ def run_model_review() -> dict[str, Any]:
             f"{subject}/{verdict}": count for (subject, verdict), count in sorted(counts.items())
         },
         "human_review_equivalent": False,
+        "individual_model_review": False,
         "customer_eligibility_granted": False,
     }
     with SessionLocal() as session:

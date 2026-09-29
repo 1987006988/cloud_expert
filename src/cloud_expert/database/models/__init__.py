@@ -37,6 +37,11 @@ from cloud_expert.database.models.mapping import (
     MappingRuleSet,
     ProductMapping,
 )
+from cloud_expert.database.models.market import MarketCompatibilityAssessment, MarketContext
+from cloud_expert.database.models.model_review_workflow import (
+    ModelReviewAssignment,
+    ModelReviewAuditEvent,
+)
 from cloud_expert.database.models.parsing import ParsedFieldCandidate, ParsingRun
 from cloud_expert.database.models.pricing import PriceSKU, PriceSnapshot
 from cloud_expert.database.models.product import (
@@ -99,6 +104,8 @@ __all__ = [
     "HumanReviewImportBatch",
     "ModelReviewFinding",
     "ModelReviewRun",
+    "ModelReviewAssignment",
+    "ModelReviewAuditEvent",
     "IngestionRun",
     "DataQualityIssue",
     "MappingCandidate",
@@ -106,6 +113,8 @@ __all__ = [
     "MappingFieldComparison",
     "MappingReview",
     "MappingRuleSet",
+    "MarketCompatibilityAssessment",
+    "MarketContext",
     "NormalizationRule",
     "NormalizationRun",
     "NormalizedSpecification",

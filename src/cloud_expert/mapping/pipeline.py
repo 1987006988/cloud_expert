@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from cloud_expert.config.settings import get_settings
 from cloud_expert.database.enums import (
+    AuthorityLevel,
     FieldComparisonStatus,
     MappingCandidateStatus,
     MappingEvidenceRole,
@@ -25,9 +26,12 @@ from cloud_expert.database.models.mapping import (
     MappingFieldComparison,
     MappingRuleSet,
 )
+from cloud_expert.database.models.parsing import ParsedFieldCandidate
 from cloud_expert.database.models.product import SKU, Product
 from cloud_expert.database.models.product_extension import ProductFamily, ServiceTier
 from cloud_expert.database.models.provider import Provider
+from cloud_expert.database.models.snapshot import SnapshotRecord
+from cloud_expert.database.models.source import SourceDocument
 from cloud_expert.mapping.rules import (
     RULE_VERSION,
     classify_family,
@@ -35,6 +39,14 @@ from cloud_expert.mapping.rules import (
     relationship_for_score,
     score_cpu_memory,
 )
+from cloud_expert.normalization.evidence_validity import (
+    HashCache,
+    current_normalized_statement,
+    normalized_evidence_valid,
+)
+
+MARKET_RULE_VERSION = "2026.09.week12.market.v1"
+CURRENT_SKU_RULE_VERSION = "2026.09.week14.current-evidence.v2"
 
 
 @dataclass
@@ -121,7 +133,7 @@ def _count(session: Session, model: type[Any]) -> int:
 
 
 def _ensure_rule_sets(session: Session, now: datetime) -> dict[str, MappingRuleSet]:
-    definitions = [
+    base_definitions = [
         ("week07_product", MappingLevel.PRODUCT.value, "all", "cross_market"),
         ("week07_compute_family", MappingLevel.PRODUCT_FAMILY.value, "compute", "cross_market"),
         ("week07_compute_sku", MappingLevel.SKU.value, "compute", "cross_market"),
@@ -132,18 +144,27 @@ def _ensure_rule_sets(session: Session, now: datetime) -> dict[str, MappingRuleS
             "cross_market",
         ),
     ]
+    definitions = list(base_definitions)
+    definitions.extend(
+        (f"{code}_{mode}", level, category, mode)
+        for code, level, category, _ in base_definitions
+        for mode in ("domestic", "international")
+    )
     result: dict[str, MappingRuleSet] = {}
     for code, level, category, market_mode in definitions:
+        version = RULE_VERSION if market_mode == "cross_market" else MARKET_RULE_VERSION
+        if level == MappingLevel.SKU.value:
+            version = CURRENT_SKU_RULE_VERSION
         existing = session.scalar(
             select(MappingRuleSet).where(
                 MappingRuleSet.rule_set_code == code,
-                MappingRuleSet.rule_set_version == RULE_VERSION,
+                MappingRuleSet.rule_set_version == version,
             )
         )
         if existing is None:
             existing = MappingRuleSet(
                 rule_set_code=code,
-                rule_set_version=RULE_VERSION,
+                rule_set_version=version,
                 mapping_level=level,
                 category=category,
                 market_mode=market_mode,
@@ -161,7 +182,7 @@ def _ensure_rule_sets(session: Session, now: datetime) -> dict[str, MappingRuleS
                         "description": "scope and qualifier are preserved",
                     },
                 ],
-                scoring_config={"rule_version": RULE_VERSION, "max_targets_per_source": 5},
+                scoring_config={"rule_version": version, "max_targets_per_source": 5},
                 status=RuleSetStatus.ACTIVE.value,
                 effective_from=now,
             )
@@ -169,6 +190,14 @@ def _ensure_rule_sets(session: Session, now: datetime) -> dict[str, MappingRuleS
             session.flush()
         result[code] = existing
     return result
+
+
+def _market_rule_set(
+    rule_sets: dict[str, MappingRuleSet], code: str, source: Product, target: Product
+) -> MappingRuleSet:
+    if source.market_mode == target.market_mode:
+        return rule_sets[f"{code}_{source.market_mode}"]
+    return rule_sets[code]
 
 
 def _required_fields_for(level: str) -> list[str]:
@@ -199,12 +228,12 @@ def _generate_product_candidates(
         ("huawei_cloud", "obs", "aliyun", "oss"),
     ]
     created = 0
-    rule_set = rule_sets["week07_product"]
     for source_provider, source_product, target_provider, target_product in pairs:
         source = _product(session, source_provider, source_product)
         target = _product(session, target_provider, target_product)
         if source is None or target is None:
             continue
+        rule_set = _market_rule_set(rule_sets, "week07_product", source, target)
         source_evidence = _first_product_evidence(session, source.id)
         target_evidence = _first_product_evidence(session, target.id)
         candidate = _upsert_candidate(
@@ -256,7 +285,6 @@ def _generate_product_candidates(
 def _generate_family_candidates(
     session: Session, rule_sets: dict[str, MappingRuleSet], now: datetime
 ) -> int:
-    rule_set = rule_sets["week07_compute_family"]
     sources = _families(session, "huawei_cloud", "ecs")
     targets_by_provider = {
         "aws": _families(session, "aws", "ec2"),
@@ -275,6 +303,9 @@ def _generate_family_candidates(
             if not matching and targets:
                 matching = targets[:1]
             for target in matching:
+                rule_set = _market_rule_set(
+                    rule_sets, "week07_compute_family", source.product, target.product
+                )
                 target_tag = classify_family(target.family_code, target.family_name)
                 blockers: list[str] = []
                 conditions = [
@@ -342,7 +373,6 @@ def _generate_family_candidates(
 def _generate_sku_candidates(
     session: Session, rule_sets: dict[str, MappingRuleSet], now: datetime
 ) -> int:
-    rule_set = rule_sets["week07_compute_sku"]
     source_skus = _skus(session, "huawei_cloud", "ecs")[:80]
     target_sets = {"aws": _skus(session, "aws", "ec2"), "aliyun": _skus(session, "aliyun", "ecs")}
     all_skus = source_skus + [sku for targets in target_sets.values() for sku in targets]
@@ -373,6 +403,9 @@ def _generate_sku_candidates(
             for score, target, blockers, conditions in sorted(
                 scored, key=lambda row: row[0], reverse=True
             )[:4]:
+                rule_set = _market_rule_set(
+                    rule_sets, "week07_compute_sku", source.product, target.product
+                )
                 target_values = values_by_sku.get(target.id, {})
                 relationship = relationship_for_score(score, blockers)
                 candidate_status = (
@@ -412,7 +445,6 @@ def _generate_sku_candidates(
 def _generate_service_tier_candidates(
     session: Session, rule_sets: dict[str, MappingRuleSet], now: datetime
 ) -> int:
-    rule_set = rule_sets["week07_object_storage_tier"]
     sources = _tiers(session, "huawei_cloud", "obs")
     targets_by_provider = {
         "aws": _tiers(session, "aws", "s3"),
@@ -423,6 +455,9 @@ def _generate_service_tier_candidates(
         source_tag = classify_tier(source.tier_code, source.official_name, source.access_pattern)
         for targets in targets_by_provider.values():
             for target in targets:
+                rule_set = _market_rule_set(
+                    rule_sets, "week07_object_storage_tier", source.product, target.product
+                )
                 target_tag = classify_tier(
                     target.tier_code, target.official_name, target.access_pattern
                 )
@@ -550,15 +585,44 @@ def _upsert_candidate(
         session.add(candidate)
         session.flush()
     else:
+        if (
+            candidate.candidate_status
+            in {
+                MappingCandidateStatus.APPROVED.value,
+                MappingCandidateStatus.CORRECTED.value,
+                MappingCandidateStatus.REJECTED.value,
+                MappingCandidateStatus.SUPERSEDED.value,
+            }
+            or candidate.review_status == ReviewStatus.HUMAN_REVIEWED.value
+        ):
+            return candidate
+        changed = False
         for key, value in values.items():
-            if key != "review_status":
+            if key in {"review_status", "generated_at", "valid_from"}:
+                continue
+            if getattr(candidate, key) != value:
                 setattr(candidate, key, value)
+                changed = True
+        if changed:
+            candidate.generated_at = now
+            candidate.valid_from = now
     return candidate
 
 
 def _link_evidence(
     session: Session, candidate: MappingCandidate, evidence_id: int, role: str, now: datetime
 ) -> None:
+    if (
+        candidate.candidate_status
+        in {
+            MappingCandidateStatus.APPROVED.value,
+            MappingCandidateStatus.CORRECTED.value,
+            MappingCandidateStatus.REJECTED.value,
+            MappingCandidateStatus.SUPERSEDED.value,
+        }
+        or candidate.review_status == ReviewStatus.HUMAN_REVIEWED.value
+    ):
+        return
     exists = session.scalar(
         select(MappingCandidateEvidence.id).where(
             MappingCandidateEvidence.mapping_candidate_id == candidate.id,
@@ -584,6 +648,17 @@ def _add_sku_field_comparisons(
     target_values: dict[str, NormalizedSpecification],
     now: datetime,
 ) -> None:
+    if (
+        candidate.candidate_status
+        in {
+            MappingCandidateStatus.APPROVED.value,
+            MappingCandidateStatus.CORRECTED.value,
+            MappingCandidateStatus.REJECTED.value,
+            MappingCandidateStatus.SUPERSEDED.value,
+        }
+        or candidate.review_status == ReviewStatus.HUMAN_REVIEWED.value
+    ):
+        return
     for field_code in ["compute.cpu.vcpu_count", "compute.memory.capacity_gib"]:
         source = source_values.get(field_code)
         target = target_values.get(field_code)
@@ -689,31 +764,34 @@ def _tiers(session: Session, provider_code: str, product_code: str) -> list[Serv
 
 
 def _first_product_evidence(session: Session, product_id: int) -> int | None:
-    statement: Select[tuple[int]] = (
-        select(NormalizedSpecification.evidence_id)
-        .where(NormalizedSpecification.product_id == product_id)
-        .order_by(NormalizedSpecification.id)
+    product = session.get(Product, product_id)
+    if product is None or not product.description:
+        return None
+    statement: Select[tuple[int | None]] = (
+        select(ParsedFieldCandidate.evidence_id)
+        .join(SourceDocument, ParsedFieldCandidate.source_document_id == SourceDocument.id)
+        .join(SnapshotRecord, ParsedFieldCandidate.snapshot_record_id == SnapshotRecord.id)
+        .where(
+            ParsedFieldCandidate.target_identity == f"product:{product.code}",
+            ParsedFieldCandidate.field_code == "product.description",
+            ParsedFieldCandidate.raw_value == product.description,
+            ParsedFieldCandidate.evidence_id.is_not(None),
+            SourceDocument.provider_id == product.provider_id,
+            SourceDocument.authority_level.in_(
+                [AuthorityLevel.OFFICIAL_PRIMARY.value, AuthorityLevel.OFFICIAL_SECONDARY.value]
+            ),
+            SourceDocument.is_current.is_(True),
+            SourceDocument.content_hash == SnapshotRecord.content_hash,
+            SnapshotRecord.is_current.is_(True),
+        )
+        .order_by(ParsedFieldCandidate.id.desc())
         .limit(1)
     )
     return session.scalar(statement)
 
 
 def _sku_values(session: Session, sku_id: int) -> dict[str, NormalizedSpecification]:
-    rows = session.scalars(
-        select(NormalizedSpecification)
-        .join(CanonicalFieldDefinition)
-        .where(
-            NormalizedSpecification.sku_id == sku_id,
-            CanonicalFieldDefinition.code.in_(
-                ["compute.cpu.vcpu_count", "compute.memory.capacity_gib"]
-            ),
-        )
-        .order_by(CanonicalFieldDefinition.code, NormalizedSpecification.id)
-    ).all()
-    values: dict[str, NormalizedSpecification] = {}
-    for row in rows:
-        values.setdefault(row.canonical_field.code, row)
-    return values
+    return _sku_values_for_skus(session, [sku_id]).get(sku_id, {})
 
 
 def _sku_values_for_skus(
@@ -722,8 +800,11 @@ def _sku_values_for_skus(
     if not sku_ids:
         return {}
     rows = session.scalars(
-        select(NormalizedSpecification)
-        .join(CanonicalFieldDefinition)
+        current_normalized_statement()
+        .join(
+            CanonicalFieldDefinition,
+            NormalizedSpecification.canonical_field_id == CanonicalFieldDefinition.id,
+        )
         .where(
             NormalizedSpecification.sku_id.in_(sku_ids),
             CanonicalFieldDefinition.code.in_(
@@ -733,12 +814,13 @@ def _sku_values_for_skus(
         .order_by(
             NormalizedSpecification.sku_id,
             CanonicalFieldDefinition.code,
-            NormalizedSpecification.id,
+            NormalizedSpecification.id.desc(),
         )
     ).all()
     values: dict[int, dict[str, NormalizedSpecification]] = {}
+    hash_cache: HashCache = {}
     for row in rows:
-        if row.sku_id is None:
+        if row.sku_id is None or not normalized_evidence_valid(session, row, hash_cache=hash_cache):
             continue
         values.setdefault(row.sku_id, {}).setdefault(row.canonical_field.code, row)
     return values

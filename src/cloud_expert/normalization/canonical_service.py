@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from cloud_expert.database.enums import (
@@ -29,6 +29,11 @@ from cloud_expert.normalization.canonical_fields import (
     LEGACY_FIELD_MAPPINGS,
     LegacyFieldMapping,
     legacy_mapping_by_source_field,
+)
+from cloud_expert.normalization.evidence_validity import (
+    HashCache,
+    current_normalized_statement,
+    normalized_evidence_valid,
 )
 from cloud_expert.normalization.unit_standardization import StandardizedValue, standardize_value
 from cloud_expert.parsing.hashing import field_value_hash
@@ -290,6 +295,8 @@ def normalize_specifications(
             summary.records_created += 1
         elif existing.review_status == ReviewStatus.REJECTED.value:
             summary.skip("rejected_by_human_review")
+        elif existing.review_status == ReviewStatus.HUMAN_REVIEWED.value:
+            summary.skip("preserved_human_reviewed_history")
         else:
             for key, normalized_value in values.items():
                 setattr(existing, key, normalized_value)
@@ -317,12 +324,23 @@ def assess_comparability(session: Session, *, run_key: str | None = None) -> Com
     seed_canonical_registry(session)
     run = _latest_or_named_run(session, run_key)
     summary = ComparabilitySummary()
+    hash_cache: HashCache = {}
+    now = datetime.now(UTC)
     for domain, group in PROVIDER_PRODUCT_GROUPS:
         maybe_products = [_get_product(session, provider, product) for provider, product in group]
         products: list[Product] = [product for product in maybe_products if product is not None]
         for index, source_product in enumerate(products):
             for target_product in products[index + 1 :]:
-                _assess_product_pair(session, source_product, target_product, run, summary, domain)
+                _assess_product_pair(
+                    session,
+                    source_product,
+                    target_product,
+                    run,
+                    summary,
+                    domain,
+                    hash_cache=hash_cache,
+                    now=now,
+                )
     session.flush()
     return summary
 
@@ -334,6 +352,9 @@ def _assess_product_pair(
     run: NormalizationRun | None,
     summary: ComparabilitySummary,
     domain: str,
+    *,
+    hash_cache: HashCache,
+    now: datetime,
 ) -> None:
     fields = list(
         session.scalars(
@@ -347,7 +368,22 @@ def _assess_product_pair(
     )
     for canonical_field in fields:
         qualifiers = _observed_qualifiers(
-            session, canonical_field.id, source_product.id, target_product.id
+            session,
+            canonical_field.id,
+            source_product.id,
+            target_product.id,
+            hash_cache=hash_cache,
+            now=now,
+        )
+        # Revisit old machine assessments even when their last valid qualifier disappeared.
+        qualifiers.update(
+            session.scalars(
+                select(ComparabilityAssessment.value_qualifier).where(
+                    ComparabilityAssessment.canonical_field_id == canonical_field.id,
+                    ComparabilityAssessment.source_product_id == source_product.id,
+                    ComparabilityAssessment.target_product_id == target_product.id,
+                )
+            )
         )
         if not qualifiers:
             qualifiers = {canonical_field.default_qualifier}
@@ -358,12 +394,16 @@ def _assess_product_pair(
                 product_id=source_product.id,
                 canonical_field_id=canonical_field.id,
                 qualifier=qualifier,
+                hash_cache=hash_cache,
+                now=now,
             )
             target_readiness = _normalized_readiness(
                 session,
                 product_id=target_product.id,
                 canonical_field_id=canonical_field.id,
                 qualifier=qualifier,
+                hash_cache=hash_cache,
+                now=now,
             )
             decision = _comparability_decision(
                 source_readiness,
@@ -372,7 +412,6 @@ def _assess_product_pair(
                 source_market_mode=source_product.market_mode,
                 target_market_mode=target_product.market_mode,
             )
-            summary.count_status(decision.status)
             existing = session.scalar(
                 select(ComparabilityAssessment).where(
                     ComparabilityAssessment.canonical_field_id == canonical_field.id,
@@ -382,6 +421,14 @@ def _assess_product_pair(
                     ComparabilityAssessment.value_qualifier == qualifier,
                 )
             )
+            if existing is not None and existing.review_status in {
+                ReviewStatus.HUMAN_REVIEWED.value,
+                ReviewStatus.REJECTED.value,
+            }:
+                # Preserve historical reviews without counting them as a fresh approval.
+                summary.count_status(decision.status)
+                continue
+            summary.count_status(decision.status)
             values = {
                 "normalization_run_id": None if run is None else run.id,
                 "status": decision.status,
@@ -518,17 +565,23 @@ def _observed_qualifiers(
     canonical_field_id: int,
     source_product_id: int,
     target_product_id: int,
+    *,
+    hash_cache: HashCache | None = None,
+    now: datetime | None = None,
 ) -> set[str]:
-    return set(
-        session.scalars(
-            select(NormalizedSpecification.value_qualifier)
-            .where(
-                NormalizedSpecification.canonical_field_id == canonical_field_id,
-                NormalizedSpecification.product_id.in_((source_product_id, target_product_id)),
-            )
-            .distinct()
-        ).all()
+    cache = hash_cache if hash_cache is not None else {}
+    at = now or datetime.now(UTC)
+    rows = session.scalars(
+        current_normalized_statement(now=at).where(
+            NormalizedSpecification.canonical_field_id == canonical_field_id,
+            NormalizedSpecification.product_id.in_((source_product_id, target_product_id)),
+        )
     )
+    return {
+        row.value_qualifier
+        for row in rows
+        if normalized_evidence_valid(session, row, hash_cache=cache, now=at)
+    }
 
 
 def _count_normalized(
@@ -537,19 +590,42 @@ def _count_normalized(
     product_id: int,
     canonical_field_id: int,
     qualifier: str,
+    hash_cache: HashCache | None = None,
+    now: datetime | None = None,
 ) -> int:
-    return int(
-        session.scalar(
-            select(func.count())
-            .select_from(NormalizedSpecification)
-            .where(
-                NormalizedSpecification.product_id == product_id,
-                NormalizedSpecification.canonical_field_id == canonical_field_id,
-                NormalizedSpecification.value_qualifier == qualifier,
-            )
+    return len(
+        _current_normalized_rows(
+            session,
+            product_id=product_id,
+            canonical_field_id=canonical_field_id,
+            qualifier=qualifier,
+            hash_cache=hash_cache,
+            now=now,
         )
-        or 0
     )
+
+
+def _current_normalized_rows(
+    session: Session,
+    *,
+    product_id: int,
+    canonical_field_id: int,
+    qualifier: str,
+    hash_cache: HashCache | None,
+    now: datetime | None,
+) -> list[NormalizedSpecification]:
+    cache = hash_cache if hash_cache is not None else {}
+    at = now or datetime.now(UTC)
+    rows = session.scalars(
+        current_normalized_statement(now=at).where(
+            NormalizedSpecification.product_id == product_id,
+            NormalizedSpecification.canonical_field_id == canonical_field_id,
+            NormalizedSpecification.value_qualifier == qualifier,
+        )
+    )
+    return [
+        row for row in rows if normalized_evidence_valid(session, row, hash_cache=cache, now=at)
+    ]
 
 
 def _normalized_readiness(
@@ -558,16 +634,16 @@ def _normalized_readiness(
     product_id: int,
     canonical_field_id: int,
     qualifier: str,
+    hash_cache: HashCache | None = None,
+    now: datetime | None = None,
 ) -> FieldReadiness:
-    rows = list(
-        session.scalars(
-            select(NormalizedSpecification).where(
-                NormalizedSpecification.product_id == product_id,
-                NormalizedSpecification.canonical_field_id == canonical_field_id,
-                NormalizedSpecification.value_qualifier == qualifier,
-                NormalizedSpecification.review_status != ReviewStatus.REJECTED.value,
-            )
-        ).all()
+    rows = _current_normalized_rows(
+        session,
+        product_id=product_id,
+        canonical_field_id=canonical_field_id,
+        qualifier=qualifier,
+        hash_cache=hash_cache,
+        now=now,
     )
     return FieldReadiness(
         count=len(rows),
@@ -575,7 +651,10 @@ def _normalized_readiness(
         canonical_units=frozenset(row.canonical_unit for row in rows if row.canonical_unit),
         value_qualifiers=frozenset(row.value_qualifier for row in rows),
         pending_review_count=sum(
-            row.review_status == ReviewStatus.PENDING_REVIEW.value for row in rows
+            row.review_status in {ReviewStatus.PENDING_REVIEW.value, ReviewStatus.UNKNOWN.value}
+            or row.evidence.review_status
+            in {ReviewStatus.PENDING_REVIEW.value, ReviewStatus.UNKNOWN.value}
+            for row in rows
         ),
     )
 
@@ -616,7 +695,7 @@ def _comparability_decision(
         return ComparabilityDecision(
             ComparabilityStatus.NEEDS_REVIEW.value,
             "pending_review_values",
-            "Both sides have normalized values, but at least one value is still pending human review.",
+            "Both sides have current normalized evidence, but at least one value still requires review.",
             Decimal("0.7500"),
             Decimal("1.0000"),
             Decimal("1.0000"),

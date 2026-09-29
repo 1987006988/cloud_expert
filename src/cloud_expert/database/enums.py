@@ -12,6 +12,21 @@ class StableStrEnum(StrEnum):
 class MarketMode(StableStrEnum):
     DOMESTIC = "domestic"
     INTERNATIONAL = "international"
+    CROSS_MARKET_ANALYSIS = "cross_market_analysis"
+    UNKNOWN = "unknown"
+
+    @classmethod
+    def fact_values(cls) -> tuple[str, str]:
+        return cls.DOMESTIC.value, cls.INTERNATIONAL.value
+
+
+class MarketCompatibilityStatus(StableStrEnum):
+    COMPATIBLE = "compatible"
+    COMPATIBLE_WITH_CONDITIONS = "compatible_with_conditions"
+    CROSS_MARKET = "cross_market"
+    INCOMPATIBLE = "incompatible"
+    UNKNOWN = "unknown"
+    REQUIRES_REVIEW = "requires_review"
 
 
 class ProductStatus(StableStrEnum):

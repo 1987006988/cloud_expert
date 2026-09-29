@@ -5,14 +5,19 @@ from pathlib import Path
 from typing import Any
 
 import _bootstrap  # noqa: F401
+import yaml
 from check_week09_gate import check_week09_gate
 from check_week10_gate import check_week10_gate
 from sqlalchemy import func, select
+from sqlalchemy.orm import Session
 
 from cloud_expert.database.enums import (
     DecisionOutputLevel,
     DecisionReviewStatus,
+    DecisionStatus,
     EvidenceOutputLevel,
+    FreshnessStatus,
+    MappingCandidateStatus,
     ReviewStatus,
     TCOCompletenessStatus,
 )
@@ -20,6 +25,7 @@ from cloud_expert.database.models.canonical import CanonicalFieldDefinition, Nor
 from cloud_expert.database.models.decision import CandidateDecisionResult, DecisionReview
 from cloud_expert.database.models.evidence_package import EvidencePackage
 from cloud_expert.database.models.mapping import MappingCandidate
+from cloud_expert.database.models.model_review_workflow import ModelReviewAssignment
 from cloud_expert.database.models.product import Product
 from cloud_expert.database.models.product_extension import ProductSLA
 from cloud_expert.database.models.provider import Provider
@@ -30,10 +36,14 @@ from cloud_expert.database.models.review import (
     ModelReviewFinding,
     ModelReviewRun,
 )
-from cloud_expert.database.models.tco import TCOResult
+from cloud_expert.database.models.tco import CostLineItem, TCOResult
 from cloud_expert.database.session import SessionLocal
+from cloud_expert.model_review.approvals import mapping_approval
+from cloud_expert.pricing.freshness import price_snapshot_freshness
+from cloud_expert.pricing.tco import tco_result_currently_complete
 
 REPORT_DIR = Path("reports") / "week11_gate"
+REVIEW_AUTHORITY_CONFIG = Path("config") / "review_authority.yaml"
 REQUIRED_DOCS = [
     "docs/MAPPING_REVIEW_GUIDE.md",
     "docs/DECISION_REVIEW_GUIDE.md",
@@ -75,6 +85,27 @@ def _count_active_bad_aws_memory() -> int:
         )
 
 
+def _has_current_price_lines(session: Session, tco_result: TCOResult) -> bool:
+    if not tco_result_currently_complete(session, tco_result):
+        return False
+    from cloud_expert.pricing.scoped_tco import RULE_VERSION as SCOPED_RULE
+
+    if tco_result.run.rule_version == SCOPED_RULE:
+        return True
+    items = session.scalars(
+        select(CostLineItem).where(
+            CostLineItem.run_id == tco_result.run_id,
+            CostLineItem.provider_id == tco_result.provider_id,
+            CostLineItem.product_id == tco_result.product_id,
+        )
+    ).all()
+    return bool(items) and all(
+        item.amount is not None
+        and price_snapshot_freshness(item.price_snapshot) == FreshnessStatus.FRESH.value
+        for item in items
+    )
+
+
 def _readiness() -> dict[str, Any]:
     with SessionLocal() as session:
         review_batches = (
@@ -87,6 +118,80 @@ def _readiness() -> dict[str, Any]:
         model_review_findings = (
             session.scalar(select(func.count()).select_from(ModelReviewFinding)) or 0
         )
+        consensus_runs = session.scalars(
+            select(ModelReviewRun)
+            .where(ModelReviewRun.policy_version == "dual_model_consensus_v1")
+            .order_by(ModelReviewRun.id.desc())
+        ).all()
+        latest_model_run = next(
+            (
+                run
+                for run in consensus_runs
+                if run.summary_json.get("stage") == "arbitration"
+                and run.summary_json.get("unreviewed") == 0
+            ),
+            None,
+        )
+        model_reviewed_mappings = 0
+        model_approved_mappings = 0
+        model_reviewed_decisions = 0
+        model_approved_decisions = 0
+        scoped_mapping_ids = {
+            candidate.id
+            for candidate in session.scalars(
+                select(MappingCandidate).where(
+                    MappingCandidate.candidate_status == MappingCandidateStatus.APPROVED.value
+                )
+            )
+            if mapping_approval(session, candidate) is not None
+        }
+        if latest_model_run is not None:
+            model_reviewed_mappings = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(ModelReviewFinding)
+                    .where(
+                        ModelReviewFinding.run_id == latest_model_run.id,
+                        ModelReviewFinding.subject_type == "mapping_candidate",
+                    )
+                )
+                or 0
+            )
+            model_approved_mappings = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(ModelReviewFinding)
+                    .where(
+                        ModelReviewFinding.run_id == latest_model_run.id,
+                        ModelReviewFinding.subject_type == "mapping_candidate",
+                        ModelReviewFinding.verdict == "approve_internal",
+                    )
+                )
+                or 0
+            )
+            model_reviewed_decisions = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(ModelReviewFinding)
+                    .where(
+                        ModelReviewFinding.run_id == latest_model_run.id,
+                        ModelReviewFinding.subject_type == "candidate_decision_result",
+                    )
+                )
+                or 0
+            )
+            model_approved_decisions = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(ModelReviewFinding)
+                    .where(
+                        ModelReviewFinding.run_id == latest_model_run.id,
+                        ModelReviewFinding.subject_type == "candidate_decision_result",
+                        ModelReviewFinding.verdict == "approve_internal",
+                    )
+                )
+                or 0
+            )
         decision_counts: dict[str, int] = {
             str(status): int(count)
             for status, count in session.execute(
@@ -95,6 +200,24 @@ def _readiness() -> dict[str, Any]:
                 .group_by(HumanReviewDecision.reviewer_decision)
             ).tuples()
         }
+        model_reviewed_mappings += len(
+            set(
+                session.scalars(
+                    select(ModelReviewAssignment.target_id).where(
+                        ModelReviewAssignment.target_type == "mapping_candidate",
+                        ModelReviewAssignment.review_state.in_(
+                            [
+                                "model_approved",
+                                "model_approved_with_conditions",
+                                "model_inconclusive",
+                                "model_blocked",
+                            ]
+                        ),
+                    )
+                )
+            )
+        )
+        model_approved_mappings += len(scoped_mapping_ids)
         mapping_candidates = session.scalar(select(func.count()).select_from(MappingCandidate)) or 0
         human_reviewed_mappings = (
             session.scalar(
@@ -112,18 +235,20 @@ def _readiness() -> dict[str, Any]:
                 .where(
                     EvidencePackage.output_level == EvidenceOutputLevel.CUSTOMER_ELIGIBLE.value,
                     EvidencePackage.customer_eligible.is_(True),
+                    EvidencePackage.superseded_by_id.is_(None),
+                    EvidencePackage.freshness_status == FreshnessStatus.FRESH.value,
                 )
             )
             or 0
         )
-        complete_tco = (
-            session.scalar(
-                select(func.count())
-                .select_from(TCOResult)
-                .where(TCOResult.completeness_status == TCOCompletenessStatus.COMPLETE.value)
+        complete_tco = 0
+        for tco_result in session.scalars(
+            select(TCOResult).where(
+                TCOResult.completeness_status == TCOCompletenessStatus.COMPLETE.value
             )
-            or 0
-        )
+        ):
+            if _has_current_price_lines(session, tco_result):
+                complete_tco += 1
         decision_reviews = session.scalar(select(func.count()).select_from(DecisionReview)) or 0
         internally_approved = (
             session.scalar(
@@ -164,11 +289,74 @@ def _readiness() -> dict[str, Any]:
             )
             or 0
         )
+        approved_mapping_ids: set[int] = set(scoped_mapping_ids)
+        approved_decision_ids: set[int] = set()
+        if latest_model_run is not None:
+            for finding in session.scalars(
+                select(ModelReviewFinding).where(
+                    ModelReviewFinding.run_id == latest_model_run.id,
+                    ModelReviewFinding.verdict == "approve_internal",
+                )
+            ):
+                if finding.subject_type == "mapping_candidate":
+                    approved_mapping_ids.add(finding.subject_id)
+                elif finding.subject_type == "candidate_decision_result":
+                    approved_decision_ids.add(finding.subject_id)
+        ready_scenario_ids: set[int] = set()
+        for result in session.scalars(
+            select(CandidateDecisionResult).where(
+                CandidateDecisionResult.customer_eligible.is_(True)
+            )
+        ):
+            if (
+                result.id not in approved_decision_ids
+                or result.mapping_candidate_id not in approved_mapping_ids
+                or result.mapping_candidate_id is None
+                or result.tco_result_id is None
+                or result.hard_block_count != 0
+                or result.decision_status
+                not in {
+                    DecisionStatus.ELIGIBLE.value,
+                    DecisionStatus.CONDITIONALLY_ELIGIBLE.value,
+                }
+            ):
+                continue
+            candidate = session.get(MappingCandidate, result.mapping_candidate_id)
+            linked_tco = session.get(TCOResult, result.tco_result_id)
+            package = session.scalar(
+                select(EvidencePackage).where(
+                    EvidencePackage.mapping_candidate_id == result.mapping_candidate_id,
+                    EvidencePackage.customer_eligible.is_(True),
+                    EvidencePackage.output_level == EvidenceOutputLevel.CUSTOMER_ELIGIBLE.value,
+                    EvidencePackage.freshness_status == FreshnessStatus.FRESH.value,
+                    EvidencePackage.superseded_by_id.is_(None),
+                )
+            )
+            if (
+                candidate is None
+                or candidate.candidate_status != MappingCandidateStatus.APPROVED.value
+                or candidate.rule_set.market_mode == "cross_market"
+                or candidate.blocking_reasons
+                or package is None
+                or linked_tco is None
+                or linked_tco.completeness_status != TCOCompletenessStatus.COMPLETE.value
+                or linked_tco.freshness_status != FreshnessStatus.FRESH.value
+                or not _has_current_price_lines(session, linked_tco)
+            ):
+                continue
+            ready_scenario_ids.add(result.decision_run.scenario_id)
     return {
         "review_batches": review_batches,
         "review_decisions": review_decisions,
         "model_review_runs": model_review_runs,
         "model_review_findings": model_review_findings,
+        "complete_dual_model_consensus_run": latest_model_run.run_code
+        if latest_model_run is not None
+        else None,
+        "model_reviewed_mappings": model_reviewed_mappings,
+        "model_approved_mappings": model_approved_mappings,
+        "model_reviewed_decisions": model_reviewed_decisions,
+        "model_approved_decisions": model_approved_decisions,
         "review_decision_counts": decision_counts,
         "mapping_candidates": mapping_candidates,
         "human_reviewed_mappings": human_reviewed_mappings,
@@ -178,13 +366,7 @@ def _readiness() -> dict[str, Any]:
         "decision_reviews": decision_reviews,
         "internally_approved_decision_results": internally_approved,
         "customer_eligible_decision_results": customer_decisions,
-        "sales_output_ready_scenarios": min(
-            human_reviewed_mappings,
-            customer_evidence,
-            complete_tco,
-            internally_approved,
-            customer_decisions,
-        ),
+        "sales_output_ready_scenarios": len(ready_scenario_ids),
         "active_bad_aws_memory_records": _count_active_bad_aws_memory(),
         "aliyun_zone_name_equals_code": zone_name_equals_code,
         "rejected_sla_records": rejected_sla,
@@ -195,6 +377,12 @@ def check_week11_gate() -> dict[str, Any]:
     week9 = check_week09_gate()
     week10 = check_week10_gate()
     readiness = _readiness()
+    authority = (
+        yaml.safe_load(REVIEW_AUTHORITY_CONFIG.read_text(encoding="utf-8"))
+        if REVIEW_AUTHORITY_CONFIG.exists()
+        else {}
+    )
+    model_review_mode = authority.get("authority") == "model_review"
     missing_docs = [doc for doc in REQUIRED_DOCS if not Path(doc).exists()]
     blockers: list[str] = []
     if week9["verdict"] != "GO":
@@ -207,23 +395,36 @@ def check_week11_gate() -> dict[str, Any]:
         blockers.append("W11-B004-aws-memory-remediation")
     if readiness["aliyun_zone_name_equals_code"] > 0:
         blockers.append("W11-B005-aliyun-zone-remediation")
-    if readiness["human_reviewed_mappings"] == 0:
+    if model_review_mode:
+        if readiness["model_approved_mappings"] == 0:
+            blockers.append("W11-B007-model-approved-mapping")
+    elif readiness["human_reviewed_mappings"] == 0:
         blockers.append("W11-B007-human-reviewed-mapping")
     if readiness["customer_eligible_evidence_packages"] == 0:
         blockers.append("W11-B008-customer-evidence")
     if readiness["complete_tco_results"] == 0:
         blockers.append("W11-B009-complete-tco")
-    if readiness["decision_reviews"] == 0 or readiness["internally_approved_decision_results"] == 0:
+    if model_review_mode:
+        if readiness["model_approved_decisions"] == 0:
+            blockers.append("W11-B010-model-approved-decision")
+    elif (
+        readiness["decision_reviews"] == 0 or readiness["internally_approved_decision_results"] == 0
+    ):
         blockers.append("W11-B010-decision-review")
     if readiness["customer_eligible_decision_results"] == 0:
         blockers.append("W11-B011-customer-decision-output")
+    if readiness["sales_output_ready_scenarios"] == 0:
+        blockers.append("W11-B014-joined-customer-dependency-chain")
     if missing_docs:
         blockers.append("W11-B012-required-docs")
+    if model_review_mode and authority.get("customer_output_approval") is not True:
+        blockers.append("W11-B013-customer-output-policy")
     return {
         "gate": "WEEK11_GATE",
         "verdict": "GO" if not blockers else "NO-GO",
         "week9_gate": week9["verdict"],
         "week10_gate": week10["verdict"],
+        "review_authority": "model_review" if model_review_mode else "human_review",
         "readiness": readiness,
         "missing_required_docs": missing_docs,
         "blocking_items": blockers,

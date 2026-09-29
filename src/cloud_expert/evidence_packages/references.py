@@ -57,6 +57,8 @@ def freshness_for(source_document: SourceDocument, now: datetime) -> str:
         return FreshnessStatus.UNKNOWN.value
     if captured.tzinfo is None:
         captured = captured.replace(tzinfo=UTC)
+    if not source_document.is_current or captured > now:
+        return FreshnessStatus.UNKNOWN.value
     age_days = (now - captured).days
     cycle_days = {
         SourceType.SPECIFICATION.value: 30,

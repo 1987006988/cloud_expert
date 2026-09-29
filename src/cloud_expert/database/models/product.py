@@ -49,7 +49,7 @@ class Product(IDMixin, TimestampMixin, TableNameMixin, ReprMixin, Base):
     __table_args__ = (
         UniqueConstraint("provider_id", "code", name="uq_product_provider_code"),
         CheckConstraint(
-            f"market_mode IN ({sql_in_values(MarketMode.values())})",
+            f"market_mode IN ({sql_in_values(MarketMode.fact_values())})",
             name="product_market_mode",
         ),
         CheckConstraint(

@@ -1,0 +1,70 @@
+{
+  "generated_at": "2026-09-29T20:11:42.783858+00:00",
+  "evaluation_mode": "prerequisite_short_circuit",
+  "source_report": "reports/remediation/closure_20260930/week09_gate_current_04.json",
+  "source_sha256": "a8ffe919699217ec0c5f15be50165c6efcef827f2253e51dfef8f22e852ad208",
+  "actual_week09_gate": "NO-GO",
+  "root_blockers": [
+    "W9-B009-price-evidence-chain"
+  ],
+  "unresolved_price_ids": [
+    1,
+    14,
+    15,
+    16
+  ],
+  "verified_historical_replacements": [
+    13,
+    17,
+    18
+  ],
+  "weeks": {
+    "10": {
+      "gate": "NO-GO",
+      "reason": "failed_upstream_price_evidence_dependency",
+      "full_week_acceptance_executed": false,
+      "new_business_development_authorized": false
+    },
+    "11": {
+      "gate": "NO-GO",
+      "reason": "failed_upstream_price_evidence_dependency",
+      "full_week_acceptance_executed": false,
+      "new_business_development_authorized": false
+    },
+    "12": {
+      "gate": "NO-GO",
+      "reason": "failed_upstream_price_evidence_dependency",
+      "full_week_acceptance_executed": false,
+      "new_business_development_authorized": false
+    },
+    "13": {
+      "gate": "NO-GO",
+      "reason": "failed_upstream_price_evidence_dependency",
+      "full_week_acceptance_executed": false,
+      "new_business_development_authorized": false
+    },
+    "14": {
+      "gate": "NO-GO",
+      "reason": "failed_upstream_price_evidence_dependency",
+      "full_week_acceptance_executed": false,
+      "new_business_development_authorized": false
+    },
+    "15": {
+      "gate": "NO-GO",
+      "reason": "failed_upstream_price_evidence_dependency",
+      "full_week_acceptance_executed": false,
+      "new_business_development_authorized": false
+    },
+    "16": {
+      "gate": "NO-GO",
+      "reason": "failed_upstream_price_evidence_dependency",
+      "full_week_acceptance_executed": false,
+      "new_business_development_authorized": false
+    }
+  },
+  "review_migration_fixes_and_isolated_tests_retained": true,
+  "customer_output_allowed": false,
+  "production_deployment": false,
+  "real_pilot": "deferred_by_owner",
+  "note": "This is dependency-block propagation from an actually executed Week9 check, not execution of full Week10-16 acceptance. No failed dependency was waived."
+}

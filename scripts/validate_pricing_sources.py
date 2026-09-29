@@ -12,6 +12,7 @@ from cloud_expert.database.enums import SourceType
 from cloud_expert.database.models.source import Evidence, SourceDocument
 from cloud_expert.database.session import SessionLocal
 from cloud_expert.ingestion.registry.loader import load_registry_entries
+from cloud_expert.pricing.source_policy import approved_collection, collection_mode
 
 REQUIRED_PRICING_SOURCES = {
     ("huawei_cloud", "ecs"),
@@ -28,6 +29,16 @@ def validate_pricing_sources() -> dict[str, Any]:
         entry for entry in load_registry_entries() if entry.source_type == SourceType.PRICING.value
     ]
     registered = {(entry.provider_code, entry.product_code or "") for entry in entries}
+    approved = {
+        (entry.provider_code, entry.product_code or "")
+        for entry in entries
+        if approved_collection(entry)
+    }
+    missing_approved = sorted(
+        f"{provider}/{product}"
+        for provider, product in REQUIRED_PRICING_SOURCES
+        if (provider, product) not in approved
+    )
     missing_required = sorted(
         f"{provider}/{product}"
         for provider, product in REQUIRED_PRICING_SOURCES
@@ -45,15 +56,13 @@ def validate_pricing_sources() -> dict[str, Any]:
         if entry.manual_only and not entry.enabled and not entry.allow_automated_fetch
     ]
     terms_not_approved = [
-        entry.source_id for entry in entries if entry.terms_review_status != "approved"
-    ]
-    collection_mode_not_reviewed = [
         entry.source_id
         for entry in entries
-        if not (
-            (entry.enabled and entry.allow_automated_fetch and not entry.manual_only)
-            or (entry.manual_only and not entry.enabled and not entry.allow_automated_fetch)
-        )
+        if entry.terms_review_status != "approved"
+        and collection_mode(entry) != "retired_no_collection"
+    ]
+    collection_mode_not_reviewed = [
+        entry.source_id for entry in entries if collection_mode(entry) == "blocked_or_misconfigured"
     ]
 
     with SessionLocal() as session:
@@ -78,6 +87,8 @@ def validate_pricing_sources() -> dict[str, Any]:
     errors: list[str] = []
     if missing_required:
         errors.append("missing required provider/product pricing registry entries")
+    if missing_approved:
+        errors.append("missing approved collection route for required provider/product")
     if source_documents == 0:
         errors.append("no pricing SourceDocument rows are present")
     if evidence == 0:
@@ -96,6 +107,12 @@ def validate_pricing_sources() -> dict[str, Any]:
         "registered_pricing_sources": len(entries),
         "registered_by_provider": dict(sorted(by_provider.items())),
         "missing_required": missing_required,
+        "missing_approved_collection_routes": missing_approved,
+        "retired_sources": [
+            entry.source_id
+            for entry in entries
+            if collection_mode(entry) == "retired_no_collection"
+        ],
         "disabled_sources": disabled,
         "manual_only_sources": manual_only,
         "manual_or_browser_sources": manual_or_browser,

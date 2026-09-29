@@ -1,35 +1,45 @@
 # Model Review Policy
 
-The project owner requested model review of the remaining Week 11 queue. The
-`run_model_review.py` command records an evidence-aware, repeatable policy
-assessment in `model_review_run` and `model_review_finding`.
+The owner has authorized model review for internal engineering work. Historical
+human decisions keep their original labels. New model decisions must never be
+written as `human_reviewed`.
 
-Each finding stores the subject ID, verdict, reason code, rationale, evidence
-IDs, and an input hash. A run stores the policy version, reviewer identity,
-input fingerprint, and summary. Running against unchanged inputs is idempotent;
-new inputs create a new run while previous findings remain available.
+The historical Week11 pilot chain was:
 
-The current policy evaluates:
+1. `run_model_review.py` makes a deterministic, evidence-aware precheck. It is
+   not an individual model opinion or an approval.
+2. Two independent `gpt-6-astra` sessions inspect each subject and submit
+   structured primary and adversarial manifests with the same input hash.
+3. `arbitrate_model_reviews.py` verifies subject hashes, evidence IDs, session
+   separation, and precheck linkage, then records append-only findings. A
+   disagreement is resolved conservatively. Conditional approval is internal
+   only and does not waive an unmet condition.
+4. `apply_model_review_actions.py` may write back an explicit dual-model
+   rejection, with a model-labelled `MappingReview` or `DecisionReview` record.
+   Reparse and insufficient-evidence findings remain unresolved. No script
+   converts them to accepted product facts.
+5. Downstream evidence, TCO, and decisions are recomputed, tests run, and Gate
+   reports are regenerated. Old runs and source snapshots remain available.
 
-- all MappingCandidate rows;
-- all unresolved ReviewItem rows;
-- all pending ComparabilityAssessment rows;
-- all CandidateDecisionResult rows, including prior runs.
+The first individual panel reviewed six subjects. Arbitration rejected two
+and required reparse on four. It approved none. The remaining subjects in that
+historical precheck were **not** individually reviewed by both models. A
+deterministic classification is not a model-review substitute. The current
+Week14 precheck contains 11,342 findings; its queue migration preserves this
+distinction. See `docs/MODEL_REVIEW_ARCHITECTURE.md` and
+`docs/MODEL_SELECTION_POLICY.md` for the new overlay and runtime policy.
 
-The agent reviewed the classification rules and source-backed samples before
-running them across the queue. These are policy-based model assessments, not
-individual manual source-page inspections. `requires_source_verification` and
-`reparse_required` are real unresolved outcomes. They must not be counted as
-accepted facts.
+`ModelReviewRun.summary_json.model_origin_attested_by_tool` is false because
+the manifest importer cannot cryptographically verify model provenance. The
+recorded session IDs and separate manifests are audit leads, not proof supplied
+by the database. Customer eligibility remains closed until the full dependency
+chain and the explicitly configured customer-output policy pass. The internal
+development authorization does not itself authorize customer materials.
 
-Model findings never set `human_reviewed`, `internally_approved`,
-`customer_eligible`, or any customer output level. They do not replace the
-separate `HumanReviewDecision`, `MappingReview`, or `DecisionReview` records.
-Cross-market mappings are limited to internal research even if another process
-marks their review status as human-reviewed.
-
-The Week 11 customer-output Gate continues to require real human review and
-customer-eligible evidence and decisions. If the project owner authorizes an
-internal engineering waiver, that must be a separate, explicit gate with an
-`internal_only` output restriction; it must not rename model review as human
-review or silently change the customer Gate.
+The later Week14 authorized pilot reviewed mapping candidate 415 in isolated
+primary, adversarial, and adjudication sessions. Its final result is
+`model_inconclusive` because the cited SKU rows do not prove product-level
+service-class equivalence. An independent nonapproval importer wrote one
+model-labelled assignment transition and audit event, not a business mapping
+approval. Earlier failed attempts and a corrected consensus result are
+preserved under `reports/model_review/week14_pilot/`.

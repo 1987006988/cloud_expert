@@ -626,3 +626,19 @@ mapping, evidence, price, or TCO records.
 Week 10 enum additions include scenario type/status, requirement type/priority,
 missing-data policy, scoring dimension, decision status, confidence level,
 review status, output level, and sensitivity status.
+
+## Week 14 Model Review Overlay
+
+Alembic 0014 adds these tables without changing legacy human review rows:
+
+| Table | Purpose | Key fields |
+| --- | --- | --- |
+| `model_review_assignment` | One review-state overlay per deterministic finding | `precheck_run_id`, `precheck_finding_id`, `target_type`, `target_id`, `input_hash`, `prior_review_status`, `review_state`, `evidence_ids` |
+| `model_review_audit_event` | Append-only status-transition audit | `assignment_id`, `event_code`, `previous_status`, `new_status`, `source`, `model_id`, `reason`, `affected_records`, `downstream_rebuild_required` |
+
+`review_state` may be `pending_model_review`, `blocked_by_deterministic_check`,
+`model_review_in_progress`, `model_approved`,
+`model_approved_with_conditions`, `model_rejected_reparse`,
+`model_inconclusive`, `model_blocked`, `superseded`, or `expired`. The two JSON
+columns use JSONB on PostgreSQL. Merely creating an assignment never changes a
+business fact or grants customer eligibility.

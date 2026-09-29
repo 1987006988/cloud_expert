@@ -1,0 +1,13 @@
+[
+  {
+    "source_id": "aws_ec2_compute_optimized_specs",
+    "product_code": "ec2",
+    "status": "partial",
+    "records_found": 501,
+    "fields_found": 2311,
+    "evidence_created": 2311,
+    "review_items_created": 312,
+    "parsing_run_id": 134,
+    "error_message": null
+  }
+]

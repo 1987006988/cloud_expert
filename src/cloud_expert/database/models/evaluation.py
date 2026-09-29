@@ -11,7 +11,7 @@ class SalesScenario(IDMixin, TimestampMixin, TableNameMixin, ReprMixin, Base):
     __table_args__ = (
         UniqueConstraint("code", name="uq_sales_scenario_code"),
         CheckConstraint(
-            f"market_mode IN ({sql_in_values(MarketMode.values())})",
+            f"market_mode IN ({sql_in_values(MarketMode.fact_values())})",
             name="sales_scenario_market_mode",
         ),
         CheckConstraint(

@@ -1,53 +1,102 @@
-task_id: week_10_scenario_decision_engine
-title: "Week 10: Scenario competitive scoring and decision explanation engine"
-status: completed_local
+task_id: week_14_model_review_and_eval_suite
+title: "Week 14: Highest-tier model review migration and Eval Suite"
+status: in_progress_internal
 
-preconditions:
-  week10_gate_required: true
-  week07_gate: GO
-  week08_gate: GO
-  week09_gate: GO
-  unresolved_blockers: 0
+scope_amendment:
+  date: "2026-09-29"
+  authority: explicit_owner_message
+  real_internal_pilot: deferred_by_owner
+  reason: no_current_opportunity_for_actual_internal_users
+  substitute: offline_replay_and_technical_readiness_rehearsals
+  real_user_feedback_required_for_pilot_completion: true
+  other_evidence_security_and_dependency_gates_unchanged: true
+  reference: docs/PILOT_DEFERRAL.md
 
-objective:
-  Build an internal-only scenario decision candidate engine based on validated
-  product mappings, evidence packages, pricing snapshots, and TCO records.
+gate:
+  week9: NO-GO
+  week10: NO-GO
+  week11: NO-GO
+  week12: NO-GO
+  week13: NO-GO
+  week14: NO-GO
+  week15: NO-GO
+  week16: NO-GO
+  mode: review_migration
+  customer_output_allowed: false
+  streamlit_business_pages_authorized: false
 
-scope:
-  include:
-    - scenario model
-    - requirement model
-    - hard block evaluation
-    - scoring dimensions
-    - Business Fit
-    - Confidence
-    - Completeness
-    - ranking guardrails
-    - decision explanations
-    - sensitivity status
-    - Evidence Package links
-    - human review workflow
-    - customer eligibility checks
-  exclude:
-    - final sales scripts
-    - customer-facing recommendations
-    - opponent attack material
-    - customer discounts
-    - internal prices
-    - formal quotes
-    - LLM
-    - RAG
-    - frontend
+completed_internal:
+  - highest-ranked model registry and no-fallback resolver
+  - Codex CLI update and data-free highest-tier model probe
+  - additive model-review assignment and audit migration
+  - dry-run, apply, and idempotence verification for 11342 precheck subjects
+  - strict, isolated report-only mapping-review pilot code
+  - 37 unique synthetic deterministic Eval cases passing
+  - fresh PostgreSQL 0014 migration round trips and 8 integration tests
+  - owner-authorized official-excerpt and mapping-candidate model transfer scope
+  - candidate 415 isolated primary, adversarial, and adjudication review
+  - corrected inconclusive consensus and one idempotent nonapproval audit writeback
+  - UTF-8 stdin model input and migration-test database isolation
+  - backed-up official ECS description reparse with preserved old Evidence
+  - product-level mapping Evidence selector now excludes SKU row citations
+  - 255 passing offline tests with 85.7727 percent combined coverage and 8 rerun PostgreSQL integration passes
+  - versioned mapping 649 replacing 415 with verified product-category-only model approval
+  - current scoped evidence eligibility, freshness and raw snapshot integrity checks
+  - per-product TCO aggregation, quantity-tier and missing-tax guards
+  - official read-only Huawei pricing Token adapter with 22 synthetic safety tests
+  - real authenticated ECS and OBS API inquiries with immutable copied-response snapshots and Evidence 14145 to 14152
+  - approved API collection replacements with disabled website source history retained
+  - official domestic tax inclusion evidence and separately captured 730-hour ECS API quote
+  - five bounded Huawei PriceSKU and PriceSnapshot promotions with verified idempotence
+  - domestic CNY cost details and Decision recomputation with missing totals preserved
+  - tax-scope currency timestamp manifest and exact-quantity consumption guards
+  - owner-deferred real pilot tracked separately from technical readiness
+  - seven additional official source snapshots for component quotes catalog and billing policies
+  - three scoped Huawei component prices and three bounded Aliyun catalog estimates with repeat verification
+  - twelve price snapshots pass current raw evidence and scope validation
+  - repeated real PostgreSQL integration suite passes eight tests
+  - final component-price regression passes 291 offline tests with 86.09 percent combined coverage
 
-results:
-  decision_scenarios: 5
-  scoring_policies: 5
-  decision_runs: 5
-  candidate_decision_results: 1230
-  customer_eligible_results: 0
-  output_level: internal_only
+remaining_blockers:
+  - 1009 pending model-review assignments and 10332 deterministic repair blocks remain open; one scoped conditional approval and four superseded assignments are preserved
+  - internal-RC-only model alias audit alternative is authorized, but an actual verified audit bundle and per-release Eval are still required
+  - Week11 to Week13 predecessor Gates remain NO-GO
+  - OBS storage time basis and complete overseas competitor prices remain incomplete; domestic component prices are recorded but not yet harmonized
+  - support and IP policies require explicit scenario conditions; full TCO is not proven by component subtotals
+  - bounded domestic TCO exists but compatible cross-vendor complete costs and a freshly model-approved DecisionResult dependency chain remain unavailable
+  - full-chain Eval and model judge remain incomplete
+  - Streamlit business UI, production controls, Release Candidate and real internal pilot not completed
+  - AWS prices 1 and 14-16 remain blocked; old prices 13/17/18 have live-validated internal successors 19/20/21 with preserved history, not customer approval
+
+latest_checkpoint:
+  reference: reports/remediation/closure_20260930/checkpoint_03.md
+  current_price_validation: reports/remediation/closure_20260930/price_evidence_replacement_03.json
+  current_week9_gate: reports/remediation/closure_20260930/week09_gate_current_04.json
+  dependent_gate_short_circuit: reports/remediation/closure_20260930/week11_16_prerequisite_block_03.json
+  offline_verification: reports/verification/closure_frozen_20260930_04/manifest.json
+  offline_manifest_sha256: 355c43eb7691cfc58ddb0c0ea3e72dc0116e60c748f3d745a9c038788d6b683a
+  offline_verification_passed: true
+  offline_tests_passed: 2203
+  offline_coverage_percent: 89.89090909090909
+  postgres_integration_tests_passed: 10
+  normalized_evidence_records_checked: 29160
+  normalized_evidence_missing_or_hash_errors: 0
+  preceding_completed_internal_entries_are_historical_milestones: true
+  full_release_regression_passed: false
+  full_chain_eval_completed: false
+  fresh_decision_model_review_completed: false
+  internal_engineering_gate_split: awaiting_owner_answer
+  huawei_authenticated_refresh: awaiting_owner_login
+  real_internal_pilot: deferred_by_owner
 
 references:
-  - reports/week10_gate/validation_results.json
-  - reports/decision/decision_results.json
-  - reports/review_samples/week10_decision_review.csv
+  - reports/model_review/model_resolution.json
+  - reports/model_review/migrations/
+  - reports/evals/eval_results.json
+  - reports/week14_gate/runs/
+  - reports/model_review/week14_pilot/pilot_assessment.md
+  - reports/remediation/ecs_description_parser_repair.md
+  - reports/remediation/closure_20260929/closure_status.md
+  - docs/HUAWEI_PRICING_API_SETUP.md
+  - reports/remediation/closure_20260929/huawei_api_capture.md
+  - reports/remediation/closure_20260929/price_promotion_and_tco.md

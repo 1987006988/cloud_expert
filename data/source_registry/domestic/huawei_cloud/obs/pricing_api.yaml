@@ -1,0 +1,41 @@
+source_id: huawei_cloud_obs_pricing_api_cn_north_4
+provider_code: huawei_cloud
+market_mode: domestic
+cloud_partition: huawei_cn
+product_code: obs
+source_type: pricing
+title: Huawei Cloud authorized OBS on-demand API quote
+url: https://bss.myhuaweicloud.com/v2/bills/ratings/on-demand-resources
+language: zh-CN
+authority_level: official_primary
+enabled: false
+requires_authentication: true
+requires_browser: false
+allow_automated_fetch: false
+expected_content_type: [application/json]
+domain_policy:
+  allowed_domains: [bss.myhuaweicloud.com]
+  allow_subdomains: false
+  allow_redirects: false
+schedule:
+  update_frequency: manual
+  priority: 50
+owner: cloud_expert_data_engineering
+review_status: pending_review
+reviewed_at: 2026-09-29T14:50:48Z
+terms_review_status: approved
+automated_fetch_allowed: false
+manual_only: true
+compliance_notes: >
+  Owner authorized read-only official API use on 2026-09-29. The vendor documents
+  this endpoint for account-based price inquiry at
+  https://support.huaweicloud.com/api-oce/bcloud_01001.html.
+  Approval covers controlled authenticated query/import, not website scraping,
+  account-discount redistribution, or credential transmission to review models.
+  The generic HTTP fetcher remains disabled. Responses stay local.
+notes: >
+  Scope is resource_spec obs in cn-north-4, one subscription; size 1024 with
+  measure_id 10, get and put each 1 with measure_id 54, and download.external
+  100 with measure_id 10. Copied API Explorer responses are labeled as such,
+  not wire bytes. Storage billing period, tax and tier interpretation remain
+  unverified. Successful query does not imply price promotion or complete TCO.

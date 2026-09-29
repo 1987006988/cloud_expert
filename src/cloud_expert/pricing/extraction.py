@@ -3,7 +3,8 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass
-from decimal import Decimal
+from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
@@ -26,6 +27,7 @@ from cloud_expert.database.models.provider import Provider
 from cloud_expert.database.models.region import Region
 from cloud_expert.database.models.snapshot import SnapshotRecord
 from cloud_expert.database.models.source import Evidence, SourceDocument
+from cloud_expert.ingestion.registry.loader import load_registry_entries
 
 AWS_S3_STANDARD_SOURCE_ID = "aws_s3_pricing_bulk_us_east_1"
 
@@ -64,11 +66,17 @@ def _raw_data_dir() -> Path:
 
 
 def _snapshot_payload_path(snapshot: SnapshotRecord) -> Path:
-    return _raw_data_dir() / snapshot.storage_path
+    root = _raw_data_dir()
+    path = (root / snapshot.storage_path).resolve()
+    if not path.is_relative_to(root):
+        raise ValueError("price snapshot path escapes the raw data directory")
+    return path
 
 
 def _decode_payload(snapshot: SnapshotRecord) -> str:
     raw = _snapshot_payload_path(snapshot).read_bytes()
+    if hashlib.sha256(raw).hexdigest() != snapshot.content_hash:
+        raise ValueError("price snapshot hash mismatch")
     return raw.decode("utf-8", errors="replace")
 
 
@@ -133,7 +141,14 @@ def ensure_snapshot_evidence(
 
 def extract_price_records(session: Session) -> list[ExtractedPriceRecord]:
     records: list[ExtractedPriceRecord] = []
+    approved_sources = {
+        entry.source_id
+        for entry in load_registry_entries()
+        if entry.terms_review_status == "approved"
+    }
     for snapshot, document in current_pricing_snapshots(session):
+        if snapshot.source_id not in approved_sources:
+            continue
         ensure_snapshot_evidence(session, snapshot, document)
         if snapshot.source_id == AWS_S3_STANDARD_SOURCE_ID:
             records.extend(_extract_aws_s3_standard_storage(snapshot, document))
@@ -148,6 +163,15 @@ def persist_price_records(
     created_snapshots = 0
     skipped_records: list[dict[str, str]] = []
     for record in records:
+        source_snapshot = session.get(SnapshotRecord, record.snapshot_record_id)
+        if (
+            source_snapshot is None
+            or source_snapshot.source_document_id != record.source_document_id
+            or source_snapshot.captured_at is None
+        ):
+            skipped_records.append({"reason": "missing or mismatched source snapshot"})
+            continue
+        _decode_payload(source_snapshot)
         provider = session.scalar(select(Provider).where(Provider.code == record.provider_code))
         if provider is None:
             skipped_records.append({"provider": record.provider_code, "reason": "missing provider"})
@@ -204,6 +228,20 @@ def persist_price_records(
             session.add(price_sku)
             session.flush()
             created_skus += 1
+        elif any(
+            getattr(price_sku, field) != value
+            for field, value in {
+                "product_id": product.id,
+                "region_id": region.id,
+                "charge_category": record.charge_category,
+                "billing_mode": record.billing_mode,
+                "billing_unit": record.billing_unit,
+                "currency": record.currency,
+                "tax_included": record.tax_included,
+            }.items()
+        ):
+            skipped_records.append({"reason": "existing PriceSKU scope conflict"})
+            continue
 
         existing_snapshot = session.scalar(
             select(PriceSnapshot).where(
@@ -222,12 +260,27 @@ def persist_price_records(
                     maximum_quantity=record.maximum_quantity,
                     billing_period=record.billing_period,
                     discount_type=record.discount_type,
+                    captured_at=source_snapshot.captured_at,
                     evidence_id=evidence.id,
                     source_payload_path=record.source_payload_path,
                 )
             )
             session.flush()
             created_snapshots += 1
+        elif _utc(existing_snapshot.captured_at) != _utc(source_snapshot.captured_at):
+            skipped_records.append(
+                {"reason": "historical price capture timestamp requires controlled correction"}
+            )
+        elif any(
+            getattr(existing_snapshot, field) != getattr(record, field)
+            for field in (
+                "minimum_quantity",
+                "maximum_quantity",
+                "billing_period",
+                "discount_type",
+            )
+        ):
+            skipped_records.append({"reason": "existing PriceSnapshot scope conflict"})
     session.commit()
     return {
         "extracted_records": len(records),
@@ -235,6 +288,10 @@ def persist_price_records(
         "created_price_snapshots": created_snapshots,
         "skipped_records": skipped_records,
     }
+
+
+def _utc(value: datetime) -> datetime:
+    return value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
 
 
 def _ensure_price_evidence(session: Session, record: ExtractedPriceRecord) -> Evidence:
@@ -247,6 +304,10 @@ def _ensure_price_evidence(session: Session, record: ExtractedPriceRecord) -> Ev
         )
     )
     if evidence is not None:
+        if evidence.excerpt != record.evidence_excerpt or evidence.content_hash != _hash_text(
+            record.evidence_excerpt
+        ):
+            raise ValueError("existing immutable price evidence differs")
         return evidence
     evidence = Evidence(
         source_document_id=record.source_document_id,
@@ -339,7 +400,7 @@ def _record_from_aws_s3_dimension(
     if not isinstance(price_per_unit, dict) or "USD" not in price_per_unit:
         return None
     description = str(dimension.get("description") or "")
-    begin_range = str(dimension.get("beginRange") or "0")
+    begin_range = str(dimension.get("beginRange", ""))
     end_range = str(dimension.get("endRange") or "")
     if begin_range not in {"0", "0.0"}:
         return None
@@ -352,7 +413,15 @@ def _record_from_aws_s3_dimension(
         f"{description}; unit={unit}; beginRange={begin_range}; "
         f"endRange={end_range or 'Inf'}; USD={price_per_unit['USD']}"
     )
-    maximum = None if end_range in {"", "Inf", "inf"} else Decimal(end_range)
+    try:
+        unit_price = Decimal(str(price_per_unit["USD"]))
+        maximum = None if end_range in {"Inf", "inf"} else Decimal(end_range)
+    except InvalidOperation:
+        return None
+    if not unit_price.is_finite() or unit_price < 0:
+        return None
+    if maximum is not None and (not maximum.is_finite() or maximum <= Decimal(begin_range)):
+        return None
     return ExtractedPriceRecord(
         provider_code="aws",
         product_code="s3",
@@ -363,7 +432,7 @@ def _record_from_aws_s3_dimension(
         billing_unit="GB-month",
         currency="USD",
         tax_included=False,
-        unit_price=Decimal(str(price_per_unit["USD"])),
+        unit_price=unit_price,
         minimum_quantity=Decimal(begin_range),
         maximum_quantity=maximum,
         billing_period="monthly",
