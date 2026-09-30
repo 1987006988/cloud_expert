@@ -1,0 +1,335 @@
+{
+  "coverage": {
+    "valid": true,
+    "current_code_verified": true,
+    "code_fingerprint_status": "current",
+    "full_chain_eval": false,
+    "scope": "sealed_offline_verification",
+    "errors": [],
+    "warnings": [],
+    "provenance": {
+      "bundle_dir": "D:\\cloud_expert\\reports\\verification\\gate_recovery_20260930_01",
+      "expected_manifest_sha256": "0041c611708f6c273f30bee6d3b055214a2e78734419f2005a6a0de7f0ba1b7d",
+      "manifest_trust_anchor": "caller_supplied_independent_sha256",
+      "input_sha256": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+      "current_repo": "D:\\cloud_expert",
+      "verifier": "cloud_expert.evals.verification_run.validate_verification_bundle",
+      "verification": {
+        "version": "offline-verification.v1",
+        "verification_kind": "offline_verification",
+        "full_chain_eval": false,
+        "model_judge": false,
+        "postgres_executed": false,
+        "business_database_writeback": false,
+        "gate_updated": false,
+        "customer_eligible": false,
+        "passed": true,
+        "tests_valid": true,
+        "inputs_unchanged": true,
+        "status": "passed",
+        "errors": [],
+        "manifest_sha256": "0041c611708f6c273f30bee6d3b055214a2e78734419f2005a6a0de7f0ba1b7d",
+        "output_dir": "D:\\cloud_expert\\reports\\verification\\gate_recovery_20260930_01",
+        "input_sha256": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+        "tests": 2473,
+        "coverage_percent": 90.19681349578256
+      },
+      "current_input_sha256": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+      "context_path": "D:\\cloud_expert\\tasks\\verification_receipts.yaml",
+      "context_sha256": "fdce09f314561ddfe3ea9da83549b704db1b89da19c9d7a2fbcbfc7f34e52ebb"
+    },
+    "metrics": {
+      "tests": 2473,
+      "coverage_percent": 90.19681349578256
+    },
+    "percent_covered": 90.19681349578256,
+    "threshold": 85.0,
+    "passed": true
+  },
+  "postgres": {
+    "valid": true,
+    "current_code_verified": true,
+    "code_fingerprint_status": "current",
+    "full_chain_eval": false,
+    "scope": "postgres_junit_and_migration_receipts",
+    "errors": [],
+    "warnings": [
+      "unsigned_caller_supplied_receipts"
+    ],
+    "provenance": {
+      "execution_authenticated": false,
+      "expected_head": "0014_week14_review_workflow",
+      "expected_previous": "0013_week12_market_context",
+      "expected_test_ids": [
+        "tests.integration.test_postgres_market::test_market_context_uses_jsonb_constraints_and_transaction_rollback",
+        "tests.integration.test_postgres_model_review::test_model_review_queue_jsonb_constraints_and_rollback",
+        "tests.integration.test_postgres_price_lifecycle::test_postgres_conflicting_connection_locks_then_retries_idempotently",
+        "tests.integration.test_postgres_price_lifecycle::test_postgres_price_replacement_atomic_rollback_and_idempotence",
+        "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_atomic_rollback_and_idempotence",
+        "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_competing_connection_locks_then_retries",
+        "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_competing_plans_reject_stale_audit",
+        "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_partial_append_rolls_back",
+        "tests.integration.test_postgres_r011::test_check_constraint_enforces_enum_like_values",
+        "tests.integration.test_postgres_r011::test_concurrent_provider_creation_respects_unique_idempotency_boundary",
+        "tests.integration.test_postgres_r011::test_foreign_key_and_unique_constraints",
+        "tests.integration.test_postgres_r011::test_numeric_decimal_json_and_timezone_behavior",
+        "tests.integration.test_postgres_r011::test_schema_has_expected_postgresql_types_and_constraints",
+        "tests.integration.test_postgres_r011::test_transaction_rollback_leaves_no_partial_snapshot_chain"
+      ],
+      "junit": {
+        "path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\junit.xml",
+        "returncode": 0,
+        "sha256": "d7472a221670786891103e08d05f0dcf1c4f87bb68ef33a178eee49762b7f1d7",
+        "size": 2280
+      },
+      "migrations": {
+        "fresh_upgrade": {
+          "path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\fresh_upgrade.log",
+          "returncode": 0,
+          "sha256": "1b7bbdb828d1a45c3a505e162fc734fc7f5fec1666a1aef8351db624d1bb5149",
+          "size": 2374,
+          "transitions": [
+            [
+              "",
+              "0001_initial_product_data_model"
+            ],
+            [
+              "0001_initial_product_data_model",
+              "0002_ingestion_snapshots"
+            ],
+            [
+              "0002_ingestion_snapshots",
+              "0003_week03_parsing_models"
+            ],
+            [
+              "0003_week03_parsing_models",
+              "0004_week04_aws_partition_availability"
+            ],
+            [
+              "0004_week04_aws_partition_availability",
+              "0005_week05_aliyun_zone_availability"
+            ],
+            [
+              "0005_week05_aliyun_zone_availability",
+              "0006_week06_canonical_normalization"
+            ],
+            [
+              "0006_week06_canonical_normalization",
+              "0007_week07_mapping_candidates"
+            ],
+            [
+              "0007_week07_mapping_candidates",
+              "0008_week08_evidence_packages"
+            ],
+            [
+              "0008_week08_evidence_packages",
+              "0009_week09_pricing_tco"
+            ],
+            [
+              "0009_week09_pricing_tco",
+              "0010_week10_decision_engine"
+            ],
+            [
+              "0010_week10_decision_engine",
+              "0011_week11_human_review_import"
+            ],
+            [
+              "0011_week11_human_review_import",
+              "0012_week11_model_review_audit"
+            ],
+            [
+              "0012_week11_model_review_audit",
+              "0013_week12_market_context"
+            ],
+            [
+              "0013_week12_market_context",
+              "0014_week14_review_workflow"
+            ]
+          ]
+        },
+        "downgrade_one": {
+          "path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\downgrade_one.log",
+          "returncode": 0,
+          "sha256": "57e5584dcdf1ff03f947c584c2ec0991b2c62419b16073cd5682b4f6674e8d3c",
+          "size": 307,
+          "transitions": [
+            [
+              "0014_week14_review_workflow",
+              "0013_week12_market_context"
+            ]
+          ]
+        },
+        "reupgrade_one": {
+          "path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\reupgrade_one.log",
+          "returncode": 0,
+          "sha256": "34cf55fa72c136dc42099637b7f735d75d1735a95b6c247ee4f417738817aba5",
+          "size": 305,
+          "transitions": [
+            [
+              "0013_week12_market_context",
+              "0014_week14_review_workflow"
+            ]
+          ]
+        },
+        "downgrade_base": {
+          "path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\downgrade_base.log",
+          "returncode": 0,
+          "sha256": "0f88cab81f1a238044f07f47bdd69e3a249c9797ad00444a5fcf8a2b0304bf4f",
+          "size": 2402,
+          "transitions": [
+            [
+              "0014_week14_review_workflow",
+              "0013_week12_market_context"
+            ],
+            [
+              "0013_week12_market_context",
+              "0012_week11_model_review_audit"
+            ],
+            [
+              "0012_week11_model_review_audit",
+              "0011_week11_human_review_import"
+            ],
+            [
+              "0011_week11_human_review_import",
+              "0010_week10_decision_engine"
+            ],
+            [
+              "0010_week10_decision_engine",
+              "0009_week09_pricing_tco"
+            ],
+            [
+              "0009_week09_pricing_tco",
+              "0008_week08_evidence_packages"
+            ],
+            [
+              "0008_week08_evidence_packages",
+              "0007_week07_mapping_candidates"
+            ],
+            [
+              "0007_week07_mapping_candidates",
+              "0006_week06_canonical_normalization"
+            ],
+            [
+              "0006_week06_canonical_normalization",
+              "0005_week05_aliyun_zone_availability"
+            ],
+            [
+              "0005_week05_aliyun_zone_availability",
+              "0004_week04_aws_partition_availability"
+            ],
+            [
+              "0004_week04_aws_partition_availability",
+              "0003_week03_parsing_models"
+            ],
+            [
+              "0003_week03_parsing_models",
+              "0002_ingestion_snapshots"
+            ],
+            [
+              "0002_ingestion_snapshots",
+              "0001_initial_product_data_model"
+            ],
+            [
+              "0001_initial_product_data_model",
+              ""
+            ]
+          ]
+        },
+        "reupgrade_base": {
+          "path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\reupgrade_base.log",
+          "returncode": 0,
+          "sha256": "1b7bbdb828d1a45c3a505e162fc734fc7f5fec1666a1aef8351db624d1bb5149",
+          "size": 2374,
+          "transitions": [
+            [
+              "",
+              "0001_initial_product_data_model"
+            ],
+            [
+              "0001_initial_product_data_model",
+              "0002_ingestion_snapshots"
+            ],
+            [
+              "0002_ingestion_snapshots",
+              "0003_week03_parsing_models"
+            ],
+            [
+              "0003_week03_parsing_models",
+              "0004_week04_aws_partition_availability"
+            ],
+            [
+              "0004_week04_aws_partition_availability",
+              "0005_week05_aliyun_zone_availability"
+            ],
+            [
+              "0005_week05_aliyun_zone_availability",
+              "0006_week06_canonical_normalization"
+            ],
+            [
+              "0006_week06_canonical_normalization",
+              "0007_week07_mapping_candidates"
+            ],
+            [
+              "0007_week07_mapping_candidates",
+              "0008_week08_evidence_packages"
+            ],
+            [
+              "0008_week08_evidence_packages",
+              "0009_week09_pricing_tco"
+            ],
+            [
+              "0009_week09_pricing_tco",
+              "0010_week10_decision_engine"
+            ],
+            [
+              "0010_week10_decision_engine",
+              "0011_week11_human_review_import"
+            ],
+            [
+              "0011_week11_human_review_import",
+              "0012_week11_model_review_audit"
+            ],
+            [
+              "0012_week11_model_review_audit",
+              "0013_week12_market_context"
+            ],
+            [
+              "0013_week12_market_context",
+              "0014_week14_review_workflow"
+            ]
+          ]
+        }
+      },
+      "manifest_path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\manifest.json",
+      "expected_manifest_sha256": "2562d08f4e3c02384e44426d5a82ec798398fbe20df850f802d2628e00ec1565",
+      "input_sha256": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+      "current_input_sha256": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+      "manifest_trust_anchor": "coordinator_independent_sha256_in_context",
+      "inputs_unchanged": true,
+      "input_sha256_before": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+      "input_sha256_after": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+      "context_path": "D:\\cloud_expert\\tasks\\verification_receipts.yaml",
+      "context_sha256": "fdce09f314561ddfe3ea9da83549b704db1b89da19c9d7a2fbcbfc7f34e52ebb"
+    },
+    "metrics": {
+      "tests": 14,
+      "test_ids": [
+        "tests.integration.test_postgres_market::test_market_context_uses_jsonb_constraints_and_transaction_rollback",
+        "tests.integration.test_postgres_model_review::test_model_review_queue_jsonb_constraints_and_rollback",
+        "tests.integration.test_postgres_price_lifecycle::test_postgres_conflicting_connection_locks_then_retries_idempotently",
+        "tests.integration.test_postgres_price_lifecycle::test_postgres_price_replacement_atomic_rollback_and_idempotence",
+        "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_atomic_rollback_and_idempotence",
+        "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_competing_connection_locks_then_retries",
+        "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_competing_plans_reject_stale_audit",
+        "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_partial_append_rolls_back",
+        "tests.integration.test_postgres_r011::test_check_constraint_enforces_enum_like_values",
+        "tests.integration.test_postgres_r011::test_concurrent_provider_creation_respects_unique_idempotency_boundary",
+        "tests.integration.test_postgres_r011::test_foreign_key_and_unique_constraints",
+        "tests.integration.test_postgres_r011::test_numeric_decimal_json_and_timezone_behavior",
+        "tests.integration.test_postgres_r011::test_schema_has_expected_postgresql_types_and_constraints",
+        "tests.integration.test_postgres_r011::test_transaction_rollback_leaves_no_partial_snapshot_chain"
+      ]
+    },
+    "passed": true
+  }
+}

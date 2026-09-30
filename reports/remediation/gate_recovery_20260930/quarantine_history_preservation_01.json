@@ -1,0 +1,41 @@
+{
+  "tables": {
+    "price_sku": {
+      "before_count": 16,
+      "after_count": 16,
+      "before_sha256": "73c45764fa03d37292ed555a547f97452f72cb3434db4f8a243c2ff91ce6d9fc",
+      "after_sha256": "73c45764fa03d37292ed555a547f97452f72cb3434db4f8a243c2ff91ce6d9fc",
+      "unchanged": true
+    },
+    "price_snapshot": {
+      "before_count": 21,
+      "after_count": 21,
+      "before_sha256": "6117f74b6acbb83993cb110a91fa5ba7a7691bd76b8b868cdd9cfea71ae86ecd",
+      "after_sha256": "6117f74b6acbb83993cb110a91fa5ba7a7691bd76b8b868cdd9cfea71ae86ecd",
+      "unchanged": true
+    },
+    "evidence": {
+      "before_count": 34141,
+      "after_count": 34141,
+      "before_sha256": "ca9fc36af00a6d0c33373aede8fcbc714f014e0fc2923df74c0e8dae93a9bf72",
+      "after_sha256": "ca9fc36af00a6d0c33373aede8fcbc714f014e0fc2923df74c0e8dae93a9bf72",
+      "unchanged": true
+    },
+    "source_document": {
+      "before_count": 118,
+      "after_count": 118,
+      "before_sha256": "a2f32a164fccc0ae8ea860eb115c26245d6e9bc01b0637c916c93d56d1eb727e",
+      "after_sha256": "a2f32a164fccc0ae8ea860eb115c26245d6e9bc01b0637c916c93d56d1eb727e",
+      "unchanged": true
+    },
+    "snapshot_record": {
+      "before_count": 118,
+      "after_count": 118,
+      "before_sha256": "3f4e7f27c643178cbf6f9d7e30300f44fcc47a82da17bf218065716d0b4479f3",
+      "after_sha256": "3f4e7f27c643178cbf6f9d7e30300f44fcc47a82da17bf218065716d0b4479f3",
+      "unchanged": true
+    }
+  },
+  "database_integrity": "ok",
+  "all_source_and_price_rows_unchanged": true
+}

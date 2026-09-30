@@ -1,0 +1,39 @@
+{
+  "decision_runs": 35,
+  "run_code": "aliyun_domestic_bounded_cost_audit_v1_v1_v1_f487e603f8b8",
+  "scenario_code": "aliyun_domestic_bounded_cost_audit_v1",
+  "scenario_version": "v1",
+  "policy_version": "v1",
+  "candidate_results": 694,
+  "status_counts": {
+    "blocked": 693,
+    "eligible": 1
+  },
+  "confidence_counts": {
+    "insufficient": 95,
+    "low": 444,
+    "high": 1,
+    "medium": 154
+  },
+  "output_counts": {
+    "internal_only": 694
+  },
+  "review_counts": {
+    "machine_generated": 694
+  },
+  "dimension_status_counts": {
+    "excluded": 5552,
+    "scored": 1389,
+    "requires_review": 693
+  },
+  "eligible": 1,
+  "blocked": 693,
+  "requires_review": 0,
+  "warnings": 0,
+  "customer_eligible": 0,
+  "internal_only": 694,
+  "machine_generated": 694,
+  "sensitivity_status": "indeterminate",
+  "valid": true,
+  "errors": []
+}

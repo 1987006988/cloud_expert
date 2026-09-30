@@ -91,6 +91,13 @@ def validate_price_evidence() -> dict[str, Any]:
         errors.append(
             "AWS catalog tiers, raw hashes, policy evidence or persisted prices are invalid"
         )
+    active_price_count = (
+        snapshots
+        - len(aws_dispositions)
+        + sum(item.status == "current" for item in aws_dispositions)
+    )
+    if snapshots and active_price_count == 0:
+        errors.append("no active price rows remain after historical disposition")
     completeness = 0 if snapshots == 0 else linked_to_pricing_source / snapshots
     return {
         "price_snapshots": snapshots,
@@ -100,6 +107,12 @@ def validate_price_evidence() -> dict[str, Any]:
         "invalid_bounded_prices": invalid_bounded_prices,
         "invalid_catalog_prices": invalid_catalog_prices,
         "invalid_aws_catalog_prices": invalid_aws_catalog_prices,
+        "historical_quarantined_aws_prices": [
+            item.price_id for item in aws_dispositions if item.status == "quarantined"
+        ],
+        "active_price_rows": active_price_count,
+        "validation_scope": "active prices and retained historical disposition integrity",
+        "full_product_price_coverage_claimed": False,
         "historical_superseded_aws_prices": [
             item.price_id for item in aws_dispositions if item.status == "superseded"
         ],

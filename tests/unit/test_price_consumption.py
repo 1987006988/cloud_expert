@@ -28,6 +28,7 @@ def test_registered_rule_calls_actual_verifier(approved, monkeypatch, session):
     price.evidence.parser_rule = consumption.AWS_CATALOG_RULE
     verifier = Mock(return_value=approved)
     monkeypatch.setattr(consumption, "aws_catalog_price_valid", verifier)
+    monkeypatch.setattr(consumption, "quarantine_disposition", Mock(return_value=None))
     assert consumption.aws_price_current(session, price) is approved
     assert verifier.call_args.args == (session, price)
 
@@ -53,6 +54,7 @@ def test_replacement_requires_current_receipt_not_just_valid_document(
     legacy = Mock(return_value=True)
     monkeypatch.setattr(consumption, "aws_replacement_disposition", verifier)
     monkeypatch.setattr(consumption, "aws_catalog_price_valid", legacy)
+    monkeypatch.setattr(consumption, "quarantine_disposition", Mock(return_value=None))
     assert consumption.aws_price_current(session, price) is (status == "current")
     assert consumption.aws_price_disposition(session, price) == disposition
     assert verifier.call_args.args == (session, price)
@@ -65,10 +67,39 @@ def test_nonreplacement_disposition_keeps_unverified_history_blocked(valid, monk
     price.id = 100
     price.evidence.parser_rule = consumption.AWS_CATALOG_RULE
     monkeypatch.setattr(consumption, "aws_catalog_price_valid", Mock(return_value=valid))
+    monkeypatch.setattr(consumption, "quarantine_disposition", Mock(return_value=None))
     result = consumption.aws_price_disposition(session, price)
     assert result.status == ("current" if valid else "blocked")
     assert result.current_price_id == (100 if valid else None)
     assert not result.customer_eligible
+
+
+@pytest.mark.parametrize("status", ["quarantined", "blocked"])
+def test_quarantine_or_corrupt_receipt_prevents_validator_fallback(status, monkeypatch, session):
+    price = _price_snapshot()
+    disposition = PriceDisposition(price_id=7, status=status)
+    verifier = Mock(return_value=True)
+    monkeypatch.setattr(consumption, "quarantine_disposition", Mock(return_value=disposition))
+    monkeypatch.setattr(consumption, "aws_catalog_price_valid", verifier)
+    assert not consumption.aws_price_current(session, price)
+    assert consumption.aws_price_disposition(session, price) == disposition
+    verifier.assert_not_called()
+
+
+def test_real_quarantine_is_unconsumable(session, tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    from tests.unit.test_price_quarantine import apply, plan, seed
+
+    data = seed(session, tmp_path, monkeypatch)
+    proposal = plan(session, data)
+    apply(session, data, proposal)
+    session.commit()
+    monkeypatch.setattr(consumption, "get_settings", lambda: SimpleNamespace(raw_data_dir=tmp_path))
+    for price_id in data["ids"]:
+        price = session.get(PriceSnapshot, price_id)
+        assert consumption.aws_price_disposition(session, price).status == "quarantined"
+        assert not consumption.aws_price_current(session, price)
 
 
 @pytest.mark.parametrize("operation", ["classify", "current", "disposition"])

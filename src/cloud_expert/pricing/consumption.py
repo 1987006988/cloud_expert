@@ -13,6 +13,7 @@ from cloud_expert.pricing.aws_catalog_promotion import aws_catalog_price_valid
 from cloud_expert.pricing.aws_document_catalog import RULE as AWS_DOCUMENT_RULE
 from cloud_expert.pricing.aws_price_replacement import SUPPORTED, aws_replacement_disposition
 from cloud_expert.pricing.price_lifecycle import PriceDisposition
+from cloud_expert.pricing.price_quarantine import quarantine_disposition
 
 
 def is_aws_price(snapshot: PriceSnapshot) -> bool:
@@ -26,6 +27,9 @@ def is_aws_price(snapshot: PriceSnapshot) -> bool:
 def aws_price_current(session: Session, snapshot: PriceSnapshot) -> bool:
     """Unknown AWS derivations fail closed; adding a rule needs an explicit verifier."""
     if session.new or session.dirty or session.deleted:
+        return False
+    quarantine = quarantine_disposition(session, snapshot, Path(get_settings().raw_data_dir))
+    if quarantine is not None:
         return False
     if not is_aws_price(snapshot):
         return False
@@ -50,6 +54,9 @@ def aws_price_disposition(session: Session, snapshot: PriceSnapshot) -> PriceDis
             status="blocked",
             diagnostics=("clean_session_required",),
         )
+    quarantine = quarantine_disposition(session, snapshot, Path(get_settings().raw_data_dir))
+    if quarantine is not None:
+        return quarantine
     if is_aws_price(snapshot) and (
         snapshot.id in SUPPORTED or snapshot.evidence.parser_rule == AWS_DOCUMENT_RULE
     ):

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+from pathlib import Path
 from typing import Any
 
 from _bootstrap import ROOT
@@ -15,41 +17,38 @@ from validate_pricing_sources import validate_pricing_sources
 from cloud_expert.database.models.evidence_package import EvidencePackage, EvidenceReference
 from cloud_expert.database.session import SessionLocal
 from cloud_expert.evidence_packages.validation import customer_output_eligibility_summary
+from cloud_expert.quality.verification_receipts import (
+    EXPECTED_HEAD,
+    EXPECTED_POSTGRES_TEST_IDS,
+    EXPECTED_PREVIOUS,
+    read_gate_receipts,
+)
 
 
-def _coverage_gate() -> dict[str, Any]:
-    coverage_path = ROOT / "reports" / "remediation" / "stage2" / "coverage.json"
-    if not coverage_path.exists():
-        return {"coverage_json": str(coverage_path), "percent_covered": None, "passed": False}
-    data = json.loads(coverage_path.read_text(encoding="utf-8"))
-    percent = data.get("totals", {}).get("percent_covered")
-    return {
-        "coverage_json": str(coverage_path),
-        "percent_covered": percent,
-        "threshold": 85.0,
-        "passed": percent is not None and percent >= 85.0,
-    }
-
-
-def _postgres_gate() -> dict[str, Any]:
-    validation_path = (
-        ROOT / "reports" / "remediation" / "r011" / "runs" / "run_02" / "validation_results.json"
+def _verification_gates() -> tuple[dict[str, Any], dict[str, Any]]:
+    context = Path(
+        os.environ.get("CLOUD_EXPERT_GATE_RECEIPTS", ROOT / "tasks/verification_receipts.yaml")
     )
-    if not validation_path.exists():
-        return {"validation_report": str(validation_path), "passed": False}
-    data = json.loads(validation_path.read_text(encoding="utf-8"))
-    tests = data.get("tests", {})
-    postgres = data.get("postgres", {})
-    return {
-        "validation_report": str(validation_path),
-        "r011_status": data.get("r011_status"),
-        "postgres_version": postgres.get("server_version"),
-        "pytest_postgres_passed": tests.get("pytest_postgres_passed"),
-        "pytest_integration_passed": tests.get("pytest_integration_passed"),
-        "passed": data.get("r011_status") == "COMPLETED"
-        and tests.get("pytest_postgres_passed", 0) >= 6
-        and tests.get("pytest_integration_passed", 0) >= 6,
-    }
+    receipts = read_gate_receipts(
+        context,
+        current_repo=ROOT,
+        expected_test_ids=EXPECTED_POSTGRES_TEST_IDS,
+        expected_head=EXPECTED_HEAD,
+        expected_previous=EXPECTED_PREVIOUS,
+    )
+    coverage: dict[str, Any] = dict(receipts["coverage"])
+    postgres: dict[str, Any] = dict(receipts["postgres"])
+    percent = coverage["metrics"].get("coverage_percent")
+    coverage.update(
+        percent_covered=percent,
+        threshold=85.0,
+        passed=coverage["valid"]
+        and coverage["current_code_verified"]
+        and isinstance(percent, (float, int))
+        and percent >= 85.0,
+    )
+    postgres["passed"] = postgres["valid"] and postgres["current_code_verified"]
+    return coverage, postgres
 
 
 def check_week09_gate() -> dict[str, Any]:
@@ -59,8 +58,7 @@ def check_week09_gate() -> dict[str, Any]:
     price_skus = validate_price_skus()
     price_evidence = validate_price_evidence()
     tco_validation = validate_cost_calculation_idempotency()
-    coverage = _coverage_gate()
-    postgres = _postgres_gate()
+    coverage, postgres = _verification_gates()
     with SessionLocal() as session:
         packages = session.scalar(select(func.count()).select_from(EvidencePackage)) or 0
         references = session.scalar(select(func.count()).select_from(EvidenceReference)) or 0

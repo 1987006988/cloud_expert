@@ -1,0 +1,74 @@
+{
+  "rule_version": "legacy_aws_price_quarantine_v1",
+  "prepared_at": "2026-09-30T12:43:56.150449Z",
+  "proofs": [
+    {
+      "reason": "incomplete_graduated_catalog_group",
+      "price_ids": [
+        1
+      ],
+      "price_fingerprints": {
+        "1": "5349d331ba33ad629d8891ae2142aaee39580dc7218c382cd0c0d75709b10a74"
+      },
+      "evidence_ids": [
+        14122
+      ],
+      "evidence_fingerprints": {
+        "14122": "8b0e5080107e0ea6df1b6b52e5541bcc9c0350ea1b4ca68e8c3b2c5b56f5b186"
+      },
+      "catalog_rate_codes": [
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.PGHJ3S3EYE",
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.D42MF2PVJS",
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.PXJDJ3YRG3"
+      ],
+      "recorded_rate_codes": [
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.PGHJ3S3EYE"
+      ],
+      "dependency_sha256": "43f8a7c1435f960b28dd83471a37ce06cafc3a378cec1090ea9e54989ad27bb7",
+      "inventory_sha256": "d8f6b022822e41dbfab6c36296c9c4522d41947832648ce67f891e6f1ac4b8ea"
+    },
+    {
+      "reason": "withdrawn_storage_unit_policy",
+      "price_ids": [
+        14,
+        15,
+        16
+      ],
+      "price_fingerprints": {
+        "14": "5dfa705a445f532ce371ab62b215503c1ff2d084ae1cee45503a8fafed58f814",
+        "15": "8c3265d03c4dfb0b6be2fb6c143e31ea256a7ea5362d215e4a7e9794febc0201",
+        "16": "5943904ff091bb4e6a4c190d6abf20ada3efaec2e567d6e0a4a48c3011b3697b"
+      },
+      "evidence_ids": [
+        29313,
+        29314,
+        29315,
+        29318,
+        29319,
+        29320
+      ],
+      "evidence_fingerprints": {
+        "29313": "bd26914c4dd4b365dd5af99ce7e8b80ca429f8bf875980587db0e1f3a91a1dcb",
+        "29314": "7b9e2a27e0522f0d87b2d02d1ae914cf78fccbaebf34e00f1c40a27d9712fdb5",
+        "29315": "152c9bcb748d8972f482e370f663ac3e982e8bfc585d07b763805e13c8754a9f",
+        "29318": "0d84337832bfb1e817e4fd0ab7e26e0ce4bb7a078fae079f7f391e1080bd3c0c",
+        "29319": "c96775f7efd5e72d63ea428203701fc0d322b0418e201f5b20f57d4284cf3306",
+        "29320": "217472349bd9f2b74bc49436e88216ec329d1bf7ab5dd595754ec73e4c8cf957"
+      },
+      "catalog_rate_codes": [
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.PGHJ3S3EYE",
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.D42MF2PVJS",
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.PXJDJ3YRG3"
+      ],
+      "recorded_rate_codes": [
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.PGHJ3S3EYE",
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.D42MF2PVJS",
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.PXJDJ3YRG3"
+      ],
+      "dependency_sha256": "daa740bed9820cdf73a29d7e5ae02f405c8e39cb05f2c2d08088c24ae4d4910f",
+      "inventory_sha256": "6127d39367f6f934534f91aae683b86d096ccdde350a2fc6d13b1fd4b36f1b0b"
+    }
+  ],
+  "expected_audit_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "plan_sha256": "ed30dd26f14d703aa475605cba873003101de95da566f14b26e2825a00804917"
+}

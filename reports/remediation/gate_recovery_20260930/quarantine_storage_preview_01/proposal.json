@@ -1,0 +1,16 @@
+{
+  "plan_sha256": "35200327bdc3d4cbd0fd34136e1890ef1838532878db9c7d2a9223d70c94c6b9",
+  "applied": false,
+  "created": false,
+  "transaction_committed": false,
+  "price_ids": [
+    14,
+    15,
+    16
+  ],
+  "consumable": false,
+  "customer_eligible": false,
+  "price_validated": false,
+  "approvals_granted": 0,
+  "receipt_sha256": null
+}

@@ -1,0 +1,6 @@
+offline_bundle:
+  path: reports/verification/gate_recovery_20260930_03
+  sha256: e4aaf0459354960b23064d7f8df3376fd4a53b17a2d0e7fb8bc6af2113d6bd3f
+postgres:
+  manifest_path: reports/remediation/gate_recovery_20260930/postgres_frozen_03/manifest.json
+  sha256: bf46547c0ed051075150a3d4c31b55173859102445524a67b29da100b19c1064

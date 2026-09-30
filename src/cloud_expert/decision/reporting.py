@@ -187,7 +187,10 @@ def write_decision_reports(
     )
     rows = result_rows(session, payload["run_code"])
     _write_json(destination / "decision_result_rows.json", rows)
-    write_review_sample(session, payload["run_code"])
+    if report_dir is not None:
+        write_review_sample(session, payload["run_code"], destination / "review_sample.csv")
+    else:
+        write_review_sample(session, payload["run_code"])
     return payload
 
 

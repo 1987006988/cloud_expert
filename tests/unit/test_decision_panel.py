@@ -4,11 +4,12 @@ import hashlib
 import json
 import os
 import subprocess
-from contextlib import nullcontext
+from contextlib import contextmanager, nullcontext
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
-from types import SimpleNamespace
+from types import MappingProxyType, SimpleNamespace
 from unittest.mock import Mock
 from uuid import uuid4
 
@@ -43,6 +44,7 @@ from cloud_expert.database.models.tco import (
     TCOResult,
 )
 from cloud_expert.model_review import decision_panel as panel
+from cloud_expert.model_review import isolated_runtime as runtime_launcher
 from cloud_expert.model_review.schemas import Decision
 from cloud_expert.pricing import scoped_tco
 from tests.unit.test_huawei_price_promotion import component_input, promotion_input  # noqa: F401
@@ -50,6 +52,7 @@ from tests.unit.test_policy_costs import (  # noqa: F401
     isolated_policy_registry,
     policy_registry_entries,
 )
+from tests.unit.test_review_native_isolation import synthetic_native_events
 from tests.unit.test_scoped_tco import scoped_inputs  # noqa: F401
 
 
@@ -209,6 +212,7 @@ def graph(tmp_path, monkeypatch):
     scenario.requirements = [requirement]
     run = DecisionRun(
         id=1,
+        scenario_id=scenario.id,
         scenario=scenario,
         policy=policy,
         scenario_version="v1",
@@ -253,6 +257,7 @@ def graph(tmp_path, monkeypatch):
     )
     result = CandidateDecisionResult(
         id=1,
+        decision_run_id=run.id,
         decision_run=run,
         mapping_candidate=mapping,
         tco_result=tco,
@@ -526,7 +531,61 @@ def test_synthetic_packet_cannot_execute_models(graph, monkeypatch):
 def isolated_codex_home(monkeypatch, tmp_path):
     home = tmp_path / "synthetic-codex-home"
     monkeypatch.setenv("CODEX_HOME", str(home))
+    _install_synthetic_runtime(monkeypatch, tmp_path)
     return home
+
+
+def _install_synthetic_runtime(monkeypatch, tmp_path):
+    """Mock the launcher, retain real artifact ACL checks, and never copy credentials."""
+    state = SimpleNamespace(runtimes=[], active_homes=set(), protected=[])
+
+    @contextmanager
+    def isolated():
+        root = tmp_path / f"synthetic-runtime-{uuid4().hex}"
+        home, cwd = root / "home", root / "work"
+        home.mkdir(parents=True)
+        cwd.mkdir()
+        environment = {"CODEX_HOME": str(home), "PATH": "synthetic-empty-path"}
+        attestation = panel.audit_bundle.RuntimeIsolation(
+            schema_version="isolated_review_runtime.v1",
+            home=str(home),
+            fresh_home=True,
+            sanitized_environment=True,
+            private_permissions=True,
+            credential_copy_only=True,
+            environment_keys=sorted(environment),
+        )
+        runtime = runtime_launcher.IsolatedReviewRuntime(
+            root=root,
+            home=home,
+            cwd=cwd,
+            env=MappingProxyType(environment),
+            config_args=runtime_launcher.isolated_config_args(home),
+            attestation=MappingProxyType(attestation.model_dump(mode="json")),
+        )
+        state.runtimes.append(runtime)
+        state.active_homes.add(home)
+        try:
+            yield runtime
+        finally:
+            state.active_homes.remove(home)
+
+    def protect(path):
+        assert path.exists()
+        if path.is_dir():
+            assert not any(path.iterdir()), "Stage must be protected before writing artifacts"
+        else:
+            assert path.is_file()
+        runtime_launcher.protect_local_artifact(path)
+        state.protected.append(path)
+
+    monkeypatch.setattr(panel, "isolated_review_runtime", isolated)
+    monkeypatch.setattr(panel, "protect_local_artifact", protect)
+    for name in ("_auth_source", "_copy_auth"):
+        monkeypatch.setattr(
+            runtime_launcher, name, Mock(side_effect=AssertionError("No real auth in unit tests"))
+        )
+    return state
 
 
 def _cli_stub(
@@ -552,7 +611,8 @@ def _cli_stub(
             s for s in ("primary", "adversarial", "arbitration") if f"stage={s}." in prompt
         )
         response = raw if raw is not None else json.dumps(_opinion(packet, stage))
-        Path(command[command.index("-o") + 1]).write_bytes(response.encode("utf-8") + b"\r\n")
+        response_bytes = response.encode("utf-8") + b"\r\n"
+        Path(command[command.index("-o") + 1]).write_bytes(response_bytes)
         session_id, turn_id = str(uuid4()), str(uuid4())
         events = [
             {"type": "thread.started", "thread_id": session_id},
@@ -565,66 +625,20 @@ def _cli_stub(
         ] + (extra_events or [])
         now = datetime.now(UTC)
         cwd = str(kwargs["cwd"])
-        native = [
-            {
-                "type": "session_meta",
-                "payload": {
-                    "id": session_id,
-                    "cwd": cwd,
-                    "model_provider": "openai",
-                    "cli_version": "0.158.0-synthetic",
-                    "parent_thread_id": None,
-                },
-            },
-            {
-                "type": "event_msg",
-                "payload": {
-                    "type": "task_started",
-                    "turn_id": turn_id,
-                    "root_turn_id": turn_id,
-                },
-            },
-            {
-                "type": "turn_context",
-                "payload": {
-                    "turn_id": turn_id,
-                    "model": panel.MODEL_ID,
-                    "effort": "max",
-                    "cwd": cwd,
-                },
-            },
-            {
-                "type": "response_item",
-                "payload": {
-                    "type": "message",
-                    "role": "user",
-                    "content": [{"type": "input_text", "text": prompt}],
-                },
-            },
-            {
-                "type": "response_item",
-                "payload": {
-                    "type": "message",
-                    "role": "assistant",
-                    "channel": "final",
-                    "content": [{"type": "output_text", "text": response}],
-                },
-            },
-            {
-                "type": "event_msg",
-                "payload": {
-                    "type": "task_complete",
-                    "turn_id": turn_id,
-                    "last_agent_message": response,
-                },
-            },
-        ]
-        for event in native:
-            event["timestamp"] = now.isoformat()
+        native, profile = synthetic_native_events(
+            cwd=cwd,
+            session_id=session_id,
+            turn_id=turn_id,
+            prompt=prompt,
+            response=response_bytes.decode("utf-8"),
+            started_at=now.isoformat(),
+            completed_at=now.isoformat(),
+        )
+        monkeypatch.setattr(panel.audit_bundle, "_CLEAN_NATIVE_PROFILE", profile)
         if mutate_native:
             mutate_native(native)
         if not no_native:
-            directory = Path(os.environ["CODEX_HOME"]) / "sessions" / now.strftime("%Y/%m/%d")
+            directory = Path(kwargs["env"]["CODEX_HOME"]) / "sessions" / now.strftime("%Y/%m/%d")
             directory.mkdir(parents=True, exist_ok=True)
             encoded = b"\r\n".join(json.dumps(e).encode("utf-8") for e in native) + b"\r\n"
             (directory / f"rollout-{now:%Y-%m-%dT%H-%M-%S}-{session_id}.jsonl").write_bytes(encoded)
@@ -638,6 +652,16 @@ def _cli_stub(
 
 
 def test_real_adapter_command_provenance_and_independent_context(packet, tmp_path, monkeypatch):
+    runtime_state = _install_synthetic_runtime(monkeypatch, tmp_path)
+    original_capture = panel._native_session_bytes
+    source_homes = []
+
+    def capture(session_id, started, completed, *, codex_home=None):
+        assert codex_home in runtime_state.active_homes
+        source_homes.append(codex_home)
+        return original_capture(session_id, started, completed, codex_home=codex_home)
+
+    monkeypatch.setattr(panel, "_native_session_bytes", capture)
     calls = _cli_stub(monkeypatch, packet)
     _, first = panel._run_stage("primary", packet, tmp_path, [])
     _, second = panel._run_stage("adversarial", packet, tmp_path, [])
@@ -646,7 +670,18 @@ def test_real_adapter_command_provenance_and_independent_context(packet, tmp_pat
     assert b"independent_opinions" not in calls[1][1]["input"]
     assert b"Synthetic review only." not in calls[1][1]["input"]
     assert "--ignore-user-config" in calls[0][0] and "--ephemeral" not in calls[0][0]
-    for stage, receipt in (("primary", first), ("adversarial", second)):
+    assert len(set(source_homes)) == 2
+    assert not runtime_state.active_homes
+    for index, (stage, receipt) in enumerate((("primary", first), ("adversarial", second))):
+        runtime = runtime_state.runtimes[index]
+        assert calls[index][1]["env"] == dict(runtime.env)
+        assert calls[index][1]["cwd"] == runtime.cwd
+        assert Path(calls[index][1]["env"]["CODEX_HOME"]) == source_homes[index] == runtime.home
+        assert runtime.home != Path(os.environ["CODEX_HOME"])
+        assert not (runtime.home / "auth.json").exists()
+        assert receipt["runtime_isolation"] == dict(runtime.attestation)
+        assert (tmp_path / stage) in runtime_state.protected
+        assert (tmp_path / stage / "runtime.native.jsonl") in runtime_state.protected
         assert receipt["argv"][receipt["argv"].index("-m") + 1] == panel.MODEL_ID
         assert receipt["reasoning_effort"] == "max"
         assert receipt["status"] == "completed" and receipt["response_id"] == "item_0"
@@ -660,6 +695,21 @@ def test_real_adapter_command_provenance_and_independent_context(packet, tmp_pat
         )
         assert refs.runtime_identity is not None
         reader = panel.audit_bundle._Reader(tmp_path)
+        response_bytes = reader.ref(refs.response)
+        assert response_bytes.endswith(b"\r\n")
+        native = [json.loads(line) for line in reader.ref(refs.runtime_identity.trace).splitlines()]
+        assistant = next(
+            event["payload"]
+            for event in native
+            if event["type"] == "response_item" and event["payload"].get("role") == "assistant"
+        )
+        completion = next(
+            event["payload"]
+            for event in native
+            if event["type"] == "event_msg" and event["payload"].get("type") == "task_complete"
+        )
+        assert assistant["content"][0]["text"].encode("utf-8") == response_bytes
+        assert completion["last_agent_message"].encode("utf-8") == response_bytes
         prompt = (tmp_path / stage / "prompt.txt").read_bytes().decode("utf-8")
         panel.audit_bundle._runtime_identity(
             reader,
@@ -668,6 +718,7 @@ def test_real_adapter_command_provenance_and_independent_context(packet, tmp_pat
             prompt,
             reader.ref(refs.response),
             datetime.now(UTC).isoformat(),
+            require_isolation=True,
         )
         stdout, stderr = reader.ref(refs.trace), reader.ref(refs.stderr)
         assert b"\r\n" in stdout and stderr == b"synthetic stderr\r\n"
@@ -690,6 +741,113 @@ def test_real_adapter_command_provenance_and_independent_context(packet, tmp_pat
             receipt["prompt_sha256"]
             == hashlib.sha256((tmp_path / stage / "prompt.txt").read_bytes()).hexdigest()
         )
+
+
+@pytest.mark.parametrize("failure_point", ["_argv", "_runtime_identity", "_trace"])
+def test_attestation_failure_never_enables_native_privacy_exception(
+    packet, tmp_path, monkeypatch, failure_point
+):
+    _cli_stub(monkeypatch, packet)
+    scan = Mock(wraps=panel._runtime_sensitivity)
+    monkeypatch.setattr(panel, "_runtime_sensitivity", scan)
+    monkeypatch.setattr(
+        panel.audit_bundle,
+        failure_point,
+        Mock(side_effect=panel.audit_bundle.BundleError("synthetic_attestation_failed")),
+    )
+    with pytest.raises(RuntimeError, match="model_stage_failed_validation_or_execution"):
+        panel._run_stage("primary", packet, tmp_path, [])
+    assert scan.call_count > 0  # Failure artifacts are scanned without any exemption.
+    assert all(
+        not call.kwargs.get("verified_isolated_native", False) for call in scan.call_args_list
+    )
+    stage = tmp_path / "primary"
+    assert (stage / "runtime.native.jsonl").is_file()
+    assert (stage / "response.raw.json").is_file()
+    assert not (stage / "artifacts.json").exists()
+    privacy = json.loads((stage / "privacy.json").read_bytes())
+    assert privacy["identity_verified"] is False
+    assert privacy["status"] == "blocked"
+    receipt = json.loads((stage / "execution.json").read_bytes())
+    assert receipt["status"] == "failed"
+    assert receipt["reason_code"] == "synthetic_attestation_failed"
+
+
+def test_only_attested_native_stream_gets_local_metadata_exception(packet, tmp_path, monkeypatch):
+    _cli_stub(monkeypatch, packet)
+    scan = Mock(wraps=panel._runtime_sensitivity)
+    monkeypatch.setattr(panel, "_runtime_sensitivity", scan)
+    panel._run_stage("primary", packet, tmp_path, [])
+    stage = tmp_path / "primary"
+    exempt = [call for call in scan.call_args_list if call.kwargs.get("verified_isolated_native")]
+    assert len(exempt) == 1
+    assert exempt[0].args == ((stage / "runtime.native.jsonl").read_bytes(),)
+    for name in ("stdout.jsonl", "stderr.txt", "response.raw.json"):
+        ordinary = (stage / name).read_bytes()
+        assert any(
+            call.args == (ordinary,) and not call.kwargs.get("verified_isolated_native", False)
+            for call in scan.call_args_list
+        )
+    prompt = (stage / "prompt.txt").read_text(encoding="utf-8")
+    assert "creator_user_id" not in prompt and "creator_account_id" not in prompt
+
+
+@pytest.mark.parametrize(
+    "field", ["fresh_home", "sanitized_environment", "private_permissions", "credential_copy_only"]
+)
+def test_invalid_launcher_attestation_is_rejected_before_privacy_exception(
+    packet, tmp_path, monkeypatch, field
+):
+    _cli_stub(monkeypatch, packet)
+    original = panel.isolated_review_runtime
+
+    @contextmanager
+    def invalid_attestation():
+        with original() as runtime:
+            attestation = {**runtime.attestation, field: False}
+            yield replace(runtime, attestation=MappingProxyType(attestation))
+
+    scan = Mock(wraps=panel._runtime_sensitivity)
+    monkeypatch.setattr(panel, "isolated_review_runtime", invalid_attestation)
+    monkeypatch.setattr(panel, "_runtime_sensitivity", scan)
+    with pytest.raises(RuntimeError, match="model_stage_failed_validation_or_execution"):
+        panel._run_stage("primary", packet, tmp_path, [])
+    receipt = json.loads((tmp_path / "primary/execution.json").read_bytes())
+    assert receipt["status"] == "failed"
+    assert receipt["reason_code"] == "runtime_isolation_attestation_invalid"
+    assert all(
+        not call.kwargs.get("verified_isolated_native", False) for call in scan.call_args_list
+    )
+    assert not (tmp_path / "primary/artifacts.json").exists()
+
+
+@pytest.mark.parametrize("detail", ["synthetic_cleanup_failed", "synthetic secret cleanup detail"])
+def test_runtime_cleanup_failure_revokes_completed_receipt(packet, tmp_path, monkeypatch, detail):
+    _cli_stub(monkeypatch, packet)
+    original = panel.isolated_review_runtime
+
+    @contextmanager
+    def fail_on_exit():
+        with original() as runtime:
+            yield runtime
+        raise runtime_launcher.RuntimeIsolationError(detail)
+
+    monkeypatch.setattr(panel, "isolated_review_runtime", fail_on_exit)
+    with pytest.raises(RuntimeError, match="model_stage_failed_validation_or_execution"):
+        panel._run_stage("primary", packet, tmp_path, [])
+    stage = tmp_path / "primary"
+    receipt = json.loads((stage / "execution.json").read_bytes())
+    assert receipt["status"] == "failed"
+    assert receipt["error_type"] == "RuntimeIsolationError"
+    assert (stage / "response.raw.json").read_bytes() == json.dumps(
+        _opinion(packet)
+    ).encode() + b"\r\n"
+    assert (stage / "runtime.native.jsonl").is_file()
+    assert not (stage / "artifacts.json").exists()
+    if detail == "synthetic_cleanup_failed":
+        assert receipt["reason_code"] == detail
+    else:
+        assert "reason_code" not in receipt and detail not in json.dumps(receipt)
 
 
 @pytest.mark.parametrize("failure_type", ["invalid_json", "tool_use", "timeout", "no_attestation"])
@@ -732,6 +890,8 @@ def test_execution_failure_is_audited(packet, tmp_path, monkeypatch, failure_typ
         "effort",
         "input",
         "response",
+        "assistant_response_bytes",
+        "completion_response_bytes",
         "prior_turn",
         "old_timestamp",
         "fallback",
@@ -745,7 +905,19 @@ def test_execution_failure_is_audited(packet, tmp_path, monkeypatch, failure_typ
 )
 def test_native_identity_fails_closed(packet, tmp_path, monkeypatch, mutation):
     def mutate(events):
-        meta, context = events[0]["payload"], events[2]["payload"]
+        meta = events[0]["payload"]
+        context_event = next(event for event in events if event["type"] == "turn_context")
+        context = context_event["payload"]
+        user_input = next(
+            event
+            for event in reversed(events)
+            if event["type"] == "response_item" and event["payload"].get("role") == "user"
+        )
+        assistant = next(
+            event
+            for event in events
+            if event["type"] == "response_item" and event["payload"].get("role") == "assistant"
+        )
         if mutation == "model":
             context["model"] = "not-the-approved-model"
         elif mutation == "provider":
@@ -759,9 +931,17 @@ def test_native_identity_fails_closed(packet, tmp_path, monkeypatch, mutation):
         elif mutation == "effort":
             context["effort"] = "low"
         elif mutation == "input":
-            events[3]["payload"]["content"][0]["text"] = "Prior unrelated private context."
+            user_input["payload"]["content"][0]["text"] = "Prior unrelated private context."
         elif mutation == "response":
             events[-1]["payload"]["last_agent_message"] = "Changed response."
+        elif mutation == "assistant_response_bytes":
+            content = assistant["payload"]["content"][0]
+            assert content["text"].endswith("\r\n")
+            content["text"] = content["text"][:-2]
+        elif mutation == "completion_response_bytes":
+            completion = events[-1]["payload"]
+            assert completion["last_agent_message"].endswith("\r\n")
+            completion["last_agent_message"] = completion["last_agent_message"][:-2]
         elif mutation == "prior_turn":
             meta["parent_thread_id"] = str(uuid4())
         elif mutation == "old_timestamp":
@@ -769,9 +949,9 @@ def test_native_identity_fails_closed(packet, tmp_path, monkeypatch, mutation):
         elif mutation == "fallback":
             context["fallback_used"] = True
         elif mutation == "tool":
-            events[4]["payload"]["type"] = "function_call"
+            assistant["payload"]["type"] = "function_call"
         elif mutation == "compacted":
-            events[4]["type"] = "compacted"
+            assistant["type"] = "compacted"
         elif mutation == "incomplete":
             events.pop()
         elif mutation == "account_metadata":
@@ -779,7 +959,7 @@ def test_native_identity_fails_closed(packet, tmp_path, monkeypatch, mutation):
         elif mutation == "secret_metadata":
             meta["api_key"] = "synthetic-secret-do-not-share"
         elif mutation == "missing_context":
-            events.pop(2)
+            events.remove(context_event)
 
     _cli_stub(monkeypatch, packet, mutate_native=mutate)
     with pytest.raises(RuntimeError):
@@ -808,7 +988,7 @@ def test_native_locator_rejects_unattested_files(packet, tmp_path, monkeypatch, 
         if kind in {"old", "hardlink"}:
             sid = json.loads(result.stdout.splitlines()[0])["thread_id"]
             path = next(
-                Path(os.environ["CODEX_HOME"]).glob(f"sessions/*/*/*/rollout-*-{sid}.jsonl")
+                Path(kwargs["env"]["CODEX_HOME"]).glob(f"sessions/*/*/*/rollout-*-{sid}.jsonl")
             )
             if kind == "old":
                 old = (datetime.now(UTC) - timedelta(days=1)).timestamp()
@@ -837,14 +1017,31 @@ def test_capture_never_reads_auth_or_other_sessions(
     auth.write_bytes(b"never read auth")
     original_open = Path.open
     accessed = []
+    forbidden = {auth, unrelated}
 
     def guarded_open(path, *args, **kwargs):
-        assert path not in {auth, unrelated}, "Attempt to read an unrelated private file"
+        assert path not in forbidden, "Attempt to read an unrelated private file"
         accessed.append(path)
         return original_open(path, *args, **kwargs)
 
     monkeypatch.setattr(Path, "open", guarded_open)
     _cli_stub(monkeypatch, packet)
+    execute = panel.subprocess.run
+
+    def with_child_decoys(*args, **kwargs):
+        result = execute(*args, **kwargs)
+        child_home = Path(kwargs["env"]["CODEX_HOME"])
+        child_directory = child_home / "sessions" / datetime.now(UTC).strftime("%Y/%m/%d")
+        for path in (
+            child_home / "auth.json",
+            child_directory / f"rollout-unrelated-{uuid4()}.jsonl",
+        ):
+            with original_open(path, "wb") as handle:
+                handle.write(b"SYNTHETIC decoy only; never read")
+            forbidden.add(path)
+        return result
+
+    monkeypatch.setattr(panel.subprocess, "run", with_child_decoys)
     _, receipt = panel._run_stage("primary", packet, tmp_path, [])
     captured = tmp_path / "primary/runtime.native.jsonl"
     originals = [p for p in accessed if p.name.endswith(f"-{receipt['session_id']}.jsonl")]
@@ -1023,23 +1220,32 @@ def scoped_graph(graph, monkeypatch):
     graph.result.customer_eligible = False
     graph.tco.comparability_status = "needs_review"
     graph.cost_run.rule_version = panel.SCOPED_TCO_RULE
-    context = {"region": "synthetic-cn", "country_code": "CN", "partition": "huawei_cn"}
+    context = {
+        "region": graph.region.code,
+        "country_code": graph.region.country_code,
+        "partition": graph.partition.partition_code,
+        "market_mode": graph.scenario.market_mode,
+        "currency": graph.tco.currency,
+        "provider_id": graph.tco.provider_id,
+        "product_id": graph.tco.product_id,
+    }
     rationale = "Synthetic architecture does not deploy backup; no price is asserted."
+    config = {
+        "purpose": "internal_bounded_ecs_cost_research",
+        "context": context,
+        "costs": [
+            {
+                "dimension": "snapshot_backup",
+                "treatment": "not_applicable",
+                "quantity": "0",
+                "rationale": rationale,
+            }
+        ],
+    }
     graph.pricing.workload_profile = {
         "compute_instance_hours": "1",
-        "config_sha256": "b" * 64,
-        "scoped_ecs_config": {
-            "purpose": "internal_bounded_ecs_cost_research",
-            "context": context,
-            "costs": [
-                {
-                    "dimension": "snapshot_backup",
-                    "treatment": "not_applicable",
-                    "quantity": "0",
-                    "rationale": rationale,
-                }
-            ],
-        },
+        "config_sha256": scoped_tco._hash(config),
+        "scoped_ecs_config": config,
     }
     common = {"missing_prices_are_not_zero": True, "customer_eligible": False}
     policy_line = CostLineItem(

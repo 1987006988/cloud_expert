@@ -1,0 +1,7 @@
+{
+  "status": "blocked",
+  "error": "stored_catalog_rate_mismatch",
+  "transaction_committed": false,
+  "verify_database_before_retry": false,
+  "customer_eligible": false
+}

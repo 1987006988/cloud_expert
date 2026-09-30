@@ -31,6 +31,7 @@ from cloud_expert.database.models.model_review_workflow import (
 from cloud_expert.database.models.review import ModelReviewFinding, ModelReviewRun
 from cloud_expert.model_review import decision_panel as panel
 from cloud_expert.model_review import reproducibility as audit
+from cloud_expert.model_review.isolated_runtime import RuntimeIsolationError, verify_local_artifact
 from cloud_expert.model_review.registry import load_registry, resolve_model
 from cloud_expert.model_review.schemas import Decision
 
@@ -157,8 +158,14 @@ def _stage(
         "execution_artifact_mismatch",
     )
     # Reuse native identity and contamination checks, never trust requested -m alone.
-    audit._argv(meta, has_runtime_identity=True)
-    audit._runtime_identity(reader, refs.runtime_identity, meta, prompt, raw, now.isoformat())
+    audit._argv(meta, has_runtime_identity=True, require_isolation=True)
+    audit._runtime_identity(
+        reader, refs.runtime_identity, meta, prompt, raw, now.isoformat(), require_isolation=True
+    )
+    try:
+        verify_local_artifact(reader.path(refs.runtime_identity.trace.path))
+    except RuntimeIsolationError:
+        raise DecisionWritebackConflict("runtime_artifact_permissions_invalid") from None
     audit._trace(reader.ref(refs.trace), raw, meta, runtime_identity_verified=True)
     privacy = audit._json(reader.read(f"{name}/privacy.json"))
     _require(
@@ -166,6 +173,8 @@ def _stage(
         and privacy.get("finding_codes") == []
         and privacy.get("local_only") is True
         and privacy.get("transmit_to_model") is False
+        and privacy.get("identity_verified") is True
+        and privacy.get("isolated_home_used") is True
         and privacy.get("raw_trace_sha256") == refs.runtime_identity.trace.sha256,
         "privacy_receipt_invalid",
     )
@@ -173,9 +182,14 @@ def _stage(
         raw,
         reader.ref(refs.trace),
         reader.ref(refs.stderr),
-        reader.ref(refs.runtime_identity.trace),
     ):
         _require(not panel._runtime_sensitivity(value), "sensitive_artifact_rejected")
+    _require(
+        not panel._runtime_sensitivity(
+            reader.ref(refs.runtime_identity.trace), verified_isolated_native=True
+        ),
+        "sensitive_artifact_rejected",
+    )
     audit._json(raw)  # Duplicate keys/NaN must not be silently accepted by the opinion parser.
     opinion = panel.validate_opinion(raw.decode("utf-8"), packet, name)
     _require(

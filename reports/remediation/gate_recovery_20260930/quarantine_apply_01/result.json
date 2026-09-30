@@ -1,0 +1,19 @@
+{
+  "plan_sha256": "ed30dd26f14d703aa475605cba873003101de95da566f14b26e2825a00804917",
+  "applied": true,
+  "created": true,
+  "transaction_committed": true,
+  "price_ids": [
+    1,
+    14,
+    15,
+    16
+  ],
+  "consumable": false,
+  "customer_eligible": false,
+  "price_validated": false,
+  "approvals_granted": 0,
+  "receipt_sha256": "3f9c309a32be5125084b1758219d92111fea72936ab6c407c6f3d521c5caf2b7",
+  "database_open_mode": "rw",
+  "network_requests": 0
+}

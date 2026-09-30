@@ -9,6 +9,7 @@ import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 import pytest
 import yaml
@@ -57,6 +58,7 @@ def setup(session, tmp_path, monkeypatch):
     _, _, old, result, old_assignment = seed(session)
     result_id = result.id
     monkeypatch.setenv("CODEX_HOME", str(tmp_path / "synthetic-codex-home"))
+    panel_tests._install_synthetic_runtime(monkeypatch, tmp_path)
     calls = []
     extra_records = []
 
@@ -157,6 +159,48 @@ def test_dry_run_never_writes_or_promotes(session, setup):
     assert value.receipt["review_scope"] == panel.SCOPED_REVIEW
     assert value.as_dict()["parent_review_required"]
     assert set(value.receipt["stages"]) == {"primary", "adversarial"}
+
+
+def test_native_permissions_rechecked_before_local_metadata_exemption(session, setup, monkeypatch):
+    native = setup.root / "primary/runtime.native.jsonl"
+    original_bytes = native.read_bytes()
+    original_verify = wb.verify_local_artifact
+    checked = []
+
+    def public_permissions(path):
+        checked.append(path)
+        if path == native:
+            raise wb.RuntimeIsolationError("synthetic_public_permissions")
+        return original_verify(path)
+
+    monkeypatch.setattr(wb, "verify_local_artifact", public_permissions)
+    scan = Mock(wraps=panel._runtime_sensitivity)
+    monkeypatch.setattr(panel, "_runtime_sensitivity", scan)
+    before = counts(session)
+    with pytest.raises(wb.DecisionWritebackConflict, match="runtime_artifact_permissions_invalid"):
+        plan(session, setup)
+    session.rollback()
+    assert checked == [native]
+    assert counts(session) == before
+    assert native.read_bytes() == original_bytes
+    assert not any(
+        call.kwargs.get("verified_isolated_native", False) for call in scan.call_args_list
+    )
+
+
+@pytest.mark.parametrize("field", ["identity_verified", "isolated_home_used"])
+@pytest.mark.parametrize("value", [False, None, "true", 1])
+def test_privacy_receipt_requires_verified_isolated_native(session, setup, field, value):
+    path = setup.root / "primary/privacy.json"
+    privacy = json.loads(path.read_bytes())
+    privacy[field] = value
+    write_json(path, privacy)
+    rehash(setup.root)
+    before = counts(session)
+    with pytest.raises(wb.DecisionWritebackConflict, match="privacy_receipt_invalid"):
+        plan(session, setup)
+    session.rollback()
+    assert counts(session) == before
 
 
 def test_append_preserve_history_idempotence_and_consume(session, setup):

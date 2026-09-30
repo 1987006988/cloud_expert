@@ -34,3 +34,15 @@ Thumbs.db
 *.sqlite-shm
 *.sqlite-wal
 backups/remediation_stage1/*.sqlite
+
+# Native review traces contain local account provenance; never publish them.
+reports/**/runtime.native.jsonl
+reports/**/*.local-only.*
+reports/remediation/gate_recovery_20260930/native_9587_diagnostic_01/
+reports/remediation/gate_recovery_20260930/clean_cli_probe_*/
+reports/remediation/gate_recovery_20260930/decision_panel_*/
+reports/remediation/gate_recovery_20260930/*_temp/
+reports/**/pytest_temp/
+reports/**/pytest_basetemp/
+reports/verification/**/workspace/
+reports/verification/**/runtime/

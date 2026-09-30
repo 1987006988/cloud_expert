@@ -117,7 +117,7 @@ class ReplacementReceipt(_Record):
 
 class PriceDisposition(_Record):
     price_id: int
-    status: Literal["current", "superseded", "blocked"]
+    status: Literal["current", "superseded", "quarantined", "blocked"]
     successor_id: int | None = None
     current_price_id: int | None = None
     replacement_path: tuple[int, ...] = ()

@@ -1,0 +1,14 @@
+{
+  "normalized_specifications": 29160,
+  "missing_product_specification": 0,
+  "missing_evidence_links": 0,
+  "evidence_mismatch": 0,
+  "missing_source_document": 0,
+  "missing_snapshot_record": 0,
+  "missing_manifest": 0,
+  "missing_raw_file": 0,
+  "hash_mismatch": 0,
+  "checked_raw_files": 40,
+  "samples": [],
+  "observed_exit_code": 0
+}

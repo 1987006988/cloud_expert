@@ -16,6 +16,9 @@ Builder/integration contract (``audit_bundle_schema()`` exports the schemas):
    input and full response. Capture original runtime bytes, never reconstructed
    events. A requested -m flag, probe or banner is not model identity evidence.
    A runtime that exposes neither supported identity form remains BLOCKED.
+   Non-synthetic stages additionally require runtime_isolation launcher attestation
+   and the version-pinned clean native profile; legacy stdout-only proof is not
+   sufficient. Generated environment input is separate from the exact review input.
 3. Build AuditBundle with FileRefs (relative POSIX path + SHA-256 of file bytes).
    Set release.frozen_at after the reviews, then call
    compute_artifact_fingerprint(). This covers every pre-evaluation artifact,
@@ -51,11 +54,14 @@ The current panel must gain genuine trace/identity capture before it can pass.
 from __future__ import annotations
 
 import json
+import math
 import re
+from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Annotated, Any, Literal
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -118,9 +124,87 @@ DISABLED_FEATURES = {
     "skill_search",
     "workspace_dependencies",
 }
+ISOLATED_DISABLED_FEATURES = DISABLED_FEATURES | {"goals", "sleep_tool", "tool_suggest"}
+_ISOLATED_ENVIRONMENT_KEYS = {
+    "PATH",
+    "SYSTEMROOT",
+    "WINDIR",
+    "COMSPEC",
+    "PATHEXT",
+    "TEMP",
+    "TMP",
+    "USERPROFILE",
+    "HOMEDRIVE",
+    "HOMEPATH",
+    "APPDATA",
+    "LOCALAPPDATA",
+    "CODEX_HOME",
+    "HOME",
+    "TMPDIR",
+    "XDG_CACHE_HOME",
+    "XDG_CONFIG_HOME",
+    "XDG_DATA_HOME",
+}
 INPUT_MARKER = "\nINPUT_JSON:\n"
 MAX_FILE_BYTES = 64 * 1024 * 1024
 MAX_BUNDLE_BYTES = 256 * 1024 * 1024
+# CLI 0.158.0, Windows, MAX, clean probe 03. Only bound paths/date/IDs are normalized.
+# Original local-only capture SHA: 52e46183eb1a22d601a9a57a7dad9beda63c32a73c9b5bc1a3806fef45455f39.
+# No native text, account IDs or authentication material is embedded here.
+_CLEAN_NATIVE_PROFILE: dict[str, Any] = {
+    "session": "98d33bbcc190520b82a2ea21cf62d862c0db61ea7fa4c169e545e95f6c3f3a94",
+    "context": "8989857f08d19eda356edd0bc8adc7e0d135271a91f3e4a5dc2cc5db24e325b4",
+    "world": "5f643dc50baa96afc4b937ce0687ffdff85b48cd43ae8ef105b4f31862e50746",
+    "developers": [
+        {
+            "texts": [
+                "4103287cd2f8e02c0c606bbbae018671bd04d7e7eeca9cbf862f8b53f9275313",
+                "bec8e7b5358a20b4cd552dae768b3a65ebf4ea9fb2645220085b84d60ee3fe81",
+            ],
+            "kinds": "b67fe53c992a18abf65d6a9e1915f311584d5419dcb5cd26d2c578aa8def01b2",
+            "envelope": "ac7f36a47810ac5098e8a4396f803c1132c0811239cdbc4d5bb83fdc6019fdd0",
+        },
+        {
+            "texts": ["47091490938505958b0c22ff42db6fd79b272a2af6923166f4c2cc53c4fe0df4"],
+            "kinds": "b6605479c666ba7cbf2116c3169490319fb3f27735b86993b1e30b3cfa75d61c",
+        },
+        {
+            "texts": ["6ded806e3cdbb35599ecaf8742574bc5274908472b1729090010c404c2151e8e"],
+            "kinds": "21a43fa62f8d5633517fa32dec424338a4db69b8d2d9cf53416f9b81754d320e",
+        },
+    ],
+    "environment": {
+        "text": "450c82cc9aacb917aa566ebccdd193e524174a08e0649a6182266fa9cd2bf650",
+        "kinds": "80e1cc1b5f3c955063a4823df2e27939071c2048733752ba6720c2f1e24864fb",
+    },
+    "prompt": {
+        "kinds": "998735cbe5844b560816eca39213b7631c08dd53ce35ab8c4816d31c8ebd85a6",
+        "envelope": "2f2980d664ee6dc1b5606692a6384f21e98ab1b424400cbf91a874904220763e",
+    },
+    "envelope_metadata": {
+        "developer": "ac7f36a47810ac5098e8a4396f803c1132c0811239cdbc4d5bb83fdc6019fdd0",
+        "user": "2f2980d664ee6dc1b5606692a6384f21e98ab1b424400cbf91a874904220763e",
+        "assistant": "0c1575ead47579318574a5ee893b02e9b25b3eb43cc2c324496313596fe03d6c",
+    },
+    # Observed local capture 8902234b454812b8452868c64c625fbff1cfbc362660fb61a2155a0cd4034b02.
+    # These are distinct fingerprints, not normalization of the completeness flag.
+    "retained_false_metadata": {
+        "user": "679d39371ee0bfedaf56e9beaa3e8abfcca765a22d22875a1ce55d8c33b72e9b",
+        "assistant": "e481a6b4bc87b48b06314277c71695f38f96e909a3e5beac4822c16a3cd9c777",
+    },
+    "assistant_output": {
+        "keys": [
+            "content",
+            "id",
+            "internal_chat_message_metadata_passthrough",
+            "phase",
+            "role",
+            "type",
+        ],
+        "kinds": "a69f50eee46e418afc253e05b3768b9e53f8c2beb44287e16aea3f2de18b700f",
+        "phase": "c2259d492611627a36a6d28028c7dbf1e55f4c2c4e4e39a84a74cdf987bfcb37",
+    },
+}
 
 
 class StrictModel(BaseModel):
@@ -216,6 +300,18 @@ class AuditBundle(StrictModel):
     evaluation: FileRef
 
 
+class RuntimeIsolation(StrictModel):
+    """Trusted launcher assertions, cross-checked against the complete native trace."""
+
+    schema_version: Literal["isolated_review_runtime.v1"]
+    home: Text
+    fresh_home: bool
+    sanitized_environment: bool
+    private_permissions: bool
+    credential_copy_only: bool
+    environment_keys: list[Text]
+
+
 class ExecutionMetadata(StrictModel):
     """Collector receipt; actual_model_id is cross-checked against raw trace."""
 
@@ -247,6 +343,7 @@ class ExecutionMetadata(StrictModel):
     stdout_sha256: SHA256
     stderr_sha256: SHA256
     response_sha256: SHA256
+    runtime_isolation: RuntimeIsolation | None = None
 
 
 class EvalCase(StrictModel):
@@ -637,9 +734,82 @@ def _digest(value: object) -> bool:
     return isinstance(value, str) and re.fullmatch(r"[a-f0-9]{64}", value) is not None
 
 
-def _argv(meta: ExecutionMetadata, *, has_runtime_identity: bool = False) -> None:
+def _isolation(meta: ExecutionMetadata) -> RuntimeIsolation:
+    isolation = meta.runtime_isolation
+    _require(isolation is not None, "runtime_isolation_required")
+    assert isolation is not None
+    _require(
+        isolation.fresh_home is True
+        and isolation.sanitized_environment is True
+        and isolation.private_permissions is True
+        and isolation.credential_copy_only is True,
+        "runtime_isolation_attestation_invalid",
+    )
+    keys = [key.upper() for key in isolation.environment_keys]
+    _require(
+        len(keys) == len(set(keys))
+        and set(keys) <= _ISOLATED_ENVIRONMENT_KEYS
+        and "CODEX_HOME" in keys,
+        "runtime_environment_not_isolated",
+    )
+    path_type = PureWindowsPath if PureWindowsPath(meta.cwd).drive else PurePosixPath
+    cwd, home = path_type(meta.cwd), path_type(isolation.home)
+    _require(
+        cwd.is_absolute()
+        and home.is_absolute()
+        and cwd.name == "work"
+        and home.name == "home"
+        and cwd.parent == home.parent
+        and not any(part in {".", ".."} for part in isolation.home.replace("\\", "/").split("/")),
+        "runtime_home_binding_invalid",
+    )
+    return isolation
+
+
+def _argv(
+    meta: ExecutionMetadata, *, has_runtime_identity: bool = False, require_isolation: bool = False
+) -> None:
+    _require(
+        not require_isolation or meta.runtime_isolation is not None, "runtime_isolation_required"
+    )
     ephemeral = "--ephemeral" in meta.argv
     _require(ephemeral or has_runtime_identity, "execution_session_capture_required")
+    if meta.runtime_isolation is not None:
+        from cloud_expert.model_review.isolated_runtime import isolated_config_args
+
+        isolation = _isolation(meta)
+        _require(has_runtime_identity and not ephemeral, "runtime_isolated_capture_required")
+        expected = [
+            meta.argv[0],
+            "exec",
+            "-m",
+            MODEL_ID,
+            "-c",
+            'model_reasoning_effort="max"',
+            *isolated_config_args(Path(isolation.home)),
+            "--output-schema",
+            meta.schema_path,
+            "-o",
+            meta.response_path,
+            "-",
+        ]
+        _require(meta.argv == expected, "execution_argv_unsafe")
+    else:
+        _legacy_argv(meta, ephemeral)
+    _require(object_sha256(meta.argv) == meta.argv_sha256, "execution_argv_hash_mismatch")
+    path_type = PureWindowsPath if PureWindowsPath(meta.cwd).drive else PurePosixPath
+    cwd = path_type(meta.cwd)
+    _require(
+        cwd.is_absolute()
+        and not any(part in {".", ".."} for part in meta.cwd.replace("\\", "/").split("/"))
+        and path_type(meta.schema_path).parent == cwd
+        and path_type(meta.response_path).parent == cwd
+        and meta.schema_path != meta.response_path,
+        "execution_cwd_not_isolated",
+    )
+
+
+def _legacy_argv(meta: ExecutionMetadata, ephemeral: bool) -> None:
     prefix = [
         meta.argv[0],
         "exec",
@@ -673,43 +843,32 @@ def _argv(meta: ExecutionMetadata, *, has_runtime_identity: bool = False) -> Non
         and set(tail[1::2]) == DISABLED_FEATURES,
         "execution_features_not_isolated",
     )
-    _require(object_sha256(meta.argv) == meta.argv_sha256, "execution_argv_hash_mismatch")
-    path_type = PureWindowsPath if PureWindowsPath(meta.cwd).drive else PurePosixPath
-    cwd = path_type(meta.cwd)
-    _require(
-        cwd.is_absolute()
-        and not any(part in {".", ".."} for part in meta.cwd.replace("\\", "/").split("/"))
-        and path_type(meta.schema_path).parent == cwd
-        and path_type(meta.response_path).parent == cwd
-        and meta.schema_path != meta.response_path,
-        "execution_cwd_not_isolated",
-    )
 
 
-def _trace(
-    raw: bytes,
-    response: bytes,
-    meta: ExecutionMetadata,
-    *,
-    runtime_identity_verified: bool = False,
-) -> None:
-    events = [_json(line) for line in raw.splitlines() if line.strip()]
+def validate_review_cli_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Validate a single tool-free turn; return a view without the exact startup notice.
+
+    Captured stdout must remain unchanged for hashing and audit provenance.
+    This does not attest runtime identity or bind the final response to an artifact.
+    """
+    startup_notice = {
+        "type": "item.completed",
+        "item": {
+            "id": "item_0",
+            "type": "error",
+            "message": (
+                "Code Mode is unavailable because code-mode host is disabled. "
+                "Code mode will fail closed; enable `features.code_mode_host` "
+                "and install `codex-code-mode-host`."
+            ),
+        },
+    }
+    _require(all(isinstance(event, dict) for event in events), "trace_unknown_or_reused_turn")
+    has_notice = len(events) > 1 and events[1] == startup_notice
+    events = events[:1] + events[2:] if has_notice else list(events)
     _require(len(events) >= 4, "execution_trace_incomplete")
-    _require(
-        events[0].get("type") == "thread.started" and events[0].get("thread_id") == meta.session_id,
-        "trace_session_mismatch",
-    )
-    _require(
-        events[1].get("type") == "turn.started"
-        and (
-            runtime_identity_verified
-            or (
-                events[1].get("model") == meta.actual_model_id
-                and events[1].get("model_provider") == meta.model_provider
-            )
-        ),
-        "actual_model_identity_unverified",
-    )
+    _require(events[0].get("type") == "thread.started", "trace_session_mismatch")
+    _require(events[1].get("type") == "turn.started", "trace_unknown_or_reused_turn")
     _require(events[-1].get("type") == "turn.completed", "execution_trace_incomplete")
     final_messages: list[dict[str, Any]] = []
 
@@ -745,8 +904,35 @@ def _trace(
         item = event.get("item")
         if not isinstance(item, dict) or item.get("type") not in {"agent_message", "reasoning"}:
             raise BundleError("trace_tool_or_unknown_item")
+        _require(not has_notice or item.get("id") != "item_0", "trace_tool_or_unknown_item")
         if item["type"] == "agent_message" and event["type"] == "item.completed":
             final_messages.append(item)
+    _require(len(final_messages) == 1, "full_response_not_attested")
+    return events
+
+
+def _trace(
+    raw: bytes,
+    response: bytes,
+    meta: ExecutionMetadata,
+    *,
+    runtime_identity_verified: bool = False,
+) -> None:
+    events = validate_review_cli_events([_json(line) for line in raw.splitlines() if line.strip()])
+    _require(events[0].get("thread_id") == meta.session_id, "trace_session_mismatch")
+    _require(
+        runtime_identity_verified
+        or (
+            events[1].get("model") == meta.actual_model_id
+            and events[1].get("model_provider") == meta.model_provider
+        ),
+        "actual_model_identity_unverified",
+    )
+    final_messages = [
+        event["item"]
+        for event in events[2:-1]
+        if event["type"] == "item.completed" and event["item"]["type"] == "agent_message"
+    ]
     _require(
         len(final_messages) == 1
         and final_messages[0].get("id") == meta.response_id
@@ -756,6 +942,343 @@ def _trace(
     )
 
 
+def _native_envelope_metadata(
+    event: dict[str, Any], capture: RuntimeCaptureProvenance
+) -> str | None:
+    if "metadata" not in event:
+        return None
+    payload = event["payload"]
+    _require(
+        event["type"] == "response_item" and payload.get("type") == "message",
+        "runtime_clean_envelope_invalid",
+    )
+    metadata = deepcopy(event["metadata"])
+    _require(isinstance(metadata, dict), "runtime_clean_envelope_invalid")
+    retained = metadata.get("retained_source")
+    if retained is not None:
+        _require(
+            isinstance(retained, dict)
+            and set(retained) == {"id", "revision", "complete"}
+            and type(retained["complete"]) is bool
+            and isinstance(payload.get("id"), str)
+            and re.fullmatch(r"[A-Za-z0-9_-]{1,128}", payload["id"])
+            and retained["id"]
+            == {
+                "message_id": payload.get("id"),
+                "turn_id": capture.turn_id,
+                "role": payload.get("role"),
+            }
+            and isinstance(retained["revision"], str)
+            and re.fullmatch(
+                r"[a-z]{8}_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}", retained["revision"]
+            ),
+            "runtime_retained_source_invalid",
+        )
+        retained["id"]["message_id"] = "{MESSAGE}"
+        retained["id"]["turn_id"] = "{TURN}"
+        retained["revision"] = retained["revision"][:9] + "{REVISION}"
+    fingerprint = object_sha256(metadata)
+    profile_key = (
+        "retained_false_metadata"
+        if retained is not None and retained["complete"] is False
+        else "envelope_metadata"
+    )
+    _require(
+        fingerprint == _CLEAN_NATIVE_PROFILE.get(profile_key, {}).get(payload.get("role")),
+        "runtime_clean_envelope_invalid",
+    )
+    return fingerprint
+
+
+def _clean_native_inputs(
+    events: list[dict[str, Any]],
+    meta: ExecutionMetadata,
+    capture: RuntimeCaptureProvenance,
+    prompt: str,
+) -> int:
+    """Bind the complete generated input prefix to one version-pinned clean profile."""
+    _isolation(meta)
+    _require(bool(_CLEAN_NATIVE_PROFILE), "runtime_clean_profile_unavailable")
+    previous_ordinal = -1
+    for event in events:
+        _require(
+            set(event)
+            in (
+                {"timestamp", "ordinal", "type", "payload"},
+                {"timestamp", "ordinal", "type", "payload", "metadata"},
+            )
+            and isinstance(event["timestamp"], str)
+            and isinstance(event["type"], str)
+            and isinstance(event["payload"], dict)
+            and type(event["ordinal"]) is int
+            and event["ordinal"] > previous_ordinal,
+            "runtime_clean_envelope_invalid",
+        )
+        previous_ordinal = event["ordinal"]
+        _native_envelope_metadata(event, capture)
+    developers = _CLEAN_NATIVE_PROFILE["developers"]
+    env_index = 2 + len(developers)
+    world_index, context_index, prompt_index = env_index + 1, env_index + 2, env_index + 3
+    kinds = ["session_meta", "event_msg"] + ["response_item"] * (len(developers) + 1)
+    kinds += ["world_state", "turn_context", "response_item"]
+    _require(
+        len(events) > prompt_index
+        and [e.get("type") for e in events[: prompt_index + 1]] == kinds
+        and sum(e.get("type") == "world_state" for e in events) == 1
+        and sum(e.get("type") == "turn_context" for e in events) == 1,
+        "runtime_clean_input_order_invalid",
+    )
+    session = deepcopy(events[0]["payload"])
+    context = deepcopy(events[context_index]["payload"])
+    world = deepcopy(events[world_index]["payload"])
+    _require(
+        isinstance(session, dict) and isinstance(context, dict) and isinstance(world, dict),
+        "runtime_event_payload_invalid",
+    )
+    for key in ("creator_user_id", "creator_account_id"):
+        value = session.get(key)
+        _require(
+            isinstance(value, str) and re.fullmatch(r"[A-Za-z0-9_-]{1,128}", value),
+            "runtime_local_auth_metadata_invalid",
+        )
+        session[key] = "{LOCAL_AUTH_METADATA}"
+    for key in ("id", "session_id"):
+        _require(session.get(key) == meta.session_id, "runtime_session_mismatch")
+        session[key] = "{SESSION}"
+    _require(
+        _time(meta.started_at) <= _time(session["timestamp"]) <= _time(meta.completed_at),
+        "runtime_event_time_invalid",
+    )
+    session["timestamp"] = "{TIMESTAMP}"
+    _require(
+        session.get("cwd") == meta.cwd and session.get("runtime_workspace_roots") == [meta.cwd],
+        "runtime_home_binding_invalid",
+    )
+    session.update(cwd="{CWD}", runtime_workspace_roots=["{CWD}"])
+    window = session.get("context_window")
+    _require(
+        isinstance(window, dict)
+        and set(window) == {"window_id"}
+        and isinstance(window["window_id"], str)
+        and re.fullmatch(r"[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}", window["window_id"]),
+        "runtime_clean_session_invalid",
+    )
+    session["context_window"] = {"window_id": "{WINDOW}"}
+    _require(
+        object_sha256(session) == _CLEAN_NATIVE_PROFILE["session"], "runtime_clean_session_invalid"
+    )
+
+    for key in ("turn_id", "root_turn_id"):
+        _require(context.get(key) == capture.turn_id, "runtime_identity_or_turn_mismatch")
+        context[key] = "{TURN}"
+    _require(
+        context.get("cwd") == meta.cwd
+        and context.get("workspace_roots") == [meta.cwd]
+        and context.get("model") == MODEL_ID
+        and context.get("effort") == "max",
+        "runtime_model_identity_unverified",
+    )
+    date, timezone = context.get("current_date"), context.get("timezone")
+    _require(isinstance(date, str) and isinstance(timezone, str), "runtime_environment_invalid")
+    try:
+        local_date = _time(events[context_index]["timestamp"]).astimezone(ZoneInfo(timezone)).date()
+    except (ValueError, ZoneInfoNotFoundError) as exc:
+        raise BundleError("runtime_environment_invalid") from exc
+    _require(date == local_date.isoformat(), "runtime_environment_date_mismatch")
+    context.update(cwd="{CWD}", workspace_roots=["{CWD}"], current_date="{DATE}")
+    _require(
+        object_sha256(context) == _CLEAN_NATIVE_PROFILE["context"], "runtime_clean_context_invalid"
+    )
+    state = world.get("state")
+    _require(isinstance(state, dict) and world.get("full") is True, "runtime_clean_world_invalid")
+    _require(
+        state.get("permissions", {}).get("approved_command_prefixes") == []
+        and state.get("agents_md") == {}
+        and state.get("managed_developer_instructions") == {}
+        and state.get("persistent_mode") == {},
+        "runtime_inherited_context",
+    )
+    skill_state = state.get("host_skills")
+    _require(
+        skill_state in (None, {})
+        or isinstance(skill_state, dict)
+        and skill_state.get("body", "") == "",
+        "runtime_inherited_skills",
+    )
+    environments = state.get("environments", {})
+    local = environments.get("environments", {}).get("local", {})
+    _require(
+        local.get("cwd") == meta.cwd
+        and environments.get("current_date") == date
+        and environments.get("timezone") == timezone,
+        "runtime_environment_binding_invalid",
+    )
+    filesystem = environments.get("filesystem")
+    _require(isinstance(filesystem, str), "runtime_environment_invalid")
+
+    def normalize(text: str) -> str:
+        _require(
+            all(marker not in text for marker in ("{CWD}", "{DATE}")),
+            "runtime_generated_message_invalid",
+        )
+        return text.replace(meta.cwd, "{CWD}").replace(date, "{DATE}")
+
+    local["cwd"] = "{CWD}"
+    environments["current_date"] = "{DATE}"
+    environments["filesystem"] = normalize(filesystem)
+    _require(object_sha256(world) == _CLEAN_NATIVE_PROFILE["world"], "runtime_clean_world_invalid")
+    message_ids: set[str] = set()
+    user_items = 0
+    for index, event in enumerate(events):
+        payload = event.get("payload", {})
+        if event.get("type") == "event_msg":
+            _require(
+                payload.get("type")
+                in {"task_started", "task_complete", "token_count", "item_completed"},
+                "runtime_unknown_event",
+            )
+            item = payload.get("item", {})
+            if payload.get("type") == "item_completed" and item.get("type") == "UserMessage":
+                user_items += 1
+                _require(
+                    index > prompt_index
+                    and user_items == 1
+                    and set(item) == {"type", "id", "content"}
+                    and isinstance(item["id"], str)
+                    and re.fullmatch(r"[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}", item["id"])
+                    and item["content"] == [{"type": "text", "text": prompt, "text_elements": []}],
+                    "runtime_input_or_prior_context_mismatch",
+                )
+        if event.get("type") == "response_item" and payload.get("type") == "reasoning":
+            _require(
+                index > prompt_index
+                and set(payload)
+                == {
+                    "type",
+                    "id",
+                    "summary",
+                    "encrypted_content",
+                    "internal_chat_message_metadata_passthrough",
+                }
+                and isinstance(payload["id"], str)
+                and re.fullmatch(r"[A-Za-z0-9_-]{1,128}", payload["id"])
+                and isinstance(payload["summary"], list)
+                and isinstance(payload["encrypted_content"], str)
+                and payload["internal_chat_message_metadata_passthrough"]
+                == {"turn_id": capture.turn_id},
+                "runtime_output_metadata_invalid",
+            )
+        if event.get("type") != "response_item" or payload.get("type") != "message":
+            continue
+        role = payload.get("role")
+        if role == "assistant":
+            _require(index > prompt_index, "runtime_prior_assistant_context")
+            output = _CLEAN_NATIVE_PROFILE["assistant_output"]
+            metadata = payload.get("internal_chat_message_metadata_passthrough")
+            _require(
+                sorted(payload) == output["keys"]
+                and object_sha256(payload.get("phase")) == output["phase"]
+                and isinstance(metadata, dict)
+                and set(metadata) == {"turn_id", "create_time", "content_item_kinds"}
+                and metadata["turn_id"] == capture.turn_id
+                and type(metadata["create_time"]) in (int, float)
+                # Observed assistant creation metadata predates the local session;
+                # only native envelope timestamps attest the execution window.
+                and math.isfinite(metadata["create_time"])
+                and metadata["create_time"] > 0
+                and object_sha256(metadata["content_item_kinds"]) == output["kinds"],
+                "runtime_output_metadata_invalid",
+            )
+            continue
+        _require(index in [*range(2, env_index), env_index, prompt_index], "runtime_extra_input")
+        _require(
+            set(payload)
+            == {"type", "role", "id", "content", "internal_chat_message_metadata_passthrough"}
+            and role == ("developer" if index < env_index else "user"),
+            "runtime_generated_message_invalid",
+        )
+        message_id = payload.get("id")
+        _require(
+            isinstance(message_id, str)
+            and re.fullmatch(r"[A-Za-z0-9_-]{1,128}", message_id)
+            and message_id not in message_ids,
+            "runtime_input_identity_invalid",
+        )
+        message_ids.add(message_id)
+        metadata = payload["internal_chat_message_metadata_passthrough"]
+        _require(
+            isinstance(metadata, dict)
+            and set(metadata) == {"turn_id", "create_time", "content_item_kinds"}
+            and metadata["turn_id"] == capture.turn_id
+            and type(metadata["create_time"]) in (int, float)
+            and _time(meta.started_at).timestamp()
+            <= metadata["create_time"]
+            <= _time(meta.completed_at).timestamp(),
+            "runtime_input_metadata_invalid",
+        )
+        content = payload.get("content")
+        _require(
+            isinstance(content, list)
+            and content
+            and (index < env_index or len(content) == 1)
+            and all(
+                isinstance(part, dict)
+                and set(part) == {"type", "text"}
+                and part["type"] == "input_text"
+                and isinstance(part["text"], str)
+                for part in content
+            ),
+            "runtime_generated_message_invalid",
+        )
+        text = content[0]["text"]
+        if index < env_index:
+            expected = developers[index - 2]
+            _require(
+                [sha256(part["text"].encode()).hexdigest() for part in content]
+                == expected["texts"],
+                "runtime_developer_text_invalid",
+            )
+        elif index == env_index:
+            expected = _CLEAN_NATIVE_PROFILE["environment"]
+            _require(
+                filesystem in text
+                and "<!" not in text
+                and "<?" not in text
+                and sha256(normalize(text).encode()).hexdigest() == expected["text"],
+                "runtime_generated_environment_invalid",
+            )
+        else:
+            expected = _CLEAN_NATIVE_PROFILE["prompt"]
+            _require(text == prompt, "runtime_input_or_prior_context_mismatch")
+        _require(
+            object_sha256(metadata["content_item_kinds"]) == expected["kinds"],
+            "runtime_input_metadata_invalid",
+        )
+        expected_envelope = expected.get("envelope")
+        if (
+            index == prompt_index
+            and event.get("metadata", {}).get("retained_source", {}).get("complete") is False
+        ):
+            expected_envelope = _CLEAN_NATIVE_PROFILE.get("retained_false_metadata", {}).get("user")
+        _require(
+            _native_envelope_metadata(event, capture) == expected_envelope,
+            "runtime_clean_envelope_invalid",
+        )
+    _require(user_items == 1, "runtime_input_missing")
+    # Only the two observed pairs are supported; neither flag proves text completeness.
+    retained_states = [
+        (event["payload"].get("role"), event["metadata"]["retained_source"]["complete"])
+        for event in events
+        if "retained_source" in event.get("metadata", {})
+    ]
+    _require(
+        retained_states
+        in ([("user", True), ("assistant", True)], [("user", False), ("assistant", False)]),
+        "runtime_retained_source_invalid",
+    )
+    return env_index
+
+
 def _runtime_identity(
     reader: _Reader,
     evidence: RuntimeIdentityEvidence,
@@ -763,7 +1286,12 @@ def _runtime_identity(
     prompt: str,
     response: bytes,
     frozen_at: str,
+    *,
+    require_isolation: bool = False,
 ) -> None:
+    _require(
+        not require_isolation or meta.runtime_isolation is not None, "runtime_isolation_required"
+    )
     capture = RuntimeCaptureProvenance.model_validate(_json(reader.ref(evidence.capture)))
     _require(
         capture.audit_id == meta.audit_id
@@ -783,6 +1311,18 @@ def _runtime_identity(
     )
     events = [_json(line) for line in reader.ref(evidence.trace).splitlines() if line.strip()]
     _require(events and events[0].get("type") == "session_meta", "runtime_session_incomplete")
+    env_index = None
+    if meta.runtime_isolation is not None:
+        _argv(meta, has_runtime_identity=True, require_isolation=True)
+        _require(
+            sha256(prompt.encode("utf-8")).hexdigest() == meta.prompt_sha256
+            and sha256(response).hexdigest() == meta.response_sha256,
+            "execution_artifact_hash_mismatch",
+        )
+        try:
+            env_index = _clean_native_inputs(events, meta, capture, prompt)
+        except (KeyError, TypeError, AttributeError) as exc:
+            raise BundleError("runtime_clean_schema_invalid") from exc
     sessions: list[dict[str, Any]] = []
     contexts: list[dict[str, Any]] = []
     starts: list[dict[str, Any]] = []
@@ -791,7 +1331,7 @@ def _runtime_identity(
     final_responses: list[str] = []
     last_time = _time(meta.started_at)
     last_event = ""
-    for event in events:
+    for event_index, event in enumerate(events):
         stamp = _time(event["timestamp"])
         _require(last_time <= stamp <= _time(meta.completed_at), "runtime_event_time_invalid")
         last_time = stamp
@@ -862,8 +1402,15 @@ def _runtime_identity(
                 if role in {"user", "assistant"}:
                     text = _runtime_message_text(payload)
                     if role == "user":
-                        user_inputs["response_item"].append(text)
+                        if event_index != env_index:
+                            user_inputs["response_item"].append(text)
                     elif payload.get("channel") in {None, "final"}:
+                        if env_index is not None:
+                            _require(
+                                payload["content"]
+                                == [{"type": "output_text", "text": response.decode("utf-8")}],
+                                "runtime_full_response_mismatch",
+                            )
                         final_responses.append(text)
         elif kind == "event_msg":
             event_type = payload.get("type")
@@ -885,7 +1432,12 @@ def _runtime_identity(
                     and len(completions) == 1
                     and payload.get("turn_id") == capture.turn_id
                     and isinstance(payload.get("last_agent_message"), str)
-                    and payload["last_agent_message"].strip() == response.decode("utf-8").strip(),
+                    and (
+                        payload["last_agent_message"].encode("utf-8") == response
+                        if env_index is not None
+                        else payload["last_agent_message"].strip()
+                        == response.decode("utf-8").strip()
+                    ),
                     "runtime_completion_mismatch",
                 )
             elif event_type == "user_message":
@@ -911,6 +1463,8 @@ def _runtime_identity(
                     event_type in {"token_count", "agent_message", "agent_reasoning"},
                     "runtime_unknown_event",
                 )
+        elif kind == "world_state" and env_index is not None:
+            _require(event_index == env_index + 1, "runtime_clean_input_order_invalid")
         elif kind == "token_usage_record":
             _require(bool(contexts) and not completions, "runtime_usage_outside_turn")
         else:
@@ -929,8 +1483,13 @@ def _runtime_identity(
         "runtime_input_or_prior_context_mismatch",
     )
     _require(
-        len(final_responses) <= 1
-        and all(text.strip() == response.decode("utf-8").strip() for text in final_responses),
+        (len(final_responses) == 1 if env_index is not None else len(final_responses) <= 1)
+        and all(
+            text.encode("utf-8") == response
+            if env_index is not None
+            else text.strip() == response.decode("utf-8").strip()
+            for text in final_responses
+        ),
         "runtime_full_response_mismatch",
     )
 
@@ -989,7 +1548,11 @@ def _stage(
         <= _time(bundle.release.frozen_at),
         "execution_time_invalid",
     )
-    _argv(meta, has_runtime_identity=refs.runtime_identity is not None)
+    _argv(
+        meta,
+        has_runtime_identity=refs.runtime_identity is not None,
+        require_isolation=bundle.data_classification != "synthetic",
+    )
     for expected, actual in (
         (meta.prompt_sha256, refs.prompt.sha256),
         (meta.response_sha256, refs.response.sha256),
@@ -1320,6 +1883,10 @@ def audit_bundle_schema() -> dict[str, Any]:
             "format": "UTF-8 JSONL, complete unedited runtime stdout",
             "first": {"type": "thread.started", "thread_id": "actual runtime session ID"},
             "second": {"type": "turn.started", "model": MODEL_ID, "model_provider": "openai"},
+            "startup_notice": (
+                "Only the exact disabled code-mode-host item_0 error may precede turn.started; "
+                "validate_review_cli_events omits it from the validated view, never raw stdout"
+            ),
             "identity_alternative": "model/provider may be absent ONLY with verified runtime_identity attachments",
             "middle": "item.started/updated/completed; reasoning or agent_message only",
             "response": "exactly one completed agent_message matching response_id and full raw response",
@@ -1332,9 +1899,10 @@ def audit_bundle_schema() -> dict[str, Any]:
             "identity": "session_meta.payload.id/model_provider and turn_context.payload.turn_id/model/effort/cwd",
             "provenance": "capture.audit_id=stage execution audit_id, session_id=stdout thread.started.thread_id, turn_id=native task/turn ID; hash exact bytes",
             "binding": "task_started/turn_context/task_complete agree on turn_id, no parent/root-turn reuse, timestamps inside execution; capture after completion and before release freeze",
-            "input": "one response_item user message and/or one event_msg user_message, exactly matching the frozen prompt",
+            "input": "Legacy synthetic: one exact prompt. Isolated: exact pinned developer/environment prefix, one exact prompt, and its bound UserMessage event",
+            "isolation": "Non-synthetic stages require runtime_isolation and complete verified native capture; clean profile pins all session/context/world and generated input fields",
             "response": "task_complete.last_agent_message equals complete response, plus any native assistant final messages",
-            "blocked": "Missing identity/completion/input, multiple turns, tools, world_state, compacted or unknown events",
+            "blocked": "Missing identity/completion/input, multiple turns, tools, unverified world_state, inherited rules/skills/instructions, compacted or unknown events",
             "privacy": "Keep local with access controls; do not transmit runtime account metadata to model reviewers or inspect auth files",
         },
         "builder_steps": __doc__,

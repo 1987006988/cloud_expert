@@ -1,3 +1,5 @@
 # Preserve sealed audit receipts byte-for-byte across platforms.
 /reports/verification/closure_frozen_20260930_04/** -text
 /reports/remediation/closure_20260930/** -text
+/reports/remediation/gate_recovery_20260930/** -text whitespace=cr-at-eol
+/reports/verification/gate_recovery_20260930_*/** -text whitespace=cr-at-eol

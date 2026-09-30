@@ -1,0 +1,917 @@
+{
+  "gate": "WEEK10_GATE",
+  "verdict": "GO",
+  "week9_gate": {
+    "gate": "WEEK9_GATE",
+    "verdict": "GO",
+    "week7_gate": {
+      "gate": "WEEK7_GATE",
+      "verdict": "GO",
+      "unresolved": [],
+      "r008_waiver_present": true,
+      "allowed_statuses": [
+        "complete",
+        "waived_by_owner"
+      ],
+      "notes": "R008 waiver allows internal engineering only; pending review facts are not customer eligible."
+    },
+    "week8_gate": {
+      "gate": "WEEK8_GATE",
+      "week7_gate": "GO",
+      "mapping_rule_sets": 16,
+      "mapping_candidates": 952,
+      "mapping_field_comparisons": 1776,
+      "mapping_evidence_links": 3682,
+      "mapping_evidence": {
+        "candidate_count": 952,
+        "candidates_with_evidence": 952,
+        "missing_evidence": 0,
+        "auto_approved_candidates": 0,
+        "valid": true
+      },
+      "verdict": "GO"
+    },
+    "evidence_packages": 2086,
+    "evidence_references": 692,
+    "customer_output_eligibility": {
+      "packages": 2086,
+      "customer_eligible": 1,
+      "internal_only": 2085,
+      "pending_review": 2085,
+      "invalid_customer_eligible": 0,
+      "valid": true
+    },
+    "coverage": {
+      "valid": true,
+      "current_code_verified": true,
+      "code_fingerprint_status": "current",
+      "full_chain_eval": false,
+      "scope": "sealed_offline_verification",
+      "errors": [],
+      "warnings": [],
+      "provenance": {
+        "bundle_dir": "D:\\cloud_expert\\reports\\verification\\gate_recovery_20260930_01",
+        "expected_manifest_sha256": "0041c611708f6c273f30bee6d3b055214a2e78734419f2005a6a0de7f0ba1b7d",
+        "manifest_trust_anchor": "caller_supplied_independent_sha256",
+        "input_sha256": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+        "current_repo": "D:\\cloud_expert",
+        "verifier": "cloud_expert.evals.verification_run.validate_verification_bundle",
+        "verification": {
+          "version": "offline-verification.v1",
+          "verification_kind": "offline_verification",
+          "full_chain_eval": false,
+          "model_judge": false,
+          "postgres_executed": false,
+          "business_database_writeback": false,
+          "gate_updated": false,
+          "customer_eligible": false,
+          "passed": true,
+          "tests_valid": true,
+          "inputs_unchanged": true,
+          "status": "passed",
+          "errors": [],
+          "manifest_sha256": "0041c611708f6c273f30bee6d3b055214a2e78734419f2005a6a0de7f0ba1b7d",
+          "output_dir": "D:\\cloud_expert\\reports\\verification\\gate_recovery_20260930_01",
+          "input_sha256": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+          "tests": 2473,
+          "coverage_percent": 90.19681349578256
+        },
+        "current_input_sha256": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+        "context_path": "D:\\cloud_expert\\tasks\\verification_receipts.yaml",
+        "context_sha256": "fdce09f314561ddfe3ea9da83549b704db1b89da19c9d7a2fbcbfc7f34e52ebb"
+      },
+      "metrics": {
+        "tests": 2473,
+        "coverage_percent": 90.19681349578256
+      },
+      "percent_covered": 90.19681349578256,
+      "threshold": 85.0,
+      "passed": true
+    },
+    "postgres": {
+      "valid": true,
+      "current_code_verified": true,
+      "code_fingerprint_status": "current",
+      "full_chain_eval": false,
+      "scope": "postgres_junit_and_migration_receipts",
+      "errors": [],
+      "warnings": [
+        "unsigned_caller_supplied_receipts"
+      ],
+      "provenance": {
+        "execution_authenticated": false,
+        "expected_head": "0014_week14_review_workflow",
+        "expected_previous": "0013_week12_market_context",
+        "expected_test_ids": [
+          "tests.integration.test_postgres_market::test_market_context_uses_jsonb_constraints_and_transaction_rollback",
+          "tests.integration.test_postgres_model_review::test_model_review_queue_jsonb_constraints_and_rollback",
+          "tests.integration.test_postgres_price_lifecycle::test_postgres_conflicting_connection_locks_then_retries_idempotently",
+          "tests.integration.test_postgres_price_lifecycle::test_postgres_price_replacement_atomic_rollback_and_idempotence",
+          "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_atomic_rollback_and_idempotence",
+          "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_competing_connection_locks_then_retries",
+          "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_competing_plans_reject_stale_audit",
+          "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_partial_append_rolls_back",
+          "tests.integration.test_postgres_r011::test_check_constraint_enforces_enum_like_values",
+          "tests.integration.test_postgres_r011::test_concurrent_provider_creation_respects_unique_idempotency_boundary",
+          "tests.integration.test_postgres_r011::test_foreign_key_and_unique_constraints",
+          "tests.integration.test_postgres_r011::test_numeric_decimal_json_and_timezone_behavior",
+          "tests.integration.test_postgres_r011::test_schema_has_expected_postgresql_types_and_constraints",
+          "tests.integration.test_postgres_r011::test_transaction_rollback_leaves_no_partial_snapshot_chain"
+        ],
+        "junit": {
+          "path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\junit.xml",
+          "returncode": 0,
+          "sha256": "d7472a221670786891103e08d05f0dcf1c4f87bb68ef33a178eee49762b7f1d7",
+          "size": 2280
+        },
+        "migrations": {
+          "fresh_upgrade": {
+            "path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\fresh_upgrade.log",
+            "returncode": 0,
+            "sha256": "1b7bbdb828d1a45c3a505e162fc734fc7f5fec1666a1aef8351db624d1bb5149",
+            "size": 2374,
+            "transitions": [
+              [
+                "",
+                "0001_initial_product_data_model"
+              ],
+              [
+                "0001_initial_product_data_model",
+                "0002_ingestion_snapshots"
+              ],
+              [
+                "0002_ingestion_snapshots",
+                "0003_week03_parsing_models"
+              ],
+              [
+                "0003_week03_parsing_models",
+                "0004_week04_aws_partition_availability"
+              ],
+              [
+                "0004_week04_aws_partition_availability",
+                "0005_week05_aliyun_zone_availability"
+              ],
+              [
+                "0005_week05_aliyun_zone_availability",
+                "0006_week06_canonical_normalization"
+              ],
+              [
+                "0006_week06_canonical_normalization",
+                "0007_week07_mapping_candidates"
+              ],
+              [
+                "0007_week07_mapping_candidates",
+                "0008_week08_evidence_packages"
+              ],
+              [
+                "0008_week08_evidence_packages",
+                "0009_week09_pricing_tco"
+              ],
+              [
+                "0009_week09_pricing_tco",
+                "0010_week10_decision_engine"
+              ],
+              [
+                "0010_week10_decision_engine",
+                "0011_week11_human_review_import"
+              ],
+              [
+                "0011_week11_human_review_import",
+                "0012_week11_model_review_audit"
+              ],
+              [
+                "0012_week11_model_review_audit",
+                "0013_week12_market_context"
+              ],
+              [
+                "0013_week12_market_context",
+                "0014_week14_review_workflow"
+              ]
+            ]
+          },
+          "downgrade_one": {
+            "path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\downgrade_one.log",
+            "returncode": 0,
+            "sha256": "57e5584dcdf1ff03f947c584c2ec0991b2c62419b16073cd5682b4f6674e8d3c",
+            "size": 307,
+            "transitions": [
+              [
+                "0014_week14_review_workflow",
+                "0013_week12_market_context"
+              ]
+            ]
+          },
+          "reupgrade_one": {
+            "path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\reupgrade_one.log",
+            "returncode": 0,
+            "sha256": "34cf55fa72c136dc42099637b7f735d75d1735a95b6c247ee4f417738817aba5",
+            "size": 305,
+            "transitions": [
+              [
+                "0013_week12_market_context",
+                "0014_week14_review_workflow"
+              ]
+            ]
+          },
+          "downgrade_base": {
+            "path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\downgrade_base.log",
+            "returncode": 0,
+            "sha256": "0f88cab81f1a238044f07f47bdd69e3a249c9797ad00444a5fcf8a2b0304bf4f",
+            "size": 2402,
+            "transitions": [
+              [
+                "0014_week14_review_workflow",
+                "0013_week12_market_context"
+              ],
+              [
+                "0013_week12_market_context",
+                "0012_week11_model_review_audit"
+              ],
+              [
+                "0012_week11_model_review_audit",
+                "0011_week11_human_review_import"
+              ],
+              [
+                "0011_week11_human_review_import",
+                "0010_week10_decision_engine"
+              ],
+              [
+                "0010_week10_decision_engine",
+                "0009_week09_pricing_tco"
+              ],
+              [
+                "0009_week09_pricing_tco",
+                "0008_week08_evidence_packages"
+              ],
+              [
+                "0008_week08_evidence_packages",
+                "0007_week07_mapping_candidates"
+              ],
+              [
+                "0007_week07_mapping_candidates",
+                "0006_week06_canonical_normalization"
+              ],
+              [
+                "0006_week06_canonical_normalization",
+                "0005_week05_aliyun_zone_availability"
+              ],
+              [
+                "0005_week05_aliyun_zone_availability",
+                "0004_week04_aws_partition_availability"
+              ],
+              [
+                "0004_week04_aws_partition_availability",
+                "0003_week03_parsing_models"
+              ],
+              [
+                "0003_week03_parsing_models",
+                "0002_ingestion_snapshots"
+              ],
+              [
+                "0002_ingestion_snapshots",
+                "0001_initial_product_data_model"
+              ],
+              [
+                "0001_initial_product_data_model",
+                ""
+              ]
+            ]
+          },
+          "reupgrade_base": {
+            "path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\reupgrade_base.log",
+            "returncode": 0,
+            "sha256": "1b7bbdb828d1a45c3a505e162fc734fc7f5fec1666a1aef8351db624d1bb5149",
+            "size": 2374,
+            "transitions": [
+              [
+                "",
+                "0001_initial_product_data_model"
+              ],
+              [
+                "0001_initial_product_data_model",
+                "0002_ingestion_snapshots"
+              ],
+              [
+                "0002_ingestion_snapshots",
+                "0003_week03_parsing_models"
+              ],
+              [
+                "0003_week03_parsing_models",
+                "0004_week04_aws_partition_availability"
+              ],
+              [
+                "0004_week04_aws_partition_availability",
+                "0005_week05_aliyun_zone_availability"
+              ],
+              [
+                "0005_week05_aliyun_zone_availability",
+                "0006_week06_canonical_normalization"
+              ],
+              [
+                "0006_week06_canonical_normalization",
+                "0007_week07_mapping_candidates"
+              ],
+              [
+                "0007_week07_mapping_candidates",
+                "0008_week08_evidence_packages"
+              ],
+              [
+                "0008_week08_evidence_packages",
+                "0009_week09_pricing_tco"
+              ],
+              [
+                "0009_week09_pricing_tco",
+                "0010_week10_decision_engine"
+              ],
+              [
+                "0010_week10_decision_engine",
+                "0011_week11_human_review_import"
+              ],
+              [
+                "0011_week11_human_review_import",
+                "0012_week11_model_review_audit"
+              ],
+              [
+                "0012_week11_model_review_audit",
+                "0013_week12_market_context"
+              ],
+              [
+                "0013_week12_market_context",
+                "0014_week14_review_workflow"
+              ]
+            ]
+          }
+        },
+        "manifest_path": "D:\\cloud_expert\\reports\\remediation\\gate_recovery_20260930\\postgres_frozen_01\\manifest.json",
+        "expected_manifest_sha256": "2562d08f4e3c02384e44426d5a82ec798398fbe20df850f802d2628e00ec1565",
+        "input_sha256": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+        "current_input_sha256": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+        "manifest_trust_anchor": "coordinator_independent_sha256_in_context",
+        "inputs_unchanged": true,
+        "input_sha256_before": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+        "input_sha256_after": "80f6b1bd545b4ed17427bce5767dd3a220b64aa9f5865a6ccf1886f08ff0040c",
+        "context_path": "D:\\cloud_expert\\tasks\\verification_receipts.yaml",
+        "context_sha256": "fdce09f314561ddfe3ea9da83549b704db1b89da19c9d7a2fbcbfc7f34e52ebb"
+      },
+      "metrics": {
+        "tests": 14,
+        "test_ids": [
+          "tests.integration.test_postgres_market::test_market_context_uses_jsonb_constraints_and_transaction_rollback",
+          "tests.integration.test_postgres_model_review::test_model_review_queue_jsonb_constraints_and_rollback",
+          "tests.integration.test_postgres_price_lifecycle::test_postgres_conflicting_connection_locks_then_retries_idempotently",
+          "tests.integration.test_postgres_price_lifecycle::test_postgres_price_replacement_atomic_rollback_and_idempotence",
+          "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_atomic_rollback_and_idempotence",
+          "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_competing_connection_locks_then_retries",
+          "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_competing_plans_reject_stale_audit",
+          "tests.integration.test_postgres_price_quarantine::test_postgres_quarantine_partial_append_rolls_back",
+          "tests.integration.test_postgres_r011::test_check_constraint_enforces_enum_like_values",
+          "tests.integration.test_postgres_r011::test_concurrent_provider_creation_respects_unique_idempotency_boundary",
+          "tests.integration.test_postgres_r011::test_foreign_key_and_unique_constraints",
+          "tests.integration.test_postgres_r011::test_numeric_decimal_json_and_timezone_behavior",
+          "tests.integration.test_postgres_r011::test_schema_has_expected_postgresql_types_and_constraints",
+          "tests.integration.test_postgres_r011::test_transaction_rollback_leaves_no_partial_snapshot_chain"
+        ]
+      },
+      "passed": true
+    },
+    "pricing_sources": {
+      "required_provider_products": [
+        "aliyun/ecs",
+        "aliyun/oss",
+        "aws/ec2",
+        "aws/s3",
+        "huawei_cloud/ecs",
+        "huawei_cloud/obs"
+      ],
+      "registered_pricing_sources": 19,
+      "registered_by_provider": {
+        "aliyun": 4,
+        "aws": 8,
+        "huawei_cloud": 7
+      },
+      "missing_required": [],
+      "missing_approved_collection_routes": [],
+      "retired_sources": [
+        "huawei_cloud_ecs_pricing",
+        "huawei_cloud_obs_pricing",
+        "aws_ec2_ebs_gp3_pricing_policy",
+        "aws_ec2_pricing_on_demand",
+        "aws_s3_pricing",
+        "aws_vpc_public_ipv4_pricing_policy"
+      ],
+      "disabled_sources": [
+        "aliyun_ecs_pricing",
+        "aliyun_oss_pricing",
+        "huawei_cloud_ecs_pricing",
+        "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2",
+        "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2_730h",
+        "huawei_cloud_ecs_pricing_api_cn_north_4_components_730h",
+        "huawei_cloud_obs_pricing",
+        "huawei_cloud_obs_pricing_api_cn_north_4",
+        "aws_ec2_ebs_gp3_pricing_policy",
+        "aws_ec2_pricing_on_demand",
+        "aws_s3_pricing",
+        "aws_vpc_public_ipv4_pricing_policy"
+      ],
+      "manual_only_sources": [
+        "aliyun_ecs_pricing",
+        "aliyun_oss_pricing",
+        "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2",
+        "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2_730h",
+        "huawei_cloud_ecs_pricing_api_cn_north_4_components_730h",
+        "huawei_cloud_obs_pricing_api_cn_north_4"
+      ],
+      "manual_or_browser_sources": [
+        "aliyun_ecs_pricing",
+        "aliyun_oss_pricing",
+        "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2",
+        "huawei_cloud_ecs_pricing_api_cn_north_4_c6_large_2_730h",
+        "huawei_cloud_ecs_pricing_api_cn_north_4_components_730h",
+        "huawei_cloud_obs_pricing_api_cn_north_4"
+      ],
+      "automated_fetchable_sources": [
+        "aliyun_oss_billing_overview_pricing",
+        "aliyun_oss_storage_fees_pricing",
+        "huawei_cloud_ecs_on_demand_example",
+        "aws_data_transfer_pricing_us_east_1_20260916132208",
+        "aws_ec2_pricing_bulk_us_east_1",
+        "aws_s3_pricing_bulk_us_east_1",
+        "aws_vpc_pricing_us_east_1_20260917190528"
+      ],
+      "terms_not_approved": [],
+      "collection_mode_not_reviewed": [],
+      "pricing_source_documents": 24,
+      "pricing_evidence": 109,
+      "errors": [],
+      "valid": true
+    },
+    "price_skus": {
+      "price_skus": 16,
+      "price_snapshots": 21,
+      "sku_without_snapshots": 0,
+      "errors": [],
+      "valid": true
+    },
+    "price_evidence": {
+      "price_snapshots": 21,
+      "linked_to_evidence": 21,
+      "linked_to_pricing_source": 21,
+      "missing_snapshot_record": 0,
+      "invalid_bounded_prices": [],
+      "invalid_catalog_prices": [],
+      "invalid_aws_catalog_prices": [],
+      "historical_quarantined_aws_prices": [
+        1,
+        14,
+        15,
+        16
+      ],
+      "active_price_rows": 14,
+      "validation_scope": "active prices and retained historical disposition integrity",
+      "full_product_price_coverage_claimed": false,
+      "historical_superseded_aws_prices": [
+        13,
+        17,
+        18
+      ],
+      "currently_unusable_aws_prices": [
+        1,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "aws_price_dispositions": [
+        {
+          "price_id": 1,
+          "status": "quarantined",
+          "successor_id": null,
+          "current_price_id": null,
+          "replacement_path": [],
+          "receipt_sha256s": [
+            "3f9c309a32be5125084b1758219d92111fea72936ab6c407c6f3d521c5caf2b7"
+          ],
+          "proof_sha256": "85ef21acb796508cba585dc2a9643b28bc5baf51627cf803b0da36075e02226f",
+          "diagnostics": [
+            "deterministic_rejection_not_price_validation",
+            "replacement_price_and_cost_coverage_unresolved",
+            "incomplete_graduated_catalog_group"
+          ],
+          "customer_eligible": false
+        },
+        {
+          "price_id": 13,
+          "status": "superseded",
+          "successor_id": 19,
+          "current_price_id": 19,
+          "replacement_path": [
+            13,
+            19
+          ],
+          "receipt_sha256s": [
+            "8ffc012ae097e142e86c3ee40d02e13862f6d6440fc61a5d7767a6e9b1b484ec"
+          ],
+          "proof_sha256": "251ded1ecfad8b8a84866aad529be2e87dadec62e63b803a6ea6dfe2151c6ed9",
+          "diagnostics": [
+            "validated_internal_replacement"
+          ],
+          "customer_eligible": false
+        },
+        {
+          "price_id": 14,
+          "status": "quarantined",
+          "successor_id": null,
+          "current_price_id": null,
+          "replacement_path": [],
+          "receipt_sha256s": [
+            "3f9c309a32be5125084b1758219d92111fea72936ab6c407c6f3d521c5caf2b7"
+          ],
+          "proof_sha256": "85ef21acb796508cba585dc2a9643b28bc5baf51627cf803b0da36075e02226f",
+          "diagnostics": [
+            "deterministic_rejection_not_price_validation",
+            "replacement_price_and_cost_coverage_unresolved",
+            "withdrawn_storage_unit_policy"
+          ],
+          "customer_eligible": false
+        },
+        {
+          "price_id": 15,
+          "status": "quarantined",
+          "successor_id": null,
+          "current_price_id": null,
+          "replacement_path": [],
+          "receipt_sha256s": [
+            "3f9c309a32be5125084b1758219d92111fea72936ab6c407c6f3d521c5caf2b7"
+          ],
+          "proof_sha256": "85ef21acb796508cba585dc2a9643b28bc5baf51627cf803b0da36075e02226f",
+          "diagnostics": [
+            "deterministic_rejection_not_price_validation",
+            "replacement_price_and_cost_coverage_unresolved",
+            "withdrawn_storage_unit_policy"
+          ],
+          "customer_eligible": false
+        },
+        {
+          "price_id": 16,
+          "status": "quarantined",
+          "successor_id": null,
+          "current_price_id": null,
+          "replacement_path": [],
+          "receipt_sha256s": [
+            "3f9c309a32be5125084b1758219d92111fea72936ab6c407c6f3d521c5caf2b7"
+          ],
+          "proof_sha256": "85ef21acb796508cba585dc2a9643b28bc5baf51627cf803b0da36075e02226f",
+          "diagnostics": [
+            "deterministic_rejection_not_price_validation",
+            "replacement_price_and_cost_coverage_unresolved",
+            "withdrawn_storage_unit_policy"
+          ],
+          "customer_eligible": false
+        },
+        {
+          "price_id": 17,
+          "status": "superseded",
+          "successor_id": 20,
+          "current_price_id": 20,
+          "replacement_path": [
+            17,
+            20
+          ],
+          "receipt_sha256s": [
+            "68423c69d1802828ec919c2919ccca0ff27b09b2c1b78cba1822b1b0dbe0ca13"
+          ],
+          "proof_sha256": "2c49ae581c8fc78663d7c45f385362285f1250cfb0d7071da09cbc3d51e75cf1",
+          "diagnostics": [
+            "validated_internal_replacement"
+          ],
+          "customer_eligible": false
+        },
+        {
+          "price_id": 18,
+          "status": "superseded",
+          "successor_id": 21,
+          "current_price_id": 21,
+          "replacement_path": [
+            18,
+            21
+          ],
+          "receipt_sha256s": [
+            "67cea46f41fabf3a4d5df5fc6a6a4c7611b55160217aa1674e46e7d550908a7e"
+          ],
+          "proof_sha256": "7b25756864bbe90ed44d3b423a236b673a41ce21e3be8391fff8cf8939fee9bc",
+          "diagnostics": [
+            "validated_internal_replacement"
+          ],
+          "customer_eligible": false
+        },
+        {
+          "price_id": 19,
+          "status": "current",
+          "successor_id": null,
+          "current_price_id": 19,
+          "replacement_path": [
+            19
+          ],
+          "receipt_sha256s": [
+            "8ffc012ae097e142e86c3ee40d02e13862f6d6440fc61a5d7767a6e9b1b484ec"
+          ],
+          "proof_sha256": "251ded1ecfad8b8a84866aad529be2e87dadec62e63b803a6ea6dfe2151c6ed9",
+          "diagnostics": [],
+          "customer_eligible": false
+        },
+        {
+          "price_id": 20,
+          "status": "current",
+          "successor_id": null,
+          "current_price_id": 20,
+          "replacement_path": [
+            20
+          ],
+          "receipt_sha256s": [
+            "68423c69d1802828ec919c2919ccca0ff27b09b2c1b78cba1822b1b0dbe0ca13"
+          ],
+          "proof_sha256": "2c49ae581c8fc78663d7c45f385362285f1250cfb0d7071da09cbc3d51e75cf1",
+          "diagnostics": [],
+          "customer_eligible": false
+        },
+        {
+          "price_id": 21,
+          "status": "current",
+          "successor_id": null,
+          "current_price_id": 21,
+          "replacement_path": [
+            21
+          ],
+          "receipt_sha256s": [
+            "67cea46f41fabf3a4d5df5fc6a6a4c7611b55160217aa1674e46e7d550908a7e"
+          ],
+          "proof_sha256": "7b25756864bbe90ed44d3b423a236b673a41ce21e3be8391fff8cf8939fee9bc",
+          "diagnostics": [],
+          "customer_eligible": false
+        }
+      ],
+      "price_evidence_completeness": 1.0,
+      "errors": [],
+      "valid": true
+    },
+    "tco_validation": {
+      "expected_tables": [
+        "cost_calculation_run",
+        "cost_line_item",
+        "pricing_scenario",
+        "tco_result"
+      ],
+      "missing_tables": [],
+      "calculation_runs_checked": 9,
+      "cost_line_items": 82,
+      "tco_results": 21,
+      "duplicate_run_codes": [],
+      "missing_without_reason": 0,
+      "priced_without_snapshot": 0,
+      "verified_policy_or_not_applicable_lines": 47,
+      "missing_treated_as_zero": 0,
+      "errors": [],
+      "valid": true
+    },
+    "blocking_items": [],
+    "notes": [
+      "Pricing/TCO business code must not run while pricing source readiness is false.",
+      "Missing prices must remain missing; they must not be treated as zero."
+    ]
+  },
+  "artifacts": {
+    "policy_validation": {
+      "policy_files": 6,
+      "valid_files": 6,
+      "invalid_files": 0,
+      "results": [
+        {
+          "path": "config\\decision\\policies\\archive_object_storage.yaml",
+          "code": "archive_object_storage",
+          "version": "v1",
+          "dimensions": [
+            "availability_fit",
+            "compliance_fit",
+            "cost_fit",
+            "data_freshness",
+            "evidence_quality",
+            "migration_fit",
+            "operability_fit",
+            "regional_fit",
+            "reliability_fit",
+            "review_readiness",
+            "technical_fit"
+          ],
+          "missing_optional_dimensions": [],
+          "rules": 1,
+          "valid": true,
+          "errors": []
+        },
+        {
+          "path": "config\\decision\\policies\\bounded_cost_audit.yaml",
+          "code": "bounded_cost_audit",
+          "version": "v1",
+          "dimensions": [
+            "data_freshness",
+            "evidence_quality",
+            "review_readiness"
+          ],
+          "missing_optional_dimensions": [
+            "availability_fit",
+            "compliance_fit",
+            "cost_fit",
+            "migration_fit",
+            "operability_fit",
+            "regional_fit",
+            "reliability_fit",
+            "technical_fit"
+          ],
+          "rules": 2,
+          "valid": true,
+          "errors": []
+        },
+        {
+          "path": "config\\decision\\policies\\cost_sensitive_compute.yaml",
+          "code": "cost_sensitive_compute",
+          "version": "v1",
+          "dimensions": [
+            "availability_fit",
+            "compliance_fit",
+            "cost_fit",
+            "data_freshness",
+            "evidence_quality",
+            "migration_fit",
+            "operability_fit",
+            "regional_fit",
+            "reliability_fit",
+            "review_readiness",
+            "technical_fit"
+          ],
+          "missing_optional_dimensions": [],
+          "rules": 1,
+          "valid": true,
+          "errors": []
+        },
+        {
+          "path": "config\\decision\\policies\\frequent_object_storage.yaml",
+          "code": "frequent_object_storage",
+          "version": "v1",
+          "dimensions": [
+            "availability_fit",
+            "compliance_fit",
+            "cost_fit",
+            "data_freshness",
+            "evidence_quality",
+            "migration_fit",
+            "operability_fit",
+            "regional_fit",
+            "reliability_fit",
+            "review_readiness",
+            "technical_fit"
+          ],
+          "missing_optional_dimensions": [],
+          "rules": 1,
+          "valid": true,
+          "errors": []
+        },
+        {
+          "path": "config\\decision\\policies\\general_compute.yaml",
+          "code": "general_compute",
+          "version": "v1",
+          "dimensions": [
+            "availability_fit",
+            "compliance_fit",
+            "cost_fit",
+            "data_freshness",
+            "evidence_quality",
+            "migration_fit",
+            "operability_fit",
+            "regional_fit",
+            "reliability_fit",
+            "review_readiness",
+            "technical_fit"
+          ],
+          "missing_optional_dimensions": [],
+          "rules": 3,
+          "valid": true,
+          "errors": []
+        },
+        {
+          "path": "config\\decision\\policies\\high_availability_compute.yaml",
+          "code": "high_availability_compute",
+          "version": "v1",
+          "dimensions": [
+            "availability_fit",
+            "compliance_fit",
+            "cost_fit",
+            "data_freshness",
+            "evidence_quality",
+            "migration_fit",
+            "operability_fit",
+            "regional_fit",
+            "reliability_fit",
+            "review_readiness",
+            "technical_fit"
+          ],
+          "missing_optional_dimensions": [],
+          "rules": 1,
+          "valid": true,
+          "errors": []
+        }
+      ],
+      "valid": true
+    },
+    "scenario_validation": {
+      "scenario_files": 7,
+      "valid_files": 7,
+      "invalid_files": 0,
+      "results": [
+        {
+          "path": "config\\decision\\scenarios\\aliyun_domestic_bounded_cost_audit.yaml",
+          "code": "aliyun_domestic_bounded_cost_audit_v1",
+          "version": "v1",
+          "scenario_type": "compute_general",
+          "requirements": 1,
+          "mandatory_requirements": 1,
+          "valid": true,
+          "errors": []
+        },
+        {
+          "path": "config\\decision\\scenarios\\archive_object_storage.yaml",
+          "code": "archive_object_storage_v1",
+          "version": "v1",
+          "scenario_type": "object_storage_archive",
+          "requirements": 2,
+          "mandatory_requirements": 2,
+          "valid": true,
+          "errors": []
+        },
+        {
+          "path": "config\\decision\\scenarios\\cost_sensitive_compute.yaml",
+          "code": "cost_sensitive_compute_v1",
+          "version": "v1",
+          "scenario_type": "cost_sensitive_workload",
+          "requirements": 1,
+          "mandatory_requirements": 1,
+          "valid": true,
+          "errors": []
+        },
+        {
+          "path": "config\\decision\\scenarios\\domestic_general_compute_research.yaml",
+          "code": "domestic_general_compute_research_v1",
+          "version": "v1",
+          "scenario_type": "compute_general",
+          "requirements": 2,
+          "mandatory_requirements": 2,
+          "valid": true,
+          "errors": []
+        },
+        {
+          "path": "config\\decision\\scenarios\\frequent_object_storage.yaml",
+          "code": "frequent_object_storage_v1",
+          "version": "v1",
+          "scenario_type": "object_storage_frequent_access",
+          "requirements": 2,
+          "mandatory_requirements": 2,
+          "valid": true,
+          "errors": []
+        },
+        {
+          "path": "config\\decision\\scenarios\\general_compute.yaml",
+          "code": "general_compute_v1",
+          "version": "v1",
+          "scenario_type": "compute_general",
+          "requirements": 2,
+          "mandatory_requirements": 2,
+          "valid": true,
+          "errors": []
+        },
+        {
+          "path": "config\\decision\\scenarios\\high_availability_compute.yaml",
+          "code": "high_availability_compute_v1",
+          "version": "v1",
+          "scenario_type": "business_critical_compute",
+          "requirements": 2,
+          "mandatory_requirements": 2,
+          "valid": true,
+          "errors": []
+        }
+      ],
+      "valid": true
+    },
+    "decision_scenarios": 7,
+    "scoring_policies": 6,
+    "decision_runs": 33,
+    "candidate_decision_results": 9196,
+    "missing_required_docs": [],
+    "errors": [],
+    "valid": true
+  },
+  "blocking_items": [],
+  "notes": [
+    "Decision results are internal-only machine-generated candidates until reviewed.",
+    "Blocked or incomplete-cost candidates are not eligible for formal ranking."
+  ]
+}

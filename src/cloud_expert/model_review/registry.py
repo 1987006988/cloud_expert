@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import subprocess
@@ -8,6 +9,11 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+
+from cloud_expert.model_review.isolated_runtime import (
+    RuntimeIsolationError,
+    isolated_review_runtime,
+)
 
 
 @dataclass(frozen=True)
@@ -86,40 +92,56 @@ def probe_codex_cli(model_id: str, *, timeout_seconds: int = 90) -> dict[str, An
     executable = shutil.which("codex")
     if executable is None:
         return {"available": False, "reason": "Codex CLI not installed"}
-    command = [
-        executable,
-        "exec",
-        "-m",
-        model_id,
-        "-c",
-        'model_reasoning_effort="max"',
-        "--ephemeral",
-        "-s",
-        "read-only",
-        "--skip-git-repo-check",
-        "Reply exactly REVIEW_MODEL_READY and do not use tools.",
-    ]
     try:
-        completed = subprocess.run(
-            command,
-            text=True,
-            capture_output=True,
-            timeout=timeout_seconds,
-            check=False,
-        )
-    except (OSError, subprocess.TimeoutExpired) as exc:
+        from cloud_expert.model_review.reproducibility import _json, validate_review_cli_events
+
+        with isolated_review_runtime() as runtime:
+            command = [
+                executable,
+                "exec",
+                "-m",
+                model_id,
+                "-c",
+                'model_reasoning_effort="max"',
+                *runtime.config_args,
+                "-",
+            ]
+            completed = subprocess.run(
+                command,
+                cwd=runtime.cwd,
+                env=dict(runtime.env),
+                input=b"Reply exactly REVIEW_MODEL_READY and do not use tools.",
+                capture_output=True,
+                timeout=timeout_seconds,
+                check=False,
+            )
+            events = validate_review_cli_events(
+                [_json(line) for line in completed.stdout.splitlines() if line.strip()]
+            )
+            messages = [
+                event["item"]["text"]
+                for event in events
+                if event.get("type") == "item.completed"
+                and event.get("item", {}).get("type") == "agent_message"
+            ]
+            available = completed.returncode == 0 and messages == ["REVIEW_MODEL_READY"]
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        TypeError,
+        subprocess.TimeoutExpired,
+        RuntimeIsolationError,
+    ) as exc:
         return {"available": False, "reason": type(exc).__name__}
-    combined = completed.stdout + completed.stderr
-    # A CLI banner alone is not proof of a successful model response.
-    available = completed.returncode == 0 and "REVIEW_MODEL_READY" in completed.stdout
-    version_line = next(
-        (line for line in combined.splitlines() if line.startswith("OpenAI Codex v")), None
-    )
     return {
         "available": available,
         "reason": "probe response verified" if available else "model probe failed",
-        "cli_version": version_line,
+        "cli_version": None,
         "exit_code": completed.returncode,
+        "scope": "isolated_connectivity_only",
+        "model_identity_verified": False,
+        "stdout_sha256": hashlib.sha256(completed.stdout).hexdigest(),
     }
 
 

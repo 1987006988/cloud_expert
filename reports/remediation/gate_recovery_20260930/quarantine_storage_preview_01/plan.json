@@ -1,0 +1,49 @@
+{
+  "rule_version": "legacy_aws_price_quarantine_v1",
+  "prepared_at": "2026-09-30T12:27:58.314406Z",
+  "proofs": [
+    {
+      "reason": "withdrawn_storage_unit_policy",
+      "price_ids": [
+        14,
+        15,
+        16
+      ],
+      "price_fingerprints": {
+        "14": "539a96186a012ac73a7d01c4aa53c3eeb55387d90dd926f39893c30ce22683a3",
+        "15": "0a1de403640b1d5ba273e06abc8b16ba80affef1cd2fe6b2d20d32051f5bda24",
+        "16": "d061bdd2b8d070cd6bc54b0e0dc905a419467674b78be545c3125772b6460617"
+      },
+      "evidence_ids": [
+        29313,
+        29314,
+        29315,
+        29318,
+        29319,
+        29320
+      ],
+      "evidence_fingerprints": {
+        "29313": "3544c082caf1e114b5d988afc59f76e45d34bf1b64a7eda3a3da17daf06f0cf7",
+        "29314": "e0eb99400c1dc885f97520e983a33bf946030c0d55ffbf3c3d798b5761d5e799",
+        "29315": "04258f661d695f6f773cfd7df63141ba0b2b2c4ecd24f20400cfb5caf4284fea",
+        "29318": "0db14f1e70f5382c4a1b733e070e867681843b74281b8070fa3adac6824b8e2e",
+        "29319": "783a1ae60e5a70c552a6ea58af427e18f2a7bc91c76ddbdd80a01bea4f72b069",
+        "29320": "cfd583590e5b4a8a5d156eaed00f206334b3a4c5d3f8cd9d89cbba6d9b14ab7a"
+      },
+      "catalog_rate_codes": [
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.PGHJ3S3EYE",
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.D42MF2PVJS",
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.PXJDJ3YRG3"
+      ],
+      "recorded_rate_codes": [
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.PGHJ3S3EYE",
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.D42MF2PVJS",
+        "WP9ANXZGBYYSGJEA.JRTCKXETXF.PXJDJ3YRG3"
+      ],
+      "dependency_sha256": "461ff7a9a8559879de8e4c712a3a4effdb9ddb74fd54933edaa41910572eeba7",
+      "inventory_sha256": "043263486e486b83865b2cb39138a3bf1e6750b57341de39432647c29161fdb5"
+    }
+  ],
+  "expected_audit_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "plan_sha256": "35200327bdc3d4cbd0fd34136e1890ef1838532878db9c7d2a9223d70c94c6b9"
+}

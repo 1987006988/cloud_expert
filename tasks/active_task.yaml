@@ -22,6 +22,9 @@ gate:
   week15: NO-GO
   week16: NO-GO
   mode: review_migration
+  current_blocker: executable_review_condition_contract_required
+  previous_frozen_week9: GO
+  previous_frozen_week10: GO
   customer_output_allowed: false
   streamlit_business_pages_authorized: false
 
@@ -60,32 +63,36 @@ completed_internal:
 remaining_blockers:
   - 1009 pending model-review assignments and 10332 deterministic repair blocks remain open; one scoped conditional approval and four superseded assignments are preserved
   - internal-RC-only model alias audit alternative is authorized, but an actual verified audit bundle and per-release Eval are still required
-  - Week11 to Week13 predecessor Gates remain NO-GO
+  - Week9 and Week10 passed frozen revision dc698358; runtime adapter revision 9d100e35 is verified, while the new condition contract still requires implementation and fresh validation
   - OBS storage time basis and complete overseas competitor prices remain incomplete; domestic component prices are recorded but not yet harmonized
   - support and IP policies require explicit scenario conditions; full TCO is not proven by component subtotals
   - bounded domestic TCO exists but compatible cross-vendor complete costs and a freshly model-approved DecisionResult dependency chain remain unavailable
   - full-chain Eval and model judge remain incomplete
   - Streamlit business UI, production controls, Release Candidate and real internal pilot not completed
-  - AWS prices 1 and 14-16 remain blocked; old prices 13/17/18 have live-validated internal successors 19/20/21 with preserved history, not customer approval
+  - AWS prices 1 and 14-16 are audited quarantined and unconsumable; 13/17/18 have live-validated successors 19/20/21; replacement storage coverage remains unresolved, not price-approved by quarantine
 
 latest_checkpoint:
-  reference: reports/remediation/closure_20260930/checkpoint_03.md
-  current_price_validation: reports/remediation/closure_20260930/price_evidence_replacement_03.json
-  current_week9_gate: reports/remediation/closure_20260930/week09_gate_current_04.json
-  dependent_gate_short_circuit: reports/remediation/closure_20260930/week11_16_prerequisite_block_03.json
-  offline_verification: reports/verification/closure_frozen_20260930_04/manifest.json
-  offline_manifest_sha256: 355c43eb7691cfc58ddb0c0ea3e72dc0116e60c748f3d745a9c038788d6b683a
+  reference: reports/remediation/gate_recovery_20260930/week10_gate_02.json
+  current_price_validation: reports/remediation/gate_recovery_20260930/price_evidence_01.json
+  current_week9_gate: reports/remediation/gate_recovery_20260930/week09_gate_02.json
+  current_week10_gate: reports/remediation/gate_recovery_20260930/week10_gate_02.json
+  offline_verification: reports/verification/gate_recovery_20260930_03/manifest.json
+  offline_manifest_sha256: e4aaf0459354960b23064d7f8df3376fd4a53b17a2d0e7fb8bc6af2113d6bd3f
+  code_input_sha256: 9d100e35a933191cde4e3c95059e81603cac7817511e8c9c5211eb260e43c769
   offline_verification_passed: true
-  offline_tests_passed: 2203
-  offline_coverage_percent: 89.89090909090909
-  postgres_integration_tests_passed: 10
+  offline_tests_passed: 2920
+  offline_coverage_percent: 90.54386444383711
+  postgres_integration_tests_passed: 14
   normalized_evidence_records_checked: 29160
   normalized_evidence_missing_or_hash_errors: 0
   preceding_completed_internal_entries_are_historical_milestones: true
   full_release_regression_passed: false
   full_chain_eval_completed: false
   fresh_decision_model_review_completed: false
-  internal_engineering_gate_split: awaiting_owner_answer
+  fresh_decision_result_id: 10281
+  decision_model_review_status: attempt_02_inconclusive_runtime_retained_source_validation
+  current_checkout_verification: runtime_adapter_verified_condition_contract_work_pending
+  internal_engineering_gate_split: separate_bounded_cost_gate_not_yet_evaluated
   huawei_authenticated_refresh: awaiting_owner_login
   real_internal_pilot: deferred_by_owner
 

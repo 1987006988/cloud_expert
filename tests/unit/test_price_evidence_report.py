@@ -69,3 +69,23 @@ def test_no_price_rows_cannot_pass(monkeypatch, reporter):
     result = _report(monkeypatch, reporter, [])
     assert not result["valid"]
     assert result["price_evidence_completeness"] == 0
+
+
+def test_verified_quarantine_is_retained_but_not_a_current_price(monkeypatch, reporter):
+    result = _report(monkeypatch, reporter, ["quarantined", "current"])
+    assert result["valid"]
+    assert result["historical_quarantined_aws_prices"] == [1]
+    assert result["currently_unusable_aws_prices"] == [1]
+    assert result["active_price_rows"] == 1
+    assert not result["full_product_price_coverage_claimed"]
+
+
+def test_quarantine_cannot_hide_missing_historical_links(monkeypatch, reporter):
+    result = _report(monkeypatch, reporter, ["quarantined", "current"], evidence_links=1)
+    assert not result["valid"]
+
+
+def test_all_quarantined_cannot_pass_an_empty_active_price_set(monkeypatch, reporter):
+    result = _report(monkeypatch, reporter, ["quarantined", "quarantined"])
+    assert not result["valid"]
+    assert result["active_price_rows"] == 0

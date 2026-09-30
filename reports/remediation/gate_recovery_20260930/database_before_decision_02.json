@@ -1,0 +1,8 @@
+{
+  "created_at": "2026-09-30T14:42:32.408320+00:00",
+  "source": "D:\\cloud_expert\\test_outputs\\week6_combined_projection.sqlite",
+  "backup": "D:\\cloud_expert\\test_outputs\\gate_recovery_before_decision_02.sqlite",
+  "sha256": "c6f877f2f1401079c416f4e2ca384a200f6d7c19d3117d3cc6409c49dbe1ea29",
+  "integrity_check": "ok",
+  "business_database_changed": false
+}
