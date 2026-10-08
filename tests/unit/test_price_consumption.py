@@ -29,6 +29,7 @@ def test_registered_rule_calls_actual_verifier(approved, monkeypatch, session):
     verifier = Mock(return_value=approved)
     monkeypatch.setattr(consumption, "aws_catalog_price_valid", verifier)
     monkeypatch.setattr(consumption, "quarantine_disposition", Mock(return_value=None))
+    monkeypatch.setattr(consumption, "expired_history_disposition", Mock(return_value=None))
     assert consumption.aws_price_current(session, price) is approved
     assert verifier.call_args.args == (session, price)
 
@@ -55,6 +56,7 @@ def test_replacement_requires_current_receipt_not_just_valid_document(
     monkeypatch.setattr(consumption, "aws_replacement_disposition", verifier)
     monkeypatch.setattr(consumption, "aws_catalog_price_valid", legacy)
     monkeypatch.setattr(consumption, "quarantine_disposition", Mock(return_value=None))
+    monkeypatch.setattr(consumption, "expired_history_disposition", Mock(return_value=None))
     assert consumption.aws_price_current(session, price) is (status == "current")
     assert consumption.aws_price_disposition(session, price) == disposition
     assert verifier.call_args.args == (session, price)
@@ -68,6 +70,7 @@ def test_nonreplacement_disposition_keeps_unverified_history_blocked(valid, monk
     price.evidence.parser_rule = consumption.AWS_CATALOG_RULE
     monkeypatch.setattr(consumption, "aws_catalog_price_valid", Mock(return_value=valid))
     monkeypatch.setattr(consumption, "quarantine_disposition", Mock(return_value=None))
+    monkeypatch.setattr(consumption, "expired_history_disposition", Mock(return_value=None))
     result = consumption.aws_price_disposition(session, price)
     assert result.status == ("current" if valid else "blocked")
     assert result.current_price_id == (100 if valid else None)
@@ -100,6 +103,24 @@ def test_real_quarantine_is_unconsumable(session, tmp_path, monkeypatch):
         price = session.get(PriceSnapshot, price_id)
         assert consumption.aws_price_disposition(session, price).status == "quarantined"
         assert not consumption.aws_price_current(session, price)
+
+
+@pytest.mark.parametrize("status", ["expired_history", "blocked"])
+def test_expiry_or_corrupt_expiry_prevents_current_price_fallback(status, monkeypatch, session):
+    from cloud_expert.pricing.aws_expired_history import ExpiryDisposition
+
+    price = _price_snapshot()
+    disposition = ExpiryDisposition(price_id=19, status=status)
+    verifier = Mock(side_effect=AssertionError("Expired history cannot request current approval"))
+    monkeypatch.setattr(consumption, "quarantine_disposition", Mock(return_value=None))
+    monkeypatch.setattr(consumption, "expired_history_disposition", Mock(return_value=disposition))
+    monkeypatch.setattr(consumption, "aws_replacement_disposition", verifier)
+    monkeypatch.setattr(consumption, "aws_catalog_price_valid", verifier)
+    assert not consumption.aws_price_current(session, price)
+    result = consumption.aws_price_disposition(session, price)
+    assert result.status == status and result.current_price_id is None
+    assert not result.customer_eligible
+    verifier.assert_not_called()
 
 
 @pytest.mark.parametrize("operation", ["classify", "current", "disposition"])

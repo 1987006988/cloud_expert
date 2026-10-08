@@ -1,0 +1,19 @@
+{
+  "build": {
+    "candidates": 717,
+    "packages": 2106,
+    "items": 4024,
+    "references": 694,
+    "missing_evidence": 1184,
+    "stale": 102,
+    "customer_eligible": 3
+  },
+  "eligibility": {
+    "packages": 2106,
+    "customer_eligible": 1,
+    "internal_only": 2105,
+    "pending_review": 2105,
+    "invalid_customer_eligible": 0,
+    "valid": true
+  }
+}

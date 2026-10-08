@@ -21,7 +21,12 @@ from cloud_expert.model_review.approvals import (
     PRODUCT_CATEGORY_SCOPE,
     mapping_subject_hash,
 )
-from cloud_expert.model_review.pilot import _fingerprint, mapping_review_input
+from cloud_expert.model_review.pilot import (
+    PROMPT_VERSION,
+    _fingerprint,
+    mapping_review_input,
+    validate_mapping_pilot_artifacts,
+)
 from cloud_expert.model_review.schemas import (
     AdversarialReview,
     Decision,
@@ -67,6 +72,8 @@ def apply_nonapproval_pilot_result(
 def apply_mapping_pilot_result(
     session: Session, report_dir: Path, *, approved_model: str, allow_approval: bool = True
 ) -> dict[str, Any]:
+    if session.new or session.dirty or session.deleted:
+        raise ValueError("mapping_writeback_clean_session_required")
     summary = _read_json(report_dir / "summary.json")
     payload = _read_json(report_dir / "input.json")
     if (
@@ -155,6 +162,23 @@ def apply_mapping_pilot_result(
             ModelReviewAuditEvent.event_code == event_code,
         )
     )
+    runtime_attestation: dict[str, Any] = {}
+    verified_reader = None
+    # Legacy events remain immutable history, but no new v1 report may be applied.
+    if existing is None or summary.get("prompt_version") == PROMPT_VERSION:
+        runtime_attestation, verified_reader = validate_mapping_pilot_artifacts(
+            report_dir, approved_model=approved_model
+        )
+        expected = {
+            "summary.json": summary,
+            "input.json": payload,
+            "primary/response.json": primary.model_dump(mode="json"),
+            "adversarial/response.json": adversarial.model_dump(mode="json"),
+        }
+        if adjudication is not None:
+            expected["adjudication/response.json"] = adjudication.model_dump(mode="json")
+        if any(json.loads(verified_reader.read(name)) != value for name, value in expected.items()):
+            raise ValueError("mapping_report_changed_before_attestation")
     if existing is not None:
         if (
             approving
@@ -175,6 +199,8 @@ def apply_mapping_pilot_result(
     current = mapping_review_input(session, payload["precheck_run_code"], payload["target_id"])
     if current != payload:
         raise ValueError("pilot input differs from current evidence-backed candidate")
+    assert verified_reader is not None
+    verified_reader.unchanged()
     now = datetime.now(UTC)
     prior = assignment.review_state
     assignment.review_state = final.value
@@ -204,6 +230,7 @@ def apply_mapping_pilot_result(
                 "input_hash": summary["input_hash"],
                 "report_dir": str(report_dir.resolve()),
                 "stage_session_ids": sessions,
+                "runtime_attestation": runtime_attestation,
                 **approval_metadata,
             }
         ],

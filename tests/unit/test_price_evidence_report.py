@@ -89,3 +89,32 @@ def test_all_quarantined_cannot_pass_an_empty_active_price_set(monkeypatch, repo
     result = _report(monkeypatch, reporter, ["quarantined", "quarantined"])
     assert not result["valid"]
     assert result["active_price_rows"] == 0
+
+
+def test_verified_expiry_is_visible_but_never_price_coverage(monkeypatch, reporter):
+    result = _report(monkeypatch, reporter, ["expired_history", "expired_history", "current"])
+    assert result["valid"]
+    assert result["historical_expired_aws_prices"] == [1, 2]
+    assert result["currently_unusable_aws_prices"] == [1, 2]
+    assert result["active_price_rows"] == 1
+    assert not result["full_product_price_coverage_claimed"]
+
+
+def test_expiry_does_not_hide_corrupt_history(monkeypatch, reporter):
+    result = _report(monkeypatch, reporter, ["expired_history", "blocked", "current"])
+    assert not result["valid"]
+    assert result["invalid_aws_catalog_prices"] == [2]
+    assert result["historical_expired_aws_prices"] == [1]
+
+
+def test_expiry_does_not_hide_broken_evidence_links(monkeypatch, reporter):
+    result = _report(monkeypatch, reporter, ["expired_history", "current"], evidence_links=1)
+    assert not result["valid"]
+
+
+@pytest.mark.parametrize("statuses", [["expired_history"], ["expired_history", "quarantined"]])
+def test_only_historical_prices_cannot_pass(monkeypatch, reporter, statuses):
+    result = _report(monkeypatch, reporter, statuses)
+    assert not result["valid"]
+    assert result["active_price_rows"] == 0
+    assert "no active price rows remain after historical disposition" in result["errors"]

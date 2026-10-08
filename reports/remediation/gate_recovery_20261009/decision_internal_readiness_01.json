@@ -1,0 +1,13 @@
+{
+  "candidate_id": 11279,
+  "scope": "internal_bounded_cost_only",
+  "valid": false,
+  "blocking_items": [
+    "current_independent_model_approval_required"
+  ],
+  "customer_output_allowed": false,
+  "rank_authorized": false,
+  "production_authorized": false,
+  "week11_complete": false,
+  "allowed_operations": []
+}

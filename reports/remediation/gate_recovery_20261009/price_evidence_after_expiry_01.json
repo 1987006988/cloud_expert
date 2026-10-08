@@ -1,0 +1,229 @@
+{
+  "price_snapshots": 21,
+  "linked_to_evidence": 21,
+  "linked_to_pricing_source": 21,
+  "missing_snapshot_record": 0,
+  "invalid_bounded_prices": [],
+  "invalid_catalog_prices": [],
+  "invalid_aws_catalog_prices": [],
+  "historical_quarantined_aws_prices": [
+    1,
+    14,
+    15,
+    16
+  ],
+  "active_price_rows": 11,
+  "validation_scope": "active prices and retained historical disposition integrity",
+  "full_product_price_coverage_claimed": false,
+  "historical_superseded_aws_prices": [],
+  "historical_expired_aws_prices": [
+    13,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "currently_unusable_aws_prices": [
+    1,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "aws_price_dispositions": [
+    {
+      "price_id": 1,
+      "status": "quarantined",
+      "successor_id": null,
+      "current_price_id": null,
+      "replacement_path": [],
+      "receipt_sha256s": [
+        "3f9c309a32be5125084b1758219d92111fea72936ab6c407c6f3d521c5caf2b7"
+      ],
+      "proof_sha256": "85ef21acb796508cba585dc2a9643b28bc5baf51627cf803b0da36075e02226f",
+      "diagnostics": [
+        "deterministic_rejection_not_price_validation",
+        "replacement_price_and_cost_coverage_unresolved",
+        "incomplete_graduated_catalog_group"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 13,
+      "status": "expired_history",
+      "successor_id": 19,
+      "current_price_id": null,
+      "replacement_path": [
+        13,
+        19
+      ],
+      "receipt_sha256s": [
+        "039ff80c0c564f0ed15915a0a7f89625d29e9bd24dd31d171300660718c700a9",
+        "8ffc012ae097e142e86c3ee40d02e13862f6d6440fc61a5d7767a6e9b1b484ec"
+      ],
+      "proof_sha256": "3656714a3bbe70fb1a153275ac55b5efcf57d4be86193c2fe22ba1d5cb8be4b4",
+      "diagnostics": [
+        "verified_expired_history_not_consumable",
+        "no_current_successor_or_coverage_claim"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 14,
+      "status": "quarantined",
+      "successor_id": null,
+      "current_price_id": null,
+      "replacement_path": [],
+      "receipt_sha256s": [
+        "3f9c309a32be5125084b1758219d92111fea72936ab6c407c6f3d521c5caf2b7"
+      ],
+      "proof_sha256": "85ef21acb796508cba585dc2a9643b28bc5baf51627cf803b0da36075e02226f",
+      "diagnostics": [
+        "deterministic_rejection_not_price_validation",
+        "replacement_price_and_cost_coverage_unresolved",
+        "withdrawn_storage_unit_policy"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 15,
+      "status": "quarantined",
+      "successor_id": null,
+      "current_price_id": null,
+      "replacement_path": [],
+      "receipt_sha256s": [
+        "3f9c309a32be5125084b1758219d92111fea72936ab6c407c6f3d521c5caf2b7"
+      ],
+      "proof_sha256": "85ef21acb796508cba585dc2a9643b28bc5baf51627cf803b0da36075e02226f",
+      "diagnostics": [
+        "deterministic_rejection_not_price_validation",
+        "replacement_price_and_cost_coverage_unresolved",
+        "withdrawn_storage_unit_policy"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 16,
+      "status": "quarantined",
+      "successor_id": null,
+      "current_price_id": null,
+      "replacement_path": [],
+      "receipt_sha256s": [
+        "3f9c309a32be5125084b1758219d92111fea72936ab6c407c6f3d521c5caf2b7"
+      ],
+      "proof_sha256": "85ef21acb796508cba585dc2a9643b28bc5baf51627cf803b0da36075e02226f",
+      "diagnostics": [
+        "deterministic_rejection_not_price_validation",
+        "replacement_price_and_cost_coverage_unresolved",
+        "withdrawn_storage_unit_policy"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 17,
+      "status": "expired_history",
+      "successor_id": 20,
+      "current_price_id": null,
+      "replacement_path": [
+        17,
+        20
+      ],
+      "receipt_sha256s": [
+        "039ff80c0c564f0ed15915a0a7f89625d29e9bd24dd31d171300660718c700a9",
+        "68423c69d1802828ec919c2919ccca0ff27b09b2c1b78cba1822b1b0dbe0ca13"
+      ],
+      "proof_sha256": "fd0dd70e3eb36a21346ac9996b902e6bea0a1efbd6d4175297df66ad5385f760",
+      "diagnostics": [
+        "verified_expired_history_not_consumable",
+        "no_current_successor_or_coverage_claim"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 18,
+      "status": "expired_history",
+      "successor_id": 21,
+      "current_price_id": null,
+      "replacement_path": [
+        18,
+        21
+      ],
+      "receipt_sha256s": [
+        "039ff80c0c564f0ed15915a0a7f89625d29e9bd24dd31d171300660718c700a9",
+        "67cea46f41fabf3a4d5df5fc6a6a4c7611b55160217aa1674e46e7d550908a7e"
+      ],
+      "proof_sha256": "842b2d9397590ac55e4d9b4a0525e3e59cd5bfb2d1c18e5f0a6248c75e151c69",
+      "diagnostics": [
+        "verified_expired_history_not_consumable",
+        "no_current_successor_or_coverage_claim"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 19,
+      "status": "expired_history",
+      "successor_id": null,
+      "current_price_id": null,
+      "replacement_path": [
+        19
+      ],
+      "receipt_sha256s": [
+        "039ff80c0c564f0ed15915a0a7f89625d29e9bd24dd31d171300660718c700a9",
+        "8ffc012ae097e142e86c3ee40d02e13862f6d6440fc61a5d7767a6e9b1b484ec"
+      ],
+      "proof_sha256": "3656714a3bbe70fb1a153275ac55b5efcf57d4be86193c2fe22ba1d5cb8be4b4",
+      "diagnostics": [
+        "verified_expired_history_not_consumable",
+        "no_current_successor_or_coverage_claim"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 20,
+      "status": "expired_history",
+      "successor_id": null,
+      "current_price_id": null,
+      "replacement_path": [
+        20
+      ],
+      "receipt_sha256s": [
+        "039ff80c0c564f0ed15915a0a7f89625d29e9bd24dd31d171300660718c700a9",
+        "68423c69d1802828ec919c2919ccca0ff27b09b2c1b78cba1822b1b0dbe0ca13"
+      ],
+      "proof_sha256": "fd0dd70e3eb36a21346ac9996b902e6bea0a1efbd6d4175297df66ad5385f760",
+      "diagnostics": [
+        "verified_expired_history_not_consumable",
+        "no_current_successor_or_coverage_claim"
+      ],
+      "customer_eligible": false
+    },
+    {
+      "price_id": 21,
+      "status": "expired_history",
+      "successor_id": null,
+      "current_price_id": null,
+      "replacement_path": [
+        21
+      ],
+      "receipt_sha256s": [
+        "039ff80c0c564f0ed15915a0a7f89625d29e9bd24dd31d171300660718c700a9",
+        "67cea46f41fabf3a4d5df5fc6a6a4c7611b55160217aa1674e46e7d550908a7e"
+      ],
+      "proof_sha256": "842b2d9397590ac55e4d9b4a0525e3e59cd5bfb2d1c18e5f0a6248c75e151c69",
+      "diagnostics": [
+        "verified_expired_history_not_consumable",
+        "no_current_successor_or_coverage_claim"
+      ],
+      "customer_eligible": false
+    }
+  ],
+  "price_evidence_completeness": 1.0,
+  "errors": [],
+  "valid": true
+}

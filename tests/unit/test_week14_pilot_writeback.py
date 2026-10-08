@@ -1,6 +1,7 @@
 import json
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from sqlalchemy import select
@@ -13,6 +14,21 @@ from cloud_expert.database.models.model_review_workflow import (
 from cloud_expert.database.models.review import ModelReviewFinding, ModelReviewRun
 from cloud_expert.model_review import workflow
 from cloud_expert.model_review.schemas import AdversarialReview, Decision, PrimaryReview
+
+
+def _mock_verified_synthetic_runtime(monkeypatch):
+    # Legacy DB-transition fixtures are not runtime attestations; the real protocol
+    # and tampering are exercised by test_mapping_pilot_isolation.py.
+    monkeypatch.setattr(
+        workflow,
+        "validate_mapping_pilot_artifacts",
+        lambda report_dir, **kwargs: (
+            {"version": "synthetic-runtime-stub"},
+            SimpleNamespace(
+                unchanged=lambda: None, read=lambda name: (report_dir / name).read_bytes()
+            ),
+        ),
+    )
 
 
 def _report(tmp_path: Path, payload: dict, *, final: str = "model_inconclusive") -> Path:
@@ -66,6 +82,7 @@ def _report(tmp_path: Path, payload: dict, *, final: str = "model_inconclusive")
 def test_nonapproval_writeback_is_audited_idempotent_and_still_blocks_gate(
     session: Session, tmp_path: Path, monkeypatch
 ) -> None:
+    _mock_verified_synthetic_runtime(monkeypatch)
     run = ModelReviewRun(
         run_code="synthetic_mapping_precheck",
         policy_version="test",

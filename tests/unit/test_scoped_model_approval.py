@@ -18,11 +18,12 @@ from cloud_expert.mapping.pipeline import _ensure_rule_sets, _upsert_candidate
 from cloud_expert.model_review import approvals, workflow
 from cloud_expert.model_review.approvals import mapping_approval
 from tests.fixtures.synthetic_data import load_synthetic_fixture
-from tests.unit.test_week14_pilot_writeback import _report
+from tests.unit.test_week14_pilot_writeback import _mock_verified_synthetic_runtime, _report
 
 
 @pytest.fixture
 def scoped_review(session: Session, tmp_path: Path, monkeypatch):
+    _mock_verified_synthetic_runtime(monkeypatch)
     monkeypatch.setattr(approvals, "mapping_evidence_valid", lambda *_: True)
     fixture = load_synthetic_fixture(session)
     source, target = fixture["product"], fixture["competitor_product"]

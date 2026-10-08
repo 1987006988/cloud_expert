@@ -106,7 +106,7 @@ def _verify(
     entry: SourceRegistryEntry,
     root: Path,
     as_of: datetime,
-    max_age_days: int,
+    max_age_days: int | None,
 ) -> tuple[dict[str, Any], bytes]:
     spec = _scope(snapshot.source_id)
     captured = utc(snapshot.captured_at)
@@ -159,8 +159,10 @@ def _verify(
         or doc.cloud_partition != "aws"
         or doc.source_type != "documentation"
         or doc.authority_level != "official_primary"
-        or doc.is_current is not True
-        or snapshot.is_current is not True
+        or (
+            max_age_days is not None
+            and (doc.is_current is not True or snapshot.is_current is not True)
+        )
         or doc.content_hash != snapshot.content_hash
         or not re.fullmatch(r"[0-9a-f]{64}", snapshot.content_hash)
         or doc.storage_path != snapshot.storage_path
@@ -168,7 +170,8 @@ def _verify(
         or snapshot.content_type != "text/html"
         or doc.http_status != 200
         or utc(doc.captured_at) != captured
-        or not timedelta(0) <= utc(as_of) - captured <= timedelta(days=max_age_days)
+        or captured > utc(as_of)
+        or (max_age_days is not None and utc(as_of) - captured > timedelta(days=max_age_days))
         or type(snapshot.content_length_bytes) is not int
         or not 0 < snapshot.content_length_bytes <= MAX_HTML_BYTES
     ):
@@ -539,6 +542,35 @@ def prepare_document_policy(
         or not 1 <= max_age_days <= 90
     ):
         raise ValueError("aware as_of, positive snapshot ID and bounded freshness required")
+    return _prepare_document_policy(
+        session, snapshot_id, raw_root=raw_root, as_of=as_of, max_age_days=max_age_days
+    )
+
+
+def prepare_document_policy_facts(
+    session: Session,
+    snapshot_id: int,
+    *,
+    raw_root: Path,
+    checked_at: datetime,
+) -> dict[str, Any]:
+    """Re-extract retained licensed clauses; no current-price or policy approval."""
+    if checked_at.tzinfo is None or type(snapshot_id) is not int or snapshot_id <= 0:
+        raise ValueError("aware time and positive snapshot ID required")
+    result = _prepare_document_policy(
+        session, snapshot_id, raw_root=raw_root, as_of=checked_at, max_age_days=None
+    )
+    return {**result, "verification_purpose": "archived_facts_only"}
+
+
+def _prepare_document_policy(
+    session: Session,
+    snapshot_id: int,
+    *,
+    raw_root: Path,
+    as_of: datetime,
+    max_age_days: int | None,
+) -> dict[str, Any]:
     with session.no_autoflush:
         snapshot = session.get(SnapshotRecord, snapshot_id)
         if snapshot is None or snapshot.id != snapshot_id:

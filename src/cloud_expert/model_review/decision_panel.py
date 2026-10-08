@@ -35,6 +35,10 @@ from cloud_expert.ingestion.registry.loader import get_entry_by_source_id
 from cloud_expert.market.guards import guard_mapping_candidate, guard_price_snapshot
 from cloud_expert.model_review import reproducibility as audit_bundle
 from cloud_expert.model_review.approvals import mapping_approval
+from cloud_expert.model_review.decision_conditions import (
+    build_condition_registry,
+    validate_condition_selection,
+)
 from cloud_expert.model_review.isolated_runtime import (
     RuntimeIsolationError,
     isolated_review_runtime,
@@ -64,7 +68,7 @@ from cloud_expert.pricing.scoped_tco import RULE_VERSION as SCOPED_TCO_RULE
 from cloud_expert.pricing.scoped_tco import scoped_tco_result_currently_complete
 
 ROOT = Path(__file__).resolve().parents[3]
-PROMPT_VERSION = "decision-panel.v4"
+PROMPT_VERSION = "decision-panel.v5"
 MODEL_ID = "gpt-6-astra"
 SCOPED_REVIEW = "internal_bounded_cost_only"
 SCOPED_LIMITATIONS = (
@@ -1587,6 +1591,8 @@ def _build_packet(
         ]
         + (list(SCOPED_LIMITATIONS) if scoped is not None else []),
     }
+    if scoped is not None:
+        payload["condition_registry"] = build_condition_registry(payload)
     _public(
         payload,
         verified_catalogs=frozenset(
@@ -1604,6 +1610,7 @@ def _build_packet(
             name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
             for name in (
                 "src/cloud_expert/model_review/decision_panel.py",
+                "src/cloud_expert/model_review/decision_conditions.py",
                 "src/cloud_expert/decision/pipeline.py",
                 "src/cloud_expert/pricing/tco.py",
                 "src/cloud_expert/pricing/freshness.py",
@@ -1647,6 +1654,9 @@ def validate_opinion(raw: str, packet: DecisionPacket, stage: Stage) -> Decision
     if opinion.approved_scope == SCOPED_REVIEW:
         _require(
             set(SCOPED_LIMITATIONS) <= set(opinion.limitations), "model_cost_limitations_missing"
+        )
+        validate_condition_selection(
+            payload, opinion.conditions, approving=opinion.decision in APPROVALS
         )
     allowed = {item["evidence_id"] for item in payload["evidence"]}
     _require(set(opinion.evidence_references) <= allowed, "model_evidence_outside_packet")
@@ -1704,6 +1714,13 @@ def _prompt(stage: Stage, packet: DecisionPacket, opinions: list[DecisionOpinion
         "cross-provider comparability does not establish equivalence or prevent checking single-provider "
         "arithmetic. Policy-zero charges are conditional policy outcomes, never price snapshots. "
         "Not-applicable costs are disclosed exclusions, not missing prices converted to zero. "
+        "For internal_bounded_cost_only, condition_registry contains executable condition choices "
+        "and proof references, not an instruction to approve. Independently assess those proofs. "
+        "When approving with conditions, copy the exact text of each applicable registry entry "
+        "into conditions (not its ID). All mandatory boundaries apply even without selected "
+        "conditions. If a necessary condition is absent from the registry, retain that condition "
+        "verbatim, explain the missing executable contract, and return model_inconclusive or "
+        "model_blocked; never drop or weaken a condition to obtain approval. "
         "Return ONLY the strict schema JSON with stage="
         + stage
         + ".\nINPUT_JSON:\n"

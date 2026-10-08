@@ -1,0 +1,2 @@
+from cloud_expert.evals.verification_run import install_offline_guard
+install_offline_guard()

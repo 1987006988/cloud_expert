@@ -1265,15 +1265,16 @@ def _clean_native_inputs(
             "runtime_clean_envelope_invalid",
         )
     _require(user_items == 1, "runtime_input_missing")
-    # Only the two observed pairs are supported; neither flag proves text completeness.
+    # Retention flags are per-message metadata, not proof of complete text. Both
+    # envelopes have already matched a pinned profile; exact text/turn checks follow.
     retained_states = [
         (event["payload"].get("role"), event["metadata"]["retained_source"]["complete"])
         for event in events
         if "retained_source" in event.get("metadata", {})
     ]
     _require(
-        retained_states
-        in ([("user", True), ("assistant", True)], [("user", False), ("assistant", False)]),
+        [role for role, _ in retained_states] == ["user", "assistant"]
+        and all(type(complete) is bool for _, complete in retained_states),
         "runtime_retained_source_invalid",
     )
     return env_index

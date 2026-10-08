@@ -1,0 +1,5 @@
+This attempt was deliberately stopped before sealing after a real mapping review
+exposed an unsupported mixed per-message retention flag pair in the native CLI
+adapter. No completed verification manifest exists for this attempt. It must not
+be used for coverage, release or Gate approval. A new frozen verification run is
+required after the adapter correction and focused adversarial tests.

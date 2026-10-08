@@ -3,3 +3,5 @@
 /reports/remediation/closure_20260930/** -text
 /reports/remediation/gate_recovery_20260930/** -text whitespace=cr-at-eol
 /reports/verification/gate_recovery_20260930_*/** -text whitespace=cr-at-eol
+/reports/remediation/gate_recovery_20261009/** -text whitespace=cr-at-eol
+/reports/verification/gate_recovery_20261009_*/** -text whitespace=cr-at-eol

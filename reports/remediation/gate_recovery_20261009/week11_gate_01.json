@@ -1,0 +1,46 @@
+{
+  "gate": "WEEK11_GATE",
+  "verdict": "NO-GO",
+  "week9_gate": "GO",
+  "week10_gate": "GO",
+  "review_authority": "model_review",
+  "readiness": {
+    "review_batches": 1,
+    "review_decisions": 2222,
+    "model_review_runs": 19,
+    "model_review_findings": 49959,
+    "complete_dual_model_consensus_run": null,
+    "model_reviewed_mappings": 2,
+    "model_approved_mappings": 1,
+    "model_reviewed_decisions": 0,
+    "model_approved_decisions": 0,
+    "review_decision_counts": {
+      "accept": 23,
+      "accept_with_conditions": 105,
+      "defer": 5,
+      "reject_reparse": 2089
+    },
+    "mapping_candidates": 953,
+    "human_reviewed_mappings": 0,
+    "evidence_packages": 2106,
+    "customer_eligible_evidence_packages": 1,
+    "complete_tco_results": 2,
+    "decision_reviews": 1,
+    "internally_approved_decision_results": 0,
+    "customer_eligible_decision_results": 0,
+    "sales_output_ready_scenarios": 0,
+    "active_bad_aws_memory_records": 0,
+    "aliyun_zone_name_equals_code": 0,
+    "rejected_sla_records": 2
+  },
+  "missing_required_docs": [],
+  "blocking_items": [
+    "W11-B010-model-approved-decision",
+    "W11-B011-customer-decision-output",
+    "W11-B014-joined-customer-dependency-chain",
+    "W11-B013-customer-output-policy"
+  ],
+  "sales_output_generated": false,
+  "objection_handling_generated": false,
+  "poc_recommendations_generated": false
+}

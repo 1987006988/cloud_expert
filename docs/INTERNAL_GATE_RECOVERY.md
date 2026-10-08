@@ -92,6 +92,14 @@ may be recognized before the turn starts. Arbitrary runtime errors are not
 ignored. Compatibility changes require new tests and current verification;
 previously rejected runs are never retroactively approved.
 
+The CLI retention `complete` flag is independent for each message; input and
+output flags need not agree. Each strict Boolean value must still match its
+pinned role-specific metadata profile. Neither value proves completeness:
+the full UTF-8 prompt, duplicated input event, response, final completion,
+hashes, isolated identity and single-turn ordering must all match exactly.
+Truncation, extra context and missing completion remain blocking for every flag
+combination.
+
 ## History
 
 All run directories are separate. Explicit Decision report directories also

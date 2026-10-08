@@ -1,0 +1,138 @@
+{
+  "report": "reports/model_review/week14_pilot/mapping_953_adb8f28fb3b5_run_02",
+  "runtime_artifacts_local_only": true,
+  "summary": {
+    "status": "completed",
+    "target_type": "mapping_candidate",
+    "target_id": 953,
+    "input_hash": "adb8f28fb3b5ba95897c767b3c2a7e3b85fe55d5a204f22759d7c0a3d01107b3",
+    "model_id": "gpt-6-astra",
+    "model_version": "alias_unresolved",
+    "prompt_version": "week14.mapping.v2",
+    "primary_session_id": "01a11c99-729b-7611-a043-bbdb2c9c9c36",
+    "adversarial_session_id": "01a11c99-ffc1-7c90-abca-ab9623d70945",
+    "adjudication_session_id": "01a11c9a-bc33-7610-967a-b52a0875d6a8",
+    "primary_decision": "model_approved_with_conditions",
+    "adversarial_verdict": "uncertain",
+    "adversarial_recommendation": "model_approved_with_conditions",
+    "final_decision": "model_approved_with_conditions",
+    "customer_eligible": false,
+    "database_writeback": false
+  },
+  "opinions": {
+    "primary": {
+      "blocking_reasons": [],
+      "conditions": [
+        "product-level service category only; no SKU, price, SLA or performance equivalence"
+      ],
+      "confidence": 0.98,
+      "decision": "model_approved_with_conditions",
+      "evidence_references": [
+        34143,
+        34146
+      ],
+      "field_semantics_correct": true,
+      "market_scope_correct": true,
+      "reasoning_summary": "Both excerpts describe cloud server compute services, supporting the product-level same_service_class mapping. The supplied huawei_cn and aliyun_public_cn partitions support domestic scope. Support is limited to service-category equivalence.",
+      "required_repairs": [],
+      "scope_correct": true,
+      "supported_by_evidence": true
+    },
+    "adversarial": {
+      "confidence": 0.96,
+      "evidence_references": [
+        34143,
+        34146
+      ],
+      "identified_errors": [],
+      "missing_conditions": [],
+      "reasoning_summary": "The supplied definitions identify both products as cloud server computing services, supporting same_service_class at product level. No wrong-column mapping, scope promotion, or product-to-SKU inference is evident. Domestic partition metadata is consistent with the candidate but does not establish Region equivalence. Retain the existing condition exactly: product-level service category only; no SKU, price, SLA or performance equivalence",
+      "recommended_decision": "model_approved_with_conditions",
+      "verdict": "uncertain"
+    },
+    "adjudication": {
+      "blocking_reasons": [],
+      "conditions": [
+        "product-level service category only; no SKU, price, SLA or performance equivalence"
+      ],
+      "confidence": 0.97,
+      "decision": "model_approved_with_conditions",
+      "evidence_references": [
+        34143,
+        34146
+      ],
+      "field_semantics_correct": true,
+      "market_scope_correct": true,
+      "reasoning_summary": "Both definitions support product-level same_service_class for cloud server compute services. Partition metadata supports domestic scope without establishing Region equivalence. Despite its uncertainty label, the adversarial opinion supplies no conflicting finding and recommends the same conditional approval; no substantive disagreement remains.",
+      "required_repairs": [],
+      "scope_correct": true,
+      "supported_by_evidence": true
+    }
+  },
+  "live_mappings": [
+    {
+      "id": 649,
+      "candidate_status": "approved",
+      "live_scoped_approval": false,
+      "conditions": [
+        "product-level service category only; no SKU, price, SLA or performance equivalence"
+      ],
+      "evidence_ids": [
+        14143,
+        14144
+      ],
+      "packages": [
+        {
+          "id": 1064,
+          "superseded_by_id": 1068,
+          "customer_eligible_flag": false,
+          "freshness": "unknown"
+        },
+        {
+          "id": 1068,
+          "superseded_by_id": 1481,
+          "customer_eligible_flag": true,
+          "freshness": "fresh"
+        },
+        {
+          "id": 1481,
+          "superseded_by_id": 2105,
+          "customer_eligible_flag": true,
+          "freshness": "fresh"
+        },
+        {
+          "id": 2105,
+          "superseded_by_id": null,
+          "customer_eligible_flag": false,
+          "freshness": "unknown"
+        }
+      ]
+    },
+    {
+      "id": 953,
+      "candidate_status": "approved",
+      "live_scoped_approval": true,
+      "conditions": [
+        "product-level service category only; no SKU, price, SLA or performance equivalence"
+      ],
+      "evidence_ids": [
+        34143,
+        34146
+      ],
+      "packages": [
+        {
+          "id": 2087,
+          "superseded_by_id": 2106,
+          "customer_eligible_flag": false,
+          "freshness": "fresh"
+        },
+        {
+          "id": 2106,
+          "superseded_by_id": null,
+          "customer_eligible_flag": true,
+          "freshness": "fresh"
+        }
+      ]
+    }
+  ]
+}

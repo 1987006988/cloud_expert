@@ -31,17 +31,24 @@ from cloud_expert.database.models.model_review_workflow import (
 from cloud_expert.database.models.review import ModelReviewFinding, ModelReviewRun
 from cloud_expert.model_review import decision_panel as panel
 from cloud_expert.model_review import reproducibility as audit
+from cloud_expert.model_review.decision_conditions import validate_condition_selection
 from cloud_expert.model_review.isolated_runtime import RuntimeIsolationError, verify_local_artifact
 from cloud_expert.model_review.registry import load_registry, resolve_model
 from cloud_expert.model_review.schemas import Decision
 
-VERSION = "decision_writeback.v2"
+VERSION = "decision_writeback.v3"
 APPROVAL_MAX_AGE_SECONDS = 86400
 APPROVAL_LIFETIME_BASIS = "internal_engineering_cap"
 SOURCE = "decision_panel_writeback"
 TARGET = "candidate_decision_result"
 STAGES = ("primary", "adversarial", "arbitration")
 CONFIG = panel.ROOT / "config/model_review"
+CONDITION_FIELDS = (
+    "registry_version",
+    "registry_sha256",
+    "selected_condition_ids",
+    "unknown_conditions",
+)
 
 
 class DecisionWritebackConflict(ValueError):
@@ -61,6 +68,24 @@ def _now(value: datetime | None) -> datetime:
 
 def _sha(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
+
+
+def _condition_selection(
+    payload: dict[str, Any], conditions: list[str], *, approving: bool
+) -> dict[str, Any]:
+    try:
+        return validate_condition_selection(payload, conditions, approving=approving)
+    except ValueError as exc:
+        code = str(exc)
+        if code not in {
+            "condition_registry_missing",
+            "condition_registry_invalid",
+            "condition_registry_mismatch",
+            "condition_selection_invalid",
+            "unenforceable_conditions",
+        }:
+            code = "condition_registry_invalid"
+        raise DecisionWritebackConflict(code) from None
 
 
 def _clean(session: Session) -> None:
@@ -192,6 +217,9 @@ def _stage(
     )
     audit._json(raw)  # Duplicate keys/NaN must not be silently accepted by the opinion parser.
     opinion = panel.validate_opinion(raw.decode("utf-8"), packet, name)
+    _condition_selection(
+        packet.payload, opinion.conditions, approving=opinion.decision in panel.APPROVALS
+    )
     _require(
         opinion.model_dump(mode="json") == audit._json(reader.read(f"{name}/response.json")),
         "parsed_response_mismatch",
@@ -367,9 +395,8 @@ def _validate_report(
         opinions[0], opinions[1], opinions[2] if len(opinions) == 3 else None
     )
     _require(decision.value == summary["final_decision"], "resolution_mismatch")
-    conditions = sorted({condition for opinion in opinions for condition in opinion.conditions})
-    if decision in panel.APPROVALS:
-        _require(set(conditions) <= set(panel.SCOPED_LIMITATIONS), "unenforceable_conditions")
+    conditions = [condition for opinion in opinions for condition in opinion.conditions]
+    selection = _condition_selection(payload, conditions, approving=decision in panel.APPROVALS)
     receipt = {
         "version": VERSION,
         "report_dir": str(reader.root),
@@ -388,6 +415,7 @@ def _validate_report(
         "checked_at": checked.isoformat(),
         "evidence_ids": sorted({e for opinion in opinions for e in opinion.evidence_references}),
         "conditions": conditions,
+        **{field: selection[field] for field in CONDITION_FIELDS},
         "limitations": payload["limitations"],
         "stages": retained,
         "model_id": panel.MODEL_ID,
@@ -486,6 +514,7 @@ def _scope(receipt: dict[str, Any]) -> dict[str, Any]:
             "explicit_validity_bounds",
             "limitations",
             "conditions",
+            *CONDITION_FIELDS,
             "model_id",
             "model_version",
             "customer_eligible",
@@ -605,6 +634,15 @@ def _live(
     packet = panel.build_decision_packet(session, receipt["target_id"], raw_root=raw_root, now=now)
     _require(packet.fingerprint == receipt["input_fingerprint"], "current_input_changed")
     _require(packet.payload.get("review_scope") == panel.SCOPED_REVIEW, "current_scope_changed")
+    selection = _condition_selection(
+        packet.payload,
+        receipt["conditions"],
+        approving=Decision(receipt["decision"]) in panel.APPROVALS,
+    )
+    _require(
+        all(field in receipt and receipt[field] == selection[field] for field in CONDITION_FIELDS),
+        "condition_registry_binding_changed",
+    )
     # These are typed, fingerprint-bound DB fields, never dates inferred from prose.
     # Follow normalized facts to their source specifications, which hold valid_to.
     manifest = audit._json(packet.manifest_json.encode("utf-8"))

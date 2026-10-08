@@ -11,6 +11,7 @@ from cloud_expert.database.models.pricing import PriceSnapshot
 from cloud_expert.pricing.aws_catalog_promotion import RULE as AWS_CATALOG_RULE
 from cloud_expert.pricing.aws_catalog_promotion import aws_catalog_price_valid
 from cloud_expert.pricing.aws_document_catalog import RULE as AWS_DOCUMENT_RULE
+from cloud_expert.pricing.aws_expired_history import expired_history_disposition
 from cloud_expert.pricing.aws_price_replacement import SUPPORTED, aws_replacement_disposition
 from cloud_expert.pricing.price_lifecycle import PriceDisposition
 from cloud_expert.pricing.price_quarantine import quarantine_disposition
@@ -30,6 +31,11 @@ def aws_price_current(session: Session, snapshot: PriceSnapshot) -> bool:
         return False
     quarantine = quarantine_disposition(session, snapshot, Path(get_settings().raw_data_dir))
     if quarantine is not None:
+        return False
+    if (
+        expired_history_disposition(session, snapshot, raw_root=Path(get_settings().raw_data_dir))
+        is not None
+    ):
         return False
     if not is_aws_price(snapshot):
         return False
@@ -57,6 +63,11 @@ def aws_price_disposition(session: Session, snapshot: PriceSnapshot) -> PriceDis
     quarantine = quarantine_disposition(session, snapshot, Path(get_settings().raw_data_dir))
     if quarantine is not None:
         return quarantine
+    expired = expired_history_disposition(
+        session, snapshot, raw_root=Path(get_settings().raw_data_dir)
+    )
+    if expired is not None:
+        return PriceDisposition.model_validate(expired.model_dump(mode="python"))
     if is_aws_price(snapshot) and (
         snapshot.id in SUPPORTED or snapshot.evidence.parser_rule == AWS_DOCUMENT_RULE
     ):

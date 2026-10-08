@@ -54,6 +54,34 @@ def verified_snapshot(
     """Bind DB/manifest/registry identities. Caller must verify raw bytes before use."""
     if as_of.tzinfo is None or type(max_age_days) is not int or not 1 <= max_age_days <= 90:
         raise ValueError("aware time and bounded freshness policy required")
+    return _verified_snapshot(
+        session, snapshot_id, raw_root=raw_root, as_of=as_of, max_age_days=max_age_days
+    )
+
+
+def verified_snapshot_facts(
+    session: Session,
+    snapshot_id: int,
+    *,
+    raw_root: Path,
+    checked_at: datetime,
+) -> tuple[SnapshotRecord, SourceRegistryEntry, dict[str, Any], Path]:
+    """Retained identity/manifest only; caller must verify bytes and historical binding."""
+    if checked_at.tzinfo is None:
+        raise ValueError("aware time required")
+    return _verified_snapshot(
+        session, snapshot_id, raw_root=raw_root, as_of=checked_at, max_age_days=None
+    )
+
+
+def _verified_snapshot(
+    session: Session,
+    snapshot_id: int,
+    *,
+    raw_root: Path,
+    as_of: datetime,
+    max_age_days: int | None,
+) -> tuple[SnapshotRecord, SourceRegistryEntry, dict[str, Any], Path]:
     snapshot = session.get(SnapshotRecord, snapshot_id)
     if snapshot is None:
         raise ValueError("snapshot missing")
@@ -80,14 +108,17 @@ def verified_snapshot(
         or document.cloud_partition != "aws"
         or document.source_type != "pricing"
         or document.authority_level != "official_primary"
-        or not document.is_current
-        or not snapshot.is_current
+        or (max_age_days is not None and (not document.is_current or not snapshot.is_current))
         or document.content_hash != snapshot.content_hash
         or document.storage_path != snapshot.storage_path
         or document.mime_type != snapshot.content_type
         or document.http_status != 200
         or utc(document.captured_at) != utc(snapshot.captured_at)
-        or not timedelta(0) <= as_of - utc(snapshot.captured_at) <= timedelta(days=max_age_days)
+        or utc(snapshot.captured_at) > as_of
+        or (
+            max_age_days is not None
+            and as_of - utc(snapshot.captured_at) > timedelta(days=max_age_days)
+        )
     ):
         raise ValueError("official snapshot provenance, authorization or freshness invalid")
     manifest_path = within(raw_root, snapshot.manifest_path)

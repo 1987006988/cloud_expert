@@ -1,0 +1,22 @@
+{
+  "record_type": "coordinator_observed_dispatch_block",
+  "candidate_id": 11279,
+  "review_scope": "internal_bounded_cost_only",
+  "local_precheck_status": "ready_not_executed",
+  "prepared_packet_classification": "official_public",
+  "prepared_packet_sha256": "e5431f96b55ad9df79afc01519b7ab364bcd30e1e7ad7ed7e305db9f46e34d9f",
+  "model_process_started": false,
+  "model_calls_executed": 0,
+  "review_verdict": "not_reviewed",
+  "database_approval_writeback": false,
+  "customer_output_allowed": false,
+  "observed_result": "tool_auto_review_rejected_before_process_creation",
+  "reason": "Existing external-transfer authorization names official excerpts, mapping candidates and necessary identifiers, but does not explicitly name the Decision/TCO calculation packet.",
+  "action": "Requested explicit owner authorization for the public-price calculation packet; did not retry or use another execution route.",
+  "prohibited_payloads_remain": [
+    "credentials",
+    "account_sensitive_responses",
+    "personal_discounts",
+    "customer_sensitive_data"
+  ]
+}

@@ -1218,6 +1218,8 @@ def scoped_graph(graph, monkeypatch):
     # Packet projection tests use a mocked validator; the test below exercises its real implementation.
     graph.result.output_level = "internal_only"
     graph.result.customer_eligible = False
+    graph.result.mapping_candidate_id = graph.mapping.id
+    graph.mapping.relationship_type = "same_service_class"
     graph.tco.comparability_status = "needs_review"
     graph.cost_run.rule_version = panel.SCOPED_TCO_RULE
     context = {
@@ -1233,6 +1235,7 @@ def scoped_graph(graph, monkeypatch):
     config = {
         "purpose": "internal_bounded_ecs_cost_research",
         "context": context,
+        "enabled_optional_costs": [],
         "costs": [
             {
                 "dimension": "snapshot_backup",
@@ -1277,6 +1280,12 @@ def scoped_graph(graph, monkeypatch):
                 "captured_at": graph.now.isoformat(),
                 "raw_sha256": graph.digest,
                 "evidence_sha256": graph.digest,
+                "snapshot_record_id": 1,
+                "source_document_id": 1,
+                "manifest_sha256": "b" * 64,
+                "policy_code": "synthetic_basic_support",
+                "rule_version": "scoped_zero_cost_policy_v1",
+                "model_approved": False,
             },
         },
     )
@@ -1449,6 +1458,7 @@ def catalog_graph(scoped_graph, monkeypatch):
     graph.line.assumptions = {"input_scope": {"derived": derived}}
     graph.evidence.excerpt = json.dumps(derived)
     graph.evidence.content_hash = hashlib.sha256(graph.evidence.excerpt.encode()).hexdigest()
+    graph.policy_line.assumptions["policy_receipt"]["evidence_sha256"] = graph.evidence.content_hash
     graph.catalog_validator = Mock(return_value=True)
     monkeypatch.setattr(panel, "catalog_price_valid", graph.catalog_validator)
     return graph

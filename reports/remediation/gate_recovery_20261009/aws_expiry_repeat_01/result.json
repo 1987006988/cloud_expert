@@ -1,0 +1,22 @@
+{
+  "rule_version": "aws_expired_history_v1",
+  "plan_sha256": "7ab1dec8d584e6e94a5e6754fbae767104ca649605c648c1c5e558674b830a20",
+  "price_ids": [
+    13,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "applied": true,
+  "created": false,
+  "transaction_committed": true,
+  "approvals_granted": 0,
+  "current_prices_granted": 0,
+  "customer_eligible": false,
+  "receipt_sha256": "039ff80c0c564f0ed15915a0a7f89625d29e9bd24dd31d171300660718c700a9",
+  "status": "already_recorded",
+  "database_open_mode": "rw",
+  "network_requests": 0
+}

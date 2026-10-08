@@ -116,6 +116,9 @@ def validate_price_evidence() -> dict[str, Any]:
         "historical_superseded_aws_prices": [
             item.price_id for item in aws_dispositions if item.status == "superseded"
         ],
+        "historical_expired_aws_prices": [
+            item.price_id for item in aws_dispositions if item.status == "expired_history"
+        ],
         "currently_unusable_aws_prices": [
             item.price_id for item in aws_dispositions if item.status != "current"
         ],

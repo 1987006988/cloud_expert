@@ -82,7 +82,7 @@ def test_distinct_namespace_ids_and_versions_are_bound_by_exact_fks(graph):
     assert all(e["observed_fk"] == e["to"]["id"] for e in proof["foreign_key_chain"])
     assert proof["matching_function_result"] is True
     assert proof["validated_configuration"] is None
-    assert packet.payload["prompt_version"] == "decision-panel.v4"
+    assert packet.payload["prompt_version"] == "decision-panel.v5"
     payload_without_fingerprint = packet.payload
     del payload_without_fingerprint["input_fingerprint"]
     assert json.loads(packet.manifest_json)["public_payload_sha256"] == panel._hash(

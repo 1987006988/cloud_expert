@@ -1,0 +1,9 @@
+{
+  "backup_path": "D:\\cloud_expert\\test_outputs\\gate_recovery_final_20261009_01.sqlite",
+  "backup_sha256": "ab7e29c34552406422ecc0355c347f43fe06e77993e33b7b98a76f70432d1fb8",
+  "integrity_check": "ok",
+  "foreign_key_violations": 0,
+  "migration_head": "0014_week14_review_workflow",
+  "database_and_raw_evidence_local_only": true,
+  "production_database_touched": false
+}

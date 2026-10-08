@@ -243,12 +243,54 @@ def inspect_official_catalog(
     max_age_days: int,
 ) -> dict[str, Any]:
     """Return staged evidence candidates only; unknown tax never becomes tax-excluded."""
+    if type(max_age_days) is not int or not 1 <= max_age_days <= 90:
+        raise ValueError("explicit aware as_of and bounded freshness policy required")
+    return _inspect_catalog(
+        raw,
+        entry=entry,
+        manifest=manifest,
+        selections=selections,
+        as_of=as_of,
+        max_age_days=max_age_days,
+    )
+
+
+def inspect_official_catalog_facts(
+    raw: bytes,
+    *,
+    entry: SourceRegistryEntry,
+    manifest: dict[str, Any],
+    selections: list[CatalogSelection],
+    checked_at: datetime,
+) -> dict[str, Any]:
+    """Archived facts only. Does not assert freshness or authorize consumption."""
+    return _inspect_catalog(
+        raw,
+        entry=entry,
+        manifest=manifest,
+        selections=selections,
+        as_of=checked_at,
+        max_age_days=None,
+    )
+
+
+def _inspect_catalog(
+    raw: bytes,
+    *,
+    entry: SourceRegistryEntry,
+    manifest: dict[str, Any],
+    selections: list[CatalogSelection],
+    as_of: datetime,
+    max_age_days: int | None,
+) -> dict[str, Any]:
     authorization = validate_official_catalog_source(entry)
     service = authorization["service_code"]
-    if as_of.tzinfo is None or type(max_age_days) is not int or not 1 <= max_age_days <= 90:
+    if as_of.tzinfo is None:
         raise ValueError("explicit aware as_of and bounded freshness policy required")
     captured = _time(manifest.get("captured_at"))
-    if not timedelta(0) <= as_of - captured <= timedelta(days=max_age_days):
+    if captured > as_of or (
+        max_age_days is not None and as_of - captured > timedelta(days=max_age_days)
+    ):
         raise ValueError("snapshot is stale or captured in the future")
     digest = hashlib.sha256(raw).hexdigest()
     if (
@@ -295,7 +337,9 @@ def inspect_official_catalog(
             records.append(row)
     return {
         "rule_version": RULE_VERSION,
-        "status": "validated_staging_only",
+        "status": "verified_archived_facts_only"
+        if max_age_days is None
+        else "validated_staging_only",
         "source_id": entry.source_id,
         "source_url": entry.url,
         "source_authorization": authorization,

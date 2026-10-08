@@ -1,0 +1,22 @@
+{
+  "rule_version": "aws_expired_history_v1",
+  "plan_sha256": "7ab1dec8d584e6e94a5e6754fbae767104ca649605c648c1c5e558674b830a20",
+  "price_ids": [
+    13,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "applied": false,
+  "created": false,
+  "transaction_committed": false,
+  "approvals_granted": 0,
+  "current_prices_granted": 0,
+  "customer_eligible": false,
+  "status": "planned_expired_history",
+  "prices_planned": 6,
+  "database_open_mode": "ro",
+  "network_requests": 0
+}

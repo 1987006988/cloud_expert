@@ -1,0 +1,51 @@
+{
+  "run_code": "aliyun_domestic_bounded_cost_audit_v1_v1_v1_e3d02c4750f1",
+  "scenario_code": "aliyun_domestic_bounded_cost_audit_v1",
+  "scenario_version": "v1",
+  "status": "succeeded",
+  "candidate_count": 695,
+  "eligible_count": 1,
+  "blocked_count": 694,
+  "review_count": 0,
+  "warning_count": 0,
+  "created": true,
+  "report": {
+    "decision_runs": 36,
+    "run_code": "aliyun_domestic_bounded_cost_audit_v1_v1_v1_e3d02c4750f1",
+    "scenario_code": "aliyun_domestic_bounded_cost_audit_v1",
+    "scenario_version": "v1",
+    "policy_version": "v1",
+    "candidate_results": 695,
+    "status_counts": {
+      "blocked": 694,
+      "eligible": 1
+    },
+    "confidence_counts": {
+      "insufficient": 95,
+      "low": 445,
+      "medium": 154,
+      "high": 1
+    },
+    "output_counts": {
+      "internal_only": 695
+    },
+    "review_counts": {
+      "machine_generated": 695
+    },
+    "dimension_status_counts": {
+      "excluded": 5560,
+      "scored": 1391,
+      "requires_review": 694
+    },
+    "eligible": 1,
+    "blocked": 694,
+    "requires_review": 0,
+    "warnings": 0,
+    "customer_eligible": 0,
+    "internal_only": 695,
+    "machine_generated": 695,
+    "sensitivity_status": "indeterminate",
+    "valid": true,
+    "errors": []
+  }
+}

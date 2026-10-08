@@ -380,15 +380,28 @@ def test_synthetic_clean_native_passes_without_mutating_capture(clean_bundle: An
     assert clean_bundle.runtime_traces["primary"] == original
 
 
-def _set_retained_complete(bundle: Any, value: bool) -> list[dict[str, Any]]:
+def _set_retained_complete(bundle: Any, value: bool | tuple[bool, bool]) -> list[dict[str, Any]]:
     events = bundle.runtime_traces["primary"]
-    for index in (8, 10):
-        events[index]["metadata"]["retained_source"]["complete"] = value
+    values = (value, value) if isinstance(value, bool) else value
+    for index, complete in zip((8, 10), values, strict=True):
+        events[index]["metadata"]["retained_source"]["complete"] = complete
     return events
 
 
 def test_observed_retained_false_profile_requires_full_evidence(clean_bundle: Any) -> None:
     events = _set_retained_complete(clean_bundle, False)
+    original = deepcopy(events)
+    clean_bundle.save_runtime("primary")
+    clean_bundle.seal()
+    assert clean_bundle.check()["status"] == "SYNTHETIC_VERIFIED"
+    assert events == original
+
+
+@pytest.mark.parametrize("flags", [(True, True), (False, False), (False, True), (True, False)])
+def test_retention_flags_are_independent_of_full_text_proof(
+    clean_bundle: Any, flags: tuple[bool, bool]
+) -> None:
+    events = _set_retained_complete(clean_bundle, flags)
     original = deepcopy(events)
     clean_bundle.save_runtime("primary")
     clean_bundle.seal()
@@ -408,11 +421,11 @@ def test_retained_false_requires_explicit_profile(
     assert clean_bundle.check()["errors"] == ["runtime_clean_envelope_invalid"]
 
 
-@pytest.mark.parametrize("complete", [True, False])
+@pytest.mark.parametrize("complete", [(True, True), (False, False), (False, True), (True, False)])
 @pytest.mark.parametrize("duplicate", ["prompt", "user_item", "assistant", "completion"])
 @pytest.mark.parametrize("mutation", ["truncate", "leading_space", "trailing_newline"])
 def test_retained_text_requires_exact_bytes_in_each_duplicate(
-    clean_bundle: Any, complete: bool, duplicate: str, mutation: str
+    clean_bundle: Any, complete: tuple[bool, bool], duplicate: str, mutation: str
 ) -> None:
     events = _set_retained_complete(clean_bundle, complete)
     if duplicate == "completion":
@@ -443,7 +456,7 @@ def test_retained_completeness_is_strict_boolean(clean_bundle: Any, index: int, 
     assert clean_bundle.check()["errors"] == ["runtime_retained_source_invalid"]
 
 
-@pytest.mark.parametrize("complete", [True, False])
+@pytest.mark.parametrize("complete", [(True, True), (False, False), (False, True), (True, False)])
 @pytest.mark.parametrize(
     "mutation",
     [
@@ -454,11 +467,10 @@ def test_retained_completeness_is_strict_boolean(clean_bundle: Any, index: int, 
         "completion_time",
         "completion_not_last",
         "missing_user_item",
-        "mixed_flags",
     ],
 )
 def test_retained_profile_requires_bound_complete_turn(
-    clean_bundle: Any, complete: bool, mutation: str
+    clean_bundle: Any, complete: tuple[bool, bool], mutation: str
 ) -> None:
     events = _set_retained_complete(clean_bundle, complete)
     if mutation == "missing_assistant":
@@ -475,8 +487,6 @@ def test_retained_profile_requires_bound_complete_turn(
         events[10], events[11] = events[11], events[10]
     elif mutation == "missing_user_item":
         events.pop(9)
-    else:
-        events[8]["metadata"]["retained_source"]["complete"] = not complete
     for ordinal, event in enumerate(events):
         event["ordinal"] = ordinal
     clean_bundle.save_runtime("primary")
@@ -887,7 +897,7 @@ def test_native_envelope_metadata_is_narrowly_bound(clean_bundle: Any, mutation:
             {"role": "role", "turn": "turn_id", "message": "message_id"}[mutation]
         ] = "SYNTHETIC other"
     elif mutation == "complete":
-        metadata["retained_source"]["complete"] = False
+        metadata["retained_source"]["complete"] = "false"
     elif mutation == "revision":
         metadata["retained_source"]["revision"] = "SYNTHETIC arbitrary text"
     elif mutation == "client_authored":

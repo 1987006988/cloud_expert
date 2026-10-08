@@ -1,0 +1,15 @@
+{
+  "status": "prepared",
+  "old_id": 649,
+  "new_id": 953,
+  "precheck_run_code": "mapping_refresh_4744c500c148dc43",
+  "assignment_id": 11351,
+  "evidence_ids": [
+    34143,
+    34146
+  ],
+  "package_id": 2087,
+  "prior_approval_preserved": true,
+  "customer_eligible": false,
+  "applied": true
+}

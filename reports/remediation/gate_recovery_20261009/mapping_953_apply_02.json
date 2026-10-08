@@ -1,0 +1,9 @@
+{
+  "status": "applied_scoped_approval",
+  "assignment_id": 11351,
+  "event_id": 11361,
+  "prior_state": "pending_model_review",
+  "new_state": "model_approved_with_conditions",
+  "business_mapping_modified": true,
+  "customer_eligible": false
+}

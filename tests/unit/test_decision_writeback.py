@@ -6,6 +6,8 @@ import runpy
 import sqlite3
 import stat
 import sys
+from copy import deepcopy
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -32,8 +34,17 @@ from cloud_expert.database.models.review import ModelReviewFinding, ModelReviewR
 from cloud_expert.database.models.specification import ProductSpecification
 from cloud_expert.model_review import decision_panel as panel
 from cloud_expert.model_review import decision_writeback as wb
+from cloud_expert.model_review.decision_conditions import build_condition_registry
 from tests.unit import test_decision_panel as panel_tests
 from tests.unit.test_decision_supersession import assignment, seed
+
+graph = panel_tests.graph
+scoped_graph = panel_tests.scoped_graph
+
+
+@pytest.fixture
+def condition_payload(scoped_graph):
+    return panel_tests._packet(scoped_graph).payload
 
 
 def write_json(path, value):
@@ -54,7 +65,7 @@ def rehash(root):
 
 
 @pytest.fixture
-def setup(session, tmp_path, monkeypatch):
+def setup(session, tmp_path, monkeypatch, condition_payload):
     _, _, old, result, old_assignment = seed(session)
     result_id = result.id
     monkeypatch.setenv("CODEX_HOME", str(tmp_path / "synthetic-codex-home"))
@@ -64,14 +75,18 @@ def setup(session, tmp_path, monkeypatch):
 
     def packet(db_session, candidate_id, **kwargs):
         row = db_session.get(CandidateDecisionResult, candidate_id)
-        payload = {
-            "target_id": candidate_id,
-            "evidence": [{"evidence_id": 1}],
-            "data_classification": "official_public",
-            "synthetic_test_only": True,
-            "review_scope": panel.SCOPED_REVIEW,
-            "limitations": list(panel.SCOPED_LIMITATIONS),
-        }
+        payload = deepcopy(condition_payload)
+        payload.pop("input_fingerprint", None)
+        payload["target_id"] = payload["subject"]["id"] = candidate_id
+        for edge in payload["scenario_binding"]["foreign_key_chain"]:
+            if edge["from"]["namespace"] == "CandidateDecisionResult":
+                edge["from"]["id"] = candidate_id
+        payload.update(
+            data_classification="official_public",
+            synthetic_test_only=True,
+            limitations=list(panel.SCOPED_LIMITATIONS),
+        )
+        payload["condition_registry"] = build_condition_registry(payload)
         manifest = {
             "records": [panel._row_digest(row)]
             + [
@@ -90,7 +105,7 @@ def setup(session, tmp_path, monkeypatch):
     monkeypatch.setattr(panel, "probe_codex_cli", lambda *_: {"available": True, "exit_code": 0})
     original = panel_tests._opinion
 
-    def make(*, decisions=None, conditions=None):
+    def make(*, decisions=None, conditions=None, expect_completed=True):
         def opinion(packet, stage="primary", **kwargs):
             return original(
                 packet,
@@ -98,6 +113,7 @@ def setup(session, tmp_path, monkeypatch):
                 target_id=result_id,
                 approved_scope=panel.SCOPED_REVIEW,
                 limitations=list(panel.SCOPED_LIMITATIONS),
+                evidence_references=[item["evidence_id"] for item in packet.payload["evidence"]],
                 decision=(decisions or {}).get(stage, "model_approved"),
                 conditions=(conditions or {}).get(stage, []),
             )
@@ -108,7 +124,10 @@ def setup(session, tmp_path, monkeypatch):
         result_summary = panel.run_decision_panel(
             session, result_id, tmp_path / "reports", execute_models=True, authorization=auth
         )
-        assert result_summary["status"] == "completed", result_summary
+        if expect_completed:
+            assert result_summary["status"] == "completed", result_summary
+        else:
+            assert result_summary["status"] == "model_inconclusive", result_summary
         session.rollback()
         return Path(result_summary["report_dir"])
 
@@ -159,6 +178,13 @@ def test_dry_run_never_writes_or_promotes(session, setup):
     assert value.receipt["review_scope"] == panel.SCOPED_REVIEW
     assert value.as_dict()["parent_review_required"]
     assert set(value.receipt["stages"]) == {"primary", "adversarial"}
+    payload = json.loads((setup.root / "input.json").read_bytes())
+    selection = wb._condition_selection(payload, [], approving=True)
+    assert value.receipt["version"] == "decision_writeback.v3"
+    assert value.receipt["registry_version"] == selection["registry_version"]
+    assert value.receipt["registry_sha256"] == selection["registry_sha256"]
+    assert value.receipt["selected_condition_ids"] == []
+    assert value.receipt["unknown_conditions"] == []
 
 
 def test_native_permissions_rechecked_before_local_metadata_exemption(session, setup, monkeypatch):
@@ -437,6 +463,8 @@ def test_tampering_cannot_approve(session, setup, kind):
 
 
 def test_conditions_must_be_enforceable_and_arbitration_retained(session, setup):
+    registry = json.loads((setup.root / "input.json").read_bytes())["condition_registry"]
+    first, second = [entry["text"] for entry in registry["conditions"][:2]]
     setup.root = setup.make(
         decisions={
             "primary": "model_approved_with_conditions",
@@ -444,36 +472,152 @@ def test_conditions_must_be_enforceable_and_arbitration_retained(session, setup)
             "arbitration": "model_approved_with_conditions",
         },
         conditions={
-            "primary": [panel.SCOPED_LIMITATIONS[0]],
-            "adversarial": [panel.SCOPED_LIMITATIONS[1]],
-            "arbitration": list(panel.SCOPED_LIMITATIONS[:2]),
+            "primary": [first],
+            "adversarial": [second],
+            "arbitration": [first, second],
         },
     )
     value = plan(session, setup)
     assert set(value.receipt["stages"]) == set(wb.STAGES)
     assert value.receipt["decision"] == "model_approved_with_conditions"
+    assert value.receipt["conditions"] == [first, second, first, second]
+    assert value.receipt["selected_condition_ids"] == [
+        entry["id"] for entry in registry["conditions"][:2]
+    ]
+    assert value.receipt["unknown_conditions"] == []
+    apply(session, value)
+    session.commit()
+    approval = wb.current_internal_decision_approval(
+        session, setup.target_id, scope=panel.SCOPED_REVIEW
+    )
+    assert approval is not None
+    for field in wb.CONDITION_FIELDS:
+        assert approval[field] == value.receipt[field]
+
+
+def test_unknown_conditions_block_approval(session, setup):
+    unknown = "Verify future region availability manually"
+    setup.root = setup.make(
+        decisions=dict.fromkeys(wb.STAGES[:2], "model_approved_with_conditions"),
+        conditions=dict.fromkeys(wb.STAGES[:2], [unknown]),
+        expect_completed=False,
+    )
+    raw = (setup.root / "primary/response.raw.json").read_bytes()
+    assert json.loads(raw)["conditions"] == [unknown]
+    before = counts(session)
+    with pytest.raises(wb.DecisionWritebackConflict, match="panel_not_completed"):
+        plan(session, setup)
+    session.rollback()
+    assert counts(session) == before
+    assert (setup.root / "primary/response.raw.json").read_bytes() == raw
+
+
+@pytest.mark.parametrize("change", ["id_alias", "space", "case", "free_text", "old_limitation"])
+def test_writeback_condition_validator_rejects_noncanonical_approval(condition_payload, change):
+    payload = condition_payload
+    entry = payload["condition_registry"]["conditions"][0]
+    unknown = {
+        "id_alias": entry["id"],
+        "space": entry["text"] + " ",
+        "case": entry["text"].upper(),
+        "free_text": "Check the configuration later",
+        "old_limitation": panel.SCOPED_LIMITATIONS[0],
+    }[change]
+    original = deepcopy(payload)
+    with pytest.raises(wb.DecisionWritebackConflict, match="^unenforceable_conditions$"):
+        wb._condition_selection(payload, [unknown], approving=True)
+    assert payload == original
+    rejected = wb._condition_selection(payload, [unknown, unknown], approving=False)
+    assert rejected["unknown_conditions"] == [unknown, unknown]
+    assert rejected["selected_condition_ids"] == []
+
+
+@pytest.mark.parametrize("field", wb.CONDITION_FIELDS)
+@pytest.mark.parametrize("missing", [False, True])
+def test_live_revalidation_rejects_changed_or_missing_condition_binding(
+    condition_payload, monkeypatch, field, missing
+):
+    payload = condition_payload
+    checked = datetime.now(UTC)
+    packet = panel.DecisionPacket(
+        panel._json(payload), '{"records":[]}', payload["input_fingerprint"], checked.isoformat()
+    )
+    receipt = {
+        "target_id": payload["target_id"],
+        "input_fingerprint": packet.fingerprint,
+        "decision": "model_approved",
+        "conditions": [],
+        "checked_at": checked.isoformat(),
+        **wb._condition_selection(payload, [], approving=True),
+    }
+    monkeypatch.setattr(panel, "build_decision_packet", lambda *args, **kwargs: packet)
+    session = Mock()
+    assert (
+        wb._live(session, receipt, None, checked)["registry_sha256"] == receipt["registry_sha256"]
+    )
+    if missing:
+        del receipt[field]
+    else:
+        receipt[field] = ["forged"] if isinstance(receipt[field], list) else "forged"
+    with pytest.raises(wb.DecisionWritebackConflict, match="^condition_registry_binding_changed$"):
+        wb._live(session, receipt, None, checked)
+    session.assert_not_called()
+    assert session.mock_calls == []
+
+
+@pytest.mark.parametrize("damage", ["missing", "hash", "text", "category_scope", "scope"])
+def test_empty_conditions_never_skip_live_registry_or_scope_checks(
+    session, setup, monkeypatch, damage
+):
+    value = plan(session, setup)
+    assert value.receipt["conditions"] == []
     apply(session, value)
     session.commit()
     assert wb.current_internal_decision_approval(
         session, setup.target_id, scope=panel.SCOPED_REVIEW
     )
+    original = panel.build_decision_packet
 
+    def damaged(*args, **kwargs):
+        packet = original(*args, **kwargs)
+        payload = packet.payload
+        if damage == "missing":
+            del payload["condition_registry"]
+        elif damage == "hash":
+            payload["condition_registry"]["binding_sha256"] = "0" * 64
+        elif damage == "text":
+            payload["condition_registry"]["conditions"][0]["text"] = "Forged permissive condition"
+        elif damage == "category_scope":
+            payload["mapping"]["approval"]["approved_scope"] = "sku_equivalence"
+        else:
+            payload["review_scope"] = "scenario_decision_only"
+        # Keep the reported fingerprint to test independent proof reconstruction.
+        return replace(packet, payload_json=panel._json(payload))
 
-def test_unknown_conditions_block_approval(session, setup):
-    setup.root = setup.make(
-        decisions=dict.fromkeys(wb.STAGES[:2], "model_approved_with_conditions"),
-        conditions=dict.fromkeys(wb.STAGES[:2], ["Verify future region availability manually"]),
+    monkeypatch.setattr(panel, "build_decision_packet", damaged)
+    before = counts(session)
+    assert (
+        wb.current_internal_decision_approval(session, setup.target_id, scope=panel.SCOPED_REVIEW)
+        is None
     )
-    with pytest.raises(wb.DecisionWritebackConflict, match="unenforceable_conditions"):
-        plan(session, setup)
+    assert counts(session) == before
 
 
 @pytest.mark.parametrize(
     "verdict", ["model_blocked", "model_rejected_reparse", "model_inconclusive"]
 )
 def test_nonapproval_is_preserved_but_never_consumed(session, setup, verdict):
-    setup.root = setup.make(decisions=dict.fromkeys(wb.STAGES[:2], verdict))
+    unknown = ["  Unverified synthetic requirement.  ", "Other requirement", "Other requirement"]
+    setup.root = setup.make(
+        decisions=dict.fromkeys(wb.STAGES[:2], verdict),
+        conditions=dict.fromkeys(wb.STAGES[:2], unknown),
+    )
     value = plan(session, setup)
+    assert value.receipt["conditions"] == unknown * 2
+    assert value.receipt["unknown_conditions"] == unknown * 2
+    assert value.receipt["selected_condition_ids"] == []
+    for stage in wb.STAGES[:2]:
+        assert value.receipt["stages"][stage]["opinion"]["conditions"] == unknown
     apply(session, value)
     session.commit()
     row = session.scalar(select(DecisionReview))
@@ -580,7 +724,7 @@ def test_apply_at_55_minutes_then_consume_at_two_hours(session, setup, monkeypat
     apply_at(session, value, checked + timedelta(minutes=55))
     session.commit()
     review = session.scalar(select(DecisionReview))
-    assert value.receipt["version"] == "decision_writeback.v2"
+    assert value.receipt["version"] == "decision_writeback.v3"
     assert value.receipt["approval_max_age_seconds"] == 86400
     assert value.receipt["approval_lifetime_basis"] == "internal_engineering_cap"
     assert panel._utc(review.expiration_date) == checked + timedelta(hours=24)
@@ -704,8 +848,10 @@ def test_missing_audit_after_report_deadline_cannot_use_history(session, setup, 
     )
 
 
-@pytest.mark.parametrize("damage", ["run", "finding", "late_event", "v1", "cap", "report_rewrite"])
-def test_persistent_consumption_requires_original_complete_v2_receipt(session, setup, damage):
+@pytest.mark.parametrize(
+    "damage", ["run", "finding", "late_event", "v1", "v2", "cap", "report_rewrite"]
+)
+def test_persistent_consumption_requires_original_complete_v3_receipt(session, setup, damage):
     value = plan(session, setup)
     apply(session, value)
     session.commit()
@@ -720,10 +866,10 @@ def test_persistent_consumption_requires_original_complete_v2_receipt(session, s
         session.get(ModelReviewFinding, assignment_row.precheck_finding_id).input_hash = "0" * 64
     elif damage == "late_event":
         event.timestamp = packet_time(value) + timedelta(minutes=65)
-    elif damage in {"v1", "cap"}:
+    elif damage in {"v1", "v2", "cap"}:
         receipt = json.loads(review.notes)
-        receipt["version" if damage == "v1" else "approval_max_age_seconds"] = (
-            "decision_writeback.v1" if damage == "v1" else 172800
+        receipt["version" if damage in {"v1", "v2"} else "approval_max_age_seconds"] = (
+            f"decision_writeback.{damage}" if damage in {"v1", "v2"} else 172800
         )
         review.notes = panel._json(receipt)
     else:

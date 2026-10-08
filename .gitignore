@@ -42,6 +42,9 @@ reports/remediation/gate_recovery_20260930/native_9587_diagnostic_01/
 reports/remediation/gate_recovery_20260930/clean_cli_probe_*/
 reports/remediation/gate_recovery_20260930/decision_panel_*/
 reports/remediation/gate_recovery_20260930/*_temp/
+reports/remediation/gate_recovery_20261009/clean_cli_probe_*/
+reports/remediation/gate_recovery_20261009/decision_panel_*/
+reports/model_review/week14_pilot/mapping_953_*/
 reports/**/pytest_temp/
 reports/**/pytest_basetemp/
 reports/verification/**/workspace/

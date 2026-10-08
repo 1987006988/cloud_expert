@@ -13,8 +13,8 @@ scope_amendment:
   reference: docs/PILOT_DEFERRAL.md
 
 gate:
-  week9: NO-GO
-  week10: NO-GO
+  week9: GO
+  week10: GO
   week11: NO-GO
   week12: NO-GO
   week13: NO-GO
@@ -22,7 +22,7 @@ gate:
   week15: NO-GO
   week16: NO-GO
   mode: review_migration
-  current_blocker: executable_review_condition_contract_required
+  current_blocker: decision_public_cost_payload_authorization_required
   previous_frozen_week9: GO
   previous_frozen_week10: GO
   customer_output_allowed: false
@@ -61,40 +61,82 @@ completed_internal:
   - final component-price regression passes 291 offline tests with 86.09 percent combined coverage
 
 remaining_blockers:
-  - 1009 pending model-review assignments and 10332 deterministic repair blocks remain open; one scoped conditional approval and four superseded assignments are preserved
+  - 1009 pending model-review assignments and 10336 deterministic repair blocks remain open; two historical/scoped conditional approvals, six audited expiry assignments and four superseded assignments are preserved. Only the refreshed mapping approval is currently usable
   - internal-RC-only model alias audit alternative is authorized, but an actual verified audit bundle and per-release Eval are still required
-  - Week9 and Week10 passed frozen revision dc698358; runtime adapter revision 9d100e35 is verified, while the new condition contract still requires implementation and fresh validation
+  - Current source revision 182ee543 passed 3298 sealed offline tests at 90.8920 percent coverage and real PostgreSQL verification; Week9 and Week10 are GO. Decision11279 passed local precheck, but its external model dispatch requires explicit authorization for the public-price calculation packet
   - OBS storage time basis and complete overseas competitor prices remain incomplete; domestic component prices are recorded but not yet harmonized
   - support and IP policies require explicit scenario conditions; full TCO is not proven by component subtotals
   - bounded domestic TCO exists but compatible cross-vendor complete costs and a freshly model-approved DecisionResult dependency chain remain unavailable
   - full-chain Eval and model judge remain incomplete
   - Streamlit business UI, production controls, Release Candidate and real internal pilot not completed
-  - AWS prices 1 and 14-16 are audited quarantined and unconsumable; 13/17/18 have live-validated successors 19/20/21; replacement storage coverage remains unresolved, not price-approved by quarantine
+  - AWS prices 1 and 14-16 are audited quarantined; expired pairs 13/19, 17/20 and 18/21 are audited historical and unconsumable. Eleven domestic price rows remain active; complete overseas replacement coverage remains unresolved
 
 latest_checkpoint:
-  reference: reports/remediation/gate_recovery_20260930/week10_gate_02.json
-  current_price_validation: reports/remediation/gate_recovery_20260930/price_evidence_01.json
-  current_week9_gate: reports/remediation/gate_recovery_20260930/week09_gate_02.json
-  current_week10_gate: reports/remediation/gate_recovery_20260930/week10_gate_02.json
-  offline_verification: reports/verification/gate_recovery_20260930_03/manifest.json
-  offline_manifest_sha256: e4aaf0459354960b23064d7f8df3376fd4a53b17a2d0e7fb8bc6af2113d6bd3f
-  code_input_sha256: 9d100e35a933191cde4e3c95059e81603cac7817511e8c9c5211eb260e43c769
+  reference: reports/remediation/gate_recovery_20261009/week11_gate_01.json
+  current_price_validation: reports/remediation/gate_recovery_20261009/price_evidence_after_expiry_01.json
+  current_week9_gate: reports/remediation/gate_recovery_20261009/decision_bounded_01/prerequisite_gate.json
+  current_week10_gate_observation: reports/remediation/gate_recovery_20261009/week11_gate_01.json
+  current_week10_gate_observation_field: week10_gate
+  offline_verification: reports/verification/gate_recovery_20261009_02/manifest.json
+  offline_manifest_sha256: 9878acc859b74183a963491578fae2e6d93931c53fce7acbc4917af2794de5f4
+  code_input_sha256: 182ee543da9726c5b660cb2021692ac1852b18057246fee88c9bc74a00d67bf6
   offline_verification_passed: true
-  offline_tests_passed: 2920
-  offline_coverage_percent: 90.54386444383711
+  offline_tests_passed: 3298
+  offline_coverage_percent: 90.8920228790988
   postgres_integration_tests_passed: 14
-  normalized_evidence_records_checked: 29160
-  normalized_evidence_missing_or_hash_errors: 0
+  historical_normalized_evidence_records_checked: 29160
+  historical_normalized_evidence_missing_or_hash_errors: 0
   preceding_completed_internal_entries_are_historical_milestones: true
   full_release_regression_passed: false
   full_chain_eval_completed: false
   fresh_decision_model_review_completed: false
-  fresh_decision_result_id: 10281
-  decision_model_review_status: attempt_02_inconclusive_runtime_retained_source_validation
-  current_checkout_verification: runtime_adapter_verified_condition_contract_work_pending
-  internal_engineering_gate_split: separate_bounded_cost_gate_not_yet_evaluated
-  huawei_authenticated_refresh: awaiting_owner_login
+  fresh_decision_result_id: 11279
+  decision_model_review_status: dispatch_blocked_before_execution_pending_explicit_public_cost_payload_authorization
+  current_checkout_verification: frozen_offline_and_postgres_current_code_verified
+  internal_engineering_gate_split: local_readiness_blocked_current_independent_model_approval_required
+  huawei_authenticated_refresh: not_rechecked_this_run
   real_internal_pilot: deferred_by_owner
+
+resume_20261009:
+  state: prerequisite_remediation_in_progress
+  source_snapshot_ids: [119, 120]
+  refreshed_definition_evidence_ids: [34143, 34146]
+  prior_mapping_id: 649
+  fresh_mapping_id: 953
+  fresh_mapping_precheck: mapping_refresh_4744c500c148dc43
+  fresh_mapping_state: model_approved_with_conditions
+  prior_mapping_approval_history_preserved: true
+  refresh_prepare_and_repeat_verified: true
+  price_expiry_ids: [13, 17, 18, 19, 20, 21]
+  price_expiry_reason: original_seven_day_catalog_and_policy_window_elapsed
+  price_windows_relaxed: false
+  postgres_container_started: true
+  postgres_reserved_database_empty: true
+  new_postgres_verification_completed: true
+  decision_condition_panel_binding_tests_passed: 363
+  decision_writeback_tests_passed: 89
+  mapping_revision_refresh_tests_passed: 38
+  highest_model_connectivity_probe_passed: true
+  fresh_business_model_review_completed: true
+  fresh_model_review_scope: product_category_mapping_only
+  mapping_review_audit_event_id: 11361
+  current_evidence_package_id: 2106
+  price_evidence_valid: true
+  active_price_rows: 11
+  historical_expired_price_rows: 6
+  historical_quarantined_price_rows: 4
+  price_expiry_replay_verified: true
+  mixed_retention_flag_regression_tests_passed: 324
+  frozen_offline_attempt_01: interrupted_not_a_receipt
+  frozen_offline_attempt_02: passed_3298_tests_90_8920_percent
+  week9_and_week10_rechecked: GO
+  decision_result_id: 11279
+  decision_precheck: ready_not_executed
+  decision_external_dispatch: blocked_before_process_creation
+  decision_model_calls_executed: 0
+  week11_blockers: [W11-B010, W11-B011, W11-B014, W11-B013]
+  full_chain_eval_completed: false
+  customer_output_allowed: false
 
 references:
   - reports/model_review/model_resolution.json

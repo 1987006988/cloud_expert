@@ -210,6 +210,46 @@ def inspect_large_ec2_catalog(
     validator. It is never persisted or represented as a new official snapshot.
     Unsupported regions/services and unapproved registries fail closed.
     """
+    if type(max_age_days) is not int or not 1 <= max_age_days <= 90:
+        raise ValueError("explicit aware as_of and bounded freshness policy required")
+    return _inspect_large_catalog(
+        raw_path,
+        entry=entry,
+        manifest=manifest,
+        selections=selections,
+        as_of=as_of,
+        max_age_days=max_age_days,
+    )
+
+
+def inspect_large_ec2_catalog_facts(
+    raw_path: Path,
+    *,
+    entry: SourceRegistryEntry,
+    manifest: dict[str, Any],
+    selections: list[CatalogSelection],
+    checked_at: datetime,
+) -> dict[str, Any]:
+    """Full-stream integrity and selected archived facts, never current eligibility."""
+    return _inspect_large_catalog(
+        raw_path,
+        entry=entry,
+        manifest=manifest,
+        selections=selections,
+        as_of=checked_at,
+        max_age_days=None,
+    )
+
+
+def _inspect_large_catalog(
+    raw_path: Path,
+    *,
+    entry: SourceRegistryEntry,
+    manifest: dict[str, Any],
+    selections: list[CatalogSelection],
+    as_of: datetime,
+    max_age_days: int | None,
+) -> dict[str, Any]:
     if entry.product_code != "ec2":
         raise ValueError("only authorized public us-east-1 EC2 catalogs are supported")
     validate_official_catalog_source(entry)
@@ -247,14 +287,25 @@ def inspect_large_ec2_catalog(
         "content_sha256": selected_hash,
         "content_length_bytes": len(selected_raw),
     }
-    result = inspect_official_catalog(
-        selected_raw,
-        entry=entry,
-        manifest=derived_manifest,
-        selections=selections,
-        as_of=as_of,
-        max_age_days=max_age_days,
-    )
+    if max_age_days is None:
+        from cloud_expert.pricing.official_catalog import inspect_official_catalog_facts
+
+        result = inspect_official_catalog_facts(
+            selected_raw,
+            entry=entry,
+            manifest=derived_manifest,
+            selections=selections,
+            checked_at=as_of,
+        )
+    else:
+        result = inspect_official_catalog(
+            selected_raw,
+            entry=entry,
+            manifest=derived_manifest,
+            selections=selections,
+            as_of=as_of,
+            max_age_days=max_age_days,
+        )
     result.update(
         rule_version=RULE_VERSION,
         selected_validator_rule_version=result["rule_version"],
